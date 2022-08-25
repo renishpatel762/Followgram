@@ -100,8 +100,12 @@ export default function Signup() {
   };
 
   const uploadData = async () => {
-    const res = await fetch("/signup", {
+    console.log("signup called");
+    const res = await fetch("/api/signup", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         name,
         email,
@@ -109,6 +113,7 @@ export default function Signup() {
         pic: imageName,
       }),
     }).then((response) => response.json());
+    console.log(res);
     if (res.success) {
       const userEmail = email;
       setName("");
@@ -169,12 +174,13 @@ export default function Signup() {
             />
           )}
           {!profile && (
-            <Image
-              className="rounded-full bg-white"
-              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
-              width={150}
-              height={150}
-            />
+            <></>
+            // <Image
+            //   className="rounded-full bg-white"
+            //   src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
+            //   width={150}
+            //   height={150}
+            // />
           )}
           <label
             className="block text-gray-700 text-lg font-bold my-2"

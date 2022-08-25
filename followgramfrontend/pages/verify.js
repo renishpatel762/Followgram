@@ -17,10 +17,14 @@ export default function Verify() {
 
   const handleSubmit = async () => {
     if (otp.length === 6) {
-      const res = await fetch("/verify", {
+      const res = await fetch("/api/verify", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           otp,
+          email
         }),
       }).then((response) => response.json());
       if (res.success) {
