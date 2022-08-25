@@ -23,6 +23,8 @@ app.use(express.json());
 
 // models
 require('./model/user');
+require('./model/post');
+require('./model/auth');
 
 // routres
 app.use(require('./routers/auth'));
