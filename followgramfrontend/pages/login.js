@@ -28,16 +28,20 @@ export default function Login() {
 
   const handleSubmit = async () => {
     if (email && password) {
-      const res = await fetch("/signin", {
+      const res = await fetch("/api/signin", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           email,
           password,
         }),
       }).then((response) => response.json());
+      console.log("res is", res);
       if (res.success) {
-        localStorage.setItem("token",res.token);
-        localStorage.setItem("user",res.user);
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("user", res.user);
         router.push("/");
       } else {
         toast.error("Invalid Credentials", {
