@@ -18,29 +18,29 @@ const transporter = nodemailer.createTransport(sendgridTransport({
 }))
 
 
-router.get('/getotp', (req, res) => {
-    console.log("get otp called");
-    crypto.randomBytes(3, (err, buffer) => {
-        if (err) {
-            console.log(err);
-        }
+// router.get('/getotp', (req, res) => {
+//     console.log("get otp called");
+//     crypto.randomBytes(3, (err, buffer) => {
+//         if (err) {
+//             console.log(err);
+//         }
 
-        const otp = parseInt(buffer.toString("hex"), 16)
-            .toString()
-            .substring(0, 6)
-        console.log(otp);
+//         const otp = parseInt(buffer.toString("hex"), 16)
+//             .toString()
+//             .substring(0, 6)
+//         console.log(otp);
         
-        // res.status(200).json(otp)
-        transporter.sendMail({
-            to: "renishpatel2505@gmail.com",
-            from: "officialfollowgram@gmail.com",
-            subject: "OTP verification",
-            html: `<h1>OTP for verification is ${otp}</h1>`
-        })
-        res.json({ message: "check your mailbox" })
-    })
+//         // res.status(200).json(otp)
+//         transporter.sendMail({
+//             to: "renishpatel2505@gmail.com",
+//             from: "officialfollowgram@gmail.com",
+//             subject: "OTP verification",
+//             html: `<h1>OTP for verification is ${otp}</h1>`
+//         })
+//         res.json({ message: "check your mailbox" })
+//     })
 
-});
+// });
 router.post('/signup', (req, res) => {
     const { name, email, password, pic } = req.body;
     if (!email || !password || !name) {
@@ -73,7 +73,7 @@ router.post('/signup', (req, res) => {
                                     .substring(0, 6)
                                 console.log(otp);                                
                                 transporter.sendMail({
-                                    to: "renishpatel2505@gmail.com",
+                                    to: email,
                                     from: "officialfollowgram@gmail.com",
                                     subject: "OTP verification",
                                     html: `<h1>OTP for verification is ${otp}</h1>`
