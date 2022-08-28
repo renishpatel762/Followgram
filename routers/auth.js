@@ -44,7 +44,7 @@ const transporter = nodemailer.createTransport(sendgridTransport({
 router.post('/signup', (req, res) => {
     const { name, email, password, pic } = req.body;
     if (!email || !password || !name) {
-        return res.status(422).json({ error: "please add all fields" }); // we don't want to proceed further so use return
+        return res.status(422).json({success:false , error: "please add all fields" }); // we don't want to proceed further so use return
     }
     User.findOne({ email: email })
         .then((savedUser) => {
@@ -109,7 +109,7 @@ router.post('/signin', (req, res) => {
     User.findOne({ email: email })
         .then(savedUser => {
             if (!savedUser) {
-                return res.status(422).json({ success: true, error: "Invaild Email or password" });
+                return res.status(422).json({ success: false, error: "Invaild Email or password" });
             }
             bcrypt.compare(password, savedUser.password)
                 .then(doMatch => {
@@ -155,8 +155,8 @@ router.post('/verify', (req, res) => {
                             const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET)
                             const { _id, name, email, followers, following, pic } = savedUser
                             res.json({ success: true, token, user: { _id, name, email, followers, following, pic } });
-                        }
-                        ).catch(err => console.error(err));
+                        })
+                        .catch(err => console.error(err));
                     Auth.deleteOne({ email: email })
                         .then(suc => {
                             console.log("Auth removed");
