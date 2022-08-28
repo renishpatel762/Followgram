@@ -1,24 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
 export default function Navbar() {
   const router = useRouter();
+  const [imageName, setImageName] = useState("");
 
   useEffect(() => {
     // console.log(router.pathname);
-  },[router.pathname]);
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      setImageName(parsedUser.pic);
+    }
+  }, [router.pathname]);
   return (
     <div>
       <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-900">
         <div className="flex flex-wrap justify-between items-center mx-auto">
-          <Link href={"/"}><a className="flex items-center">
-            {/* <Image src={logo} height={10} width={200}/> */}
-            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              Followgram
-            </span>
-          </a></Link>
+          <Link href={"/"}>
+            <a className="flex items-center">
+              {/* <Image src={logo} height={10} width={200}/> */}
+              <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+                Followgram
+              </span>
+            </a>
+          </Link>
           <div className="flex items-center md:order-2">
             {/* <button
               type="button"
@@ -35,8 +43,33 @@ export default function Navbar() {
                 alt="user photo"
               />
             </button> */}
-            {!(['/signup','/verify'].includes(router.pathname)) && <Link href={"/signup"}><a className="text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">Signup</a></Link>}
-            {router.pathname !== "/login" && <Link href={"/login"}><a className="text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">Login</a></Link>}
+            {![
+              "/signup",
+              "/verify",
+              "/",
+              "/profile",
+              "/createpost",
+              "/profile/[userId]",
+            ].includes(router.pathname) && (
+              <Link href={"/signup"}>
+                <a className="text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
+                  Signup
+                </a>
+              </Link>
+            )}
+            {![
+              "/login",
+              "/profile",
+              "/",
+              "/createpost",
+              "/profile/[userId]",
+            ].includes(router.pathname) && (
+              <Link href={"/login"}>
+                <a className="text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
+                  Login
+                </a>
+              </Link>
+            )}
 
             {/* <div className="z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block" id="user-dropdown" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(476px, 76px, 0px);">
         <div className="py-3 px-4">

@@ -41,7 +41,7 @@ export default function Verify() {
       }
       localStorage.removeItem("email");
     } else {
-      toast.error("Please enter 6-digit otp", {
+      toast.error(res.error, {
         position: "top-right",
         autoClose: 1500,
         hideProgressBar: false,

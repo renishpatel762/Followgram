@@ -44,7 +44,7 @@ const transporter = nodemailer.createTransport(sendgridTransport({
 router.post('/signup', (req, res) => {
     const { name, email, password, pic } = req.body;
     if (!email || !password || !name) {
-        return res.status(422).json({ error: "please add all fields" }); // we don't want to proceed further so use return
+        return res.status(422).json({success:false , error: "please add all fields" }); // we don't want to proceed further so use return
     }
     User.findOne({ email: email })
         .then((savedUser) => {
@@ -116,7 +116,7 @@ router.post('/signin', (req, res) => {
     User.findOne({ email: email })
         .then(savedUser => {
             if (!savedUser) {
-                return res.status(422).json({success:true, error: "Invaild Email or password" });
+                return res.status(422).json({success:false, error: "Invaild Email or password" });
             }
             bcrypt.compare(password, savedUser.password)
                 .then(doMatch => {
