@@ -22,7 +22,8 @@ router.get('/allpost', requireLogin, (req, res) => {
 router.post('/createpost', requireLogin, (req, res) => {
     console.log("createpost called");
     const { title, body, pic, isOnlyText } = req.body;
-    if (!title || !body || !isOnlyText) {
+    console.log(req.body);
+    if (!title || !body || (!isOnlyText && !pic)) {
         if(!isOnlyText)
             return res.status(422).json({ success: false, error: "Upload pic" });
         return res.status(422).json({ success: false, error: "Please add all the fields" });
