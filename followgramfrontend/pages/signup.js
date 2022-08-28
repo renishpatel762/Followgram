@@ -37,7 +37,7 @@ export default function Signup() {
     } else if (e.target.name === "profile") {
       setProfile(e.target.files[0]);
     }
-    console.log(profile);
+    // console.log(profile);
   };
 
   const showErrorToast = (msg) => {
@@ -54,8 +54,8 @@ export default function Signup() {
 
   const handleSubmit = async () => {
     // check for name
-    if (name.length < 2) {
-      showErrorToast("Name have atleast length 2");
+    if (name.length < 2 || !name.match(/^[A-Za-z]$/)) {
+      showErrorToast("Enter Valid Name");
       return;
     }
     // check for email
@@ -78,7 +78,7 @@ export default function Signup() {
           process.env.NEXT_PUBLIC_CLOUDINARY_PRESET
         );
         formData.append("folder", process.env.NEXT_PUBLIC_CLOUDINARY_PROFILE);
-        console.log(formData);
+        // console.log(formData);
 
         const res = await fetch(
           `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
@@ -100,7 +100,7 @@ export default function Signup() {
   };
 
   const uploadData = async () => {
-    console.log("signup called");
+    // console.log("signup called");
     const res = await fetch("/api/signup", {
       method: "POST",
       headers: {
@@ -113,7 +113,7 @@ export default function Signup() {
         pic: imageName,
       }),
     }).then((response) => response.json());
-    console.log(res);
+    // console.log(res);
     if (res.success) {
       const userEmail = email;
       setName("");
@@ -136,12 +136,12 @@ export default function Signup() {
         router.push(`/verify?email=${userEmail}`);
       }, 1000);
     } else {
-      showErrorToast("Something went wrong.Please try again after some time..");
+      showErrorToast(res.error);
     }
   };
 
   return (
-    <div className="min-h-screen py-2 dark:text-white dark:bg-gray-800">
+    <div className="py-2 px-2 dark:text-white dark:bg-gray-800">
       <Head>
         <title>Signup - Followgram</title>
         <meta
@@ -174,13 +174,13 @@ export default function Signup() {
             />
           )}
           {!profile && (
-            <></>
-            // <Image
-            //   className="rounded-full bg-white"
-            //   src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
-            //   width={150}
-            //   height={150}
-            // />
+            // <></>
+            <Image
+              className="rounded-full bg-white"
+              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/${process.env.NEXT_PUBLIC_CLOUDINARY_PROFILE}/default_user_jvzpsn.png`}
+              width={150}
+              height={150}
+            />
           )}
           <label
             className="block text-gray-700 text-lg font-bold my-2"

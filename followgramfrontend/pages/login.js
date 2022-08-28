@@ -38,13 +38,13 @@ export default function Login() {
           password,
         }),
       }).then((response) => response.json());
-      console.log("res is", res);
+      // console.log("res is", res);
       if (res.success) {
         localStorage.setItem("token", res.token);
-        localStorage.setItem("user", res.user);
+        localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/");
       } else {
-        toast.error("Invalid Credentials", {
+        toast.error(res.error, {
           position: "top-right",
           autoClose: 1500,
           hideProgressBar: false,
