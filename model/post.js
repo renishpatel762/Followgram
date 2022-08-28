@@ -10,6 +10,7 @@ const postSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    isOnlyText:Boolean,
     photo:{
         type:String,
         // required:true
