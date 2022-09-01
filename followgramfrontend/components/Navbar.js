@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { BiMessageAdd, BiLogOut } from "react-icons/bi";
+import { CgProfile } from "react-icons/cg";
+import { Tooltip } from '@nextui-org/react';
 
-export default function Navbar() {
+export default function Navbar({logoutUser}) {
   const router = useRouter();
   const [imageName, setImageName] = useState("");
 
@@ -69,6 +72,33 @@ export default function Navbar() {
                   Login
                 </a>
               </Link>
+            )}
+            {!["/login", "/signup", "/verify", "/createpost","/welcome"].includes(
+              router.pathname
+            ) && (
+              <Tooltip placement="bottom" contentColor="default" color="primary" content="New Post"><Link href={"/createpost"}>
+                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400">
+                  <BiMessageAdd />
+                </a>
+              </Link></Tooltip>
+            )}
+
+            {!["/login", "/signup", "/verify","/welcome"].includes(router.pathname) && (
+              <Tooltip placement="bottom" contentColor="default" color="primary" content="Logout">
+                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400" onClick={logoutUser}>
+                  <BiLogOut />
+                </a>
+              </Tooltip>
+            )}
+
+            {!["/login", "/signup", "/verify", "/profile","/welcome"].includes(
+              router.pathname
+            ) && (
+              <Tooltip placement="bottom" contentColor="default" color="primary" content="Profile"><Link href={"/profile"}>
+                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400">
+                  <CgProfile />
+                </a>
+              </Link></Tooltip>
             )}
 
             {/* <div className="z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block" id="user-dropdown" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(476px, 76px, 0px);">

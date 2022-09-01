@@ -12,10 +12,10 @@ router.get('/allpost', requireLogin, (req, res) => {
     Post.find()
         .populate("postedBy", "_id name pic")
         .sort('-createdAt')//sort in descending order
-        .skip(parseInt(page)*parseInt(limit))
+        .skip((parseInt(page) - 1)*parseInt(limit))
         .limit(parseInt(limit))
         .then(posts => {
-            res.json({ success: true, posts });
+            res.json(posts);
         })
         .catch(err => {
             console.log(err);
@@ -52,10 +52,11 @@ router.get('/mypost', requireLogin, (req, res) => {
     const {limit,page}=req.query;
     Post.find({ postedBy: req.user._id })
         .populate("postedBy", "_id name")
-        .skip(parseInt(page)*parseInt(limit))
+        .sort('-createdAt')
+        .skip((parseInt(page) - 1)*parseInt(limit))
         .limit(parseInt(limit))
         .then(mypost => {
-            res.json({ success: false, mypost });
+            res.json(mypost);
             console.log("from server my posts are" + mypost);
         })
         .catch(err => {
