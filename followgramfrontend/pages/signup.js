@@ -16,6 +16,7 @@ export default function Signup() {
 
   const EMAIL_REGEX =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  const NAME_REGEX = /[^A-Za-z ]/;
   const router = useRouter();
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function Signup() {
 
   const handleSubmit = async () => {
     // check for name
-    if (name.length < 2 || !name.match(/^[A-Za-z]$/)) {
+    if (name.length < 2 || NAME_REGEX.test(name)) {
       showErrorToast("Enter Valid Name");
       return;
     }
