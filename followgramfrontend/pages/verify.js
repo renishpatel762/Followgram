@@ -37,9 +37,11 @@ export default function Verify() {
           draggable: true,
           progress: undefined,
         });
+        // localStorage.removeItem("email");
+        localStorage.setItem("token",res.token);
+        localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/profile");
       }
-      localStorage.removeItem("email");
     } else {
       toast.error(res.error, {
         position: "top-right",
