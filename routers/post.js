@@ -40,7 +40,7 @@ router.post('/createpost', requireLogin, (req, res) => {
         postedBy: req.user._id
     });
     post.save().then(result => {
-        res.json({ post: result });
+        res.json({ success: true, post: result });
     })
         .catch(err => {
             console.log(err);
