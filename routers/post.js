@@ -7,12 +7,15 @@ const requireLogin = require('../middleware/requireLogin');
 
 //all post
 router.get('/allpost', requireLogin, (req, res) => {
+    console.log(req.query);
+    const {limit,page}=req.query;
     Post.find()
         .populate("postedBy", "_id name pic")
-        .populate("comments.postedBy", "_id name ")
-        .sort('-createdAt')//osr in descending order
+        .sort('-createdAt')//sort in descending order
+        .skip(parseInt(page)*parseInt(limit))
+        .limit(parseInt(limit))
         .then(posts => {
-            res.json({ posts });
+            res.json({ success: true, posts });
         })
         .catch(err => {
             console.log(err);
@@ -28,13 +31,13 @@ router.post('/createpost', requireLogin, (req, res) => {
             return res.status(422).json({ success: false, error: "Upload pic" });
         return res.status(422).json({ success: false, error: "Please add all the fields" });
     }
-    req.user.password = undefined;
+    // req.user.password = undefined;
     const post = new Post({
         title,
         body,
         isOnlyText,
         photo: pic,
-        postedBy: req.user
+        postedBy: req.user._id
     });
     post.save().then(result => {
         res.json({ post: result });
@@ -42,6 +45,22 @@ router.post('/createpost', requireLogin, (req, res) => {
         .catch(err => {
             console.log(err);
         });
+});
+
+//to get loged in user post
+router.get('/mypost', requireLogin, (req, res) => {
+    const {limit,page}=req.query;
+    Post.find({ postedBy: req.user._id })
+        .populate("postedBy", "_id name")
+        .skip(parseInt(page)*parseInt(limit))
+        .limit(parseInt(limit))
+        .then(mypost => {
+            res.json({ success: false, mypost });
+            console.log("from server my posts are" + mypost);
+        })
+        .catch(err => {
+            console.log(err);
+        })
 });
 
 module.exports = router;

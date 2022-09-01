@@ -29,6 +29,7 @@ require('./model/auth');
 // routres
 app.use(require('./routers/auth'));
 app.use(require('./routers/post'));
+app.use(require('./routers/user'));
 
 app.listen(PORT,()=>{
     console.log("Server is running on port",PORT);
