@@ -18,12 +18,12 @@ router.get('/user/:id', requireLogin, (req, res) => {
                 .limit(parseInt(limit))
                 .exec((err, posts) => {
                     if (err) {
-                        return res.status(422).json({ error: err })
+                        return res.status(422).json({ success: false, error: err })
                     }
-                    res.json({ user, posts })
+                    res.json({ success: true, user, posts })
                 })
         }).catch(err => {
-            return res.status(404).json({ error: "User not found" })
+            return res.status(404).json({ success: false, error: "User not found" })
         })
 });
 
