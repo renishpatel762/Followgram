@@ -6,7 +6,7 @@ import { BiMessageAdd, BiLogOut } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { Tooltip } from '@nextui-org/react';
 
-export default function Navbar({logoutUser}) {
+export default function Navbar({logoutUser , cancel , speaking , supported}) {
   const router = useRouter();
   const [imageName, setImageName] = useState("");
 
@@ -18,8 +18,15 @@ export default function Navbar({logoutUser}) {
       setImageName(parsedUser.pic);
     }
   }, [router.pathname]);
+
+  const check = () => {
+    if(supported && speaking){
+      cancel();
+    }
+  }
+
   return (
-    <div>
+    <div className="sticky">
       <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-900">
         <div className="flex flex-wrap justify-between items-center mx-auto">
           <Link href={"/"}>
@@ -77,7 +84,7 @@ export default function Navbar({logoutUser}) {
               router.pathname
             ) && (
               <Tooltip placement="bottom" contentColor="default" color="primary" content="New Post"><Link href={"/createpost"}>
-                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400">
+                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400" onClick={check}>
                   <BiMessageAdd />
                 </a>
               </Link></Tooltip>
@@ -95,7 +102,7 @@ export default function Navbar({logoutUser}) {
               router.pathname
             ) && (
               <Tooltip placement="bottom" contentColor="default" color="primary" content="Profile"><Link href={"/profile"}>
-                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400">
+                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400" onClick={check}>
                   <CgProfile />
                 </a>
               </Link></Tooltip>
