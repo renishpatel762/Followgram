@@ -1,22 +1,28 @@
 import Navbar from "../components/Navbar";
 import "../styles/globals.css";
-import { NextUIProvider } from '@nextui-org/react';
 import { useState } from "react";
+import { NextUIProvider } from "@nextui-org/react";
+import { useRouter } from "next/router";
+import { useSpeechSynthesis } from 'react-speech-kit';
 
 function MyApp({ Component, pageProps }) {
-
-  const [key , setKey] = useState(0);
+  const router = useRouter();
+  const [text, setText] = useState('');
+  const { speak , cancel , speaking , supported , voices } = useSpeechSynthesis();
 
   const logoutUser = () => {
+    if(speaking){
+      cancel();
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setKey(Math.random());
-  }
-  
+    router.push("/welcome");
+  };
+
   return (
     <NextUIProvider>
-      <Navbar logoutUser={logoutUser} />
-      <Component {...pageProps} key={key}/>
+      <Navbar logoutUser={logoutUser} cancel={cancel} speaking={speaking} supported={supported}/>
+      <Component {...pageProps} speak={speak} cancel={cancel} speaking={speaking} supported={supported} voices={voices}/>
     </NextUIProvider>
   );
 }
