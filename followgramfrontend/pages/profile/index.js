@@ -9,7 +9,7 @@ import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 
 const PAGE_SIZE = 3;
-let category = "photo";
+let category = "media";
 const fetcher = (url) =>
   fetch(url, {
     method: "GET",
@@ -36,7 +36,7 @@ export default function MyProfile({
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
-  const [fetchedCategory, setFetchedCategory] = useState("photo");
+  const [fetchedCategory, setFetchedCategory] = useState("media");
   const [isPlaying, setIsPlaying] = useState(false);
   const [postId, setPostId] = useState("");
   // const { data, error } = useSWR("/api/allpost", fetcher);
@@ -183,20 +183,20 @@ export default function MyProfile({
       <div className="flex justify-evenly mt-10">
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "photo" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "media" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("photo");
+            changeCategory("media");
           }}
         >
           Photos
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "jokes" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "joke" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("jokes");
+            changeCategory("joke");
           }}
         >
           Jokes
@@ -213,10 +213,10 @@ export default function MyProfile({
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "quotes" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "quote" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("quotes");
+            changeCategory("quote");
           }}
         >
           Quotes
@@ -240,7 +240,7 @@ export default function MyProfile({
           }
         >
           <div className="flex flex-wrap items-center w-full px-2 md:px-10">
-            {fetchedCategory === "photo" &&
+            {fetchedCategory === "media" &&
               posts.map((post) => (
                 <div
                   key={post._id}
@@ -255,7 +255,7 @@ export default function MyProfile({
                   />
                 </div>
               ))}
-            {fetchedCategory !== "photo" &&
+            {fetchedCategory !== "media" &&
               posts.map((post) => (
                 <div
                   key={post._id}

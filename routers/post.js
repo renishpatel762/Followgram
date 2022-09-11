@@ -24,18 +24,25 @@ router.get('/allpost', requireLogin, (req, res) => {
 
 router.post('/createpost', requireLogin, (req, res) => {
     console.log("createpost called");
-    const { title, body, pic, isOnlyText } = req.body;
+    const { title, body,type, pic} = req.body;
     console.log(req.body);
-    if (!title || !body || (!isOnlyText && !pic)) {
-        if(!isOnlyText)
-            return res.status(422).json({ success: false, error: "Upload pic" });
+    console.log(pic);
+    if (!type) {
         return res.status(422).json({ success: false, error: "Please add all the fields" });
+    }
+    if(type==="media"){
+        if(!pic)
+            return res.status(422).json({ success: false, error: "Media must be there" });
+    }else{
+        if(!body ){
+            return res.status(422).json({ success: false, error: "Title and Body be there" });        
+        }
     }
     // req.user.password = undefined;
     const post = new Post({
         title,
         body,
-        isOnlyText,
+        type,
         photo: pic,
         postedBy: req.user._id
     });
@@ -49,8 +56,9 @@ router.post('/createpost', requireLogin, (req, res) => {
 
 //to get loged in user post
 router.get('/mypost', requireLogin, (req, res) => {
-    const {limit,page}=req.query;
-    Post.find({ postedBy: req.user._id })
+    const {limit,page,category}=req.query;
+    console.log(req.query);
+    Post.find({ postedBy: req.user._id, type:category})
         .populate("postedBy", "_id name")
         .sort('-createdAt')
         .skip((parseInt(page) - 1)*parseInt(limit))
