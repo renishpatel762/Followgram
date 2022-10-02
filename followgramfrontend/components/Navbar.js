@@ -4,35 +4,63 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { BiMessageAdd, BiLogOut } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
-import { Tooltip } from '@nextui-org/react';
+import { Tooltip } from "@nextui-org/react";
+import { AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
+import { IoPersonAddOutline } from "react-icons/io5";
 
-export default function Navbar({logoutUser , cancel , speaking , supported}) {
+export default function Navbar({
+  logoutUser,
+  cancel,
+  speaking,
+  supported,
+  photoPost,
+  setPhotoPost,
+  postFilter,
+  setPostFilter,
+  previousPostFilter,
+  setPreviousPostFilter,
+  date1,
+  setDate1,
+  date2,
+  setDate2,
+}) {
   const router = useRouter();
   const [imageName, setImageName] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     // console.log(router.pathname);
     const user = localStorage.getItem("user");
     if (user) {
       const parsedUser = JSON.parse(user);
+      setCurrentUser(parsedUser);
       setImageName(parsedUser.pic);
     }
-  }, [router.pathname]);
 
-  const check = () => {
-    if(supported && speaking){
+    if (supported && speaking) {
       cancel();
     }
-  }
+    setShowMenu(false);
+  }, [router.pathname]);
+
+  useEffect(() => {
+    if (postFilter === "between_two_dates") {
+      setShowModal(true);
+    } else if (showModal) {
+      setShowModal(false);
+    }
+  }, [postFilter]);
 
   return (
-    <div className="sticky">
-      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-900">
+    <div className="sticky top-0 z-20">
+      <nav className="bg-gray-300 text-gray-700 border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-900 dark:text-gray-400">
         <div className="flex flex-wrap justify-between items-center mx-auto">
           <Link href={"/"}>
             <a className="flex items-center">
               {/* <Image src={logo} height={10} width={200}/> */}
-              <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+              <span className="self-center text-xl font-semibold whitespace-nowrap hover:text-black dark:hover:text-white">
                 Followgram
               </span>
             </a>
@@ -53,7 +81,7 @@ export default function Navbar({logoutUser , cancel , speaking , supported}) {
                 alt="user photo"
               />
             </button> */}
-            {![
+            {/* {![
               "/signup",
               "/verify",
               "/",
@@ -66,7 +94,7 @@ export default function Navbar({logoutUser , cancel , speaking , supported}) {
                   Signup
                 </a>
               </Link>
-            )}
+            )} */}
             {![
               "/login",
               "/profile",
@@ -75,37 +103,84 @@ export default function Navbar({logoutUser , cancel , speaking , supported}) {
               "/profile/[userId]",
             ].includes(router.pathname) && (
               <Link href={"/login"}>
-                <a className="text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
+                <a className="mx-5 text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
                   Login
                 </a>
               </Link>
             )}
-            {!["/login", "/signup", "/verify", "/createpost","/welcome"].includes(
+
+            {/* {![
+              "/login",
+              "/signup",
+              "/verify",
+              "/createpost",
+              "/welcome",
+            ].includes(router.pathname) && (
+              <Tooltip
+                placement="bottom"
+                contentColor="default"
+                color="primary"
+                content="New Post"
+              >
+                <Link href={"/createpost"}>
+                  <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400">
+                    <BiMessageAdd />
+                  </a>
+                </Link>
+              </Tooltip>
+            )} */}
+
+            {/* {!["/login", "/signup", "/verify", "/welcome"].includes(
               router.pathname
             ) && (
-              <Tooltip placement="bottom" contentColor="default" color="primary" content="New Post"><Link href={"/createpost"}>
-                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400" onClick={check}>
-                  <BiMessageAdd />
-                </a>
-              </Link></Tooltip>
-            )}
-
-            {!["/login", "/signup", "/verify","/welcome"].includes(router.pathname) && (
-              <Tooltip placement="bottom" contentColor="default" color="primary" content="Logout">
-                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400" onClick={logoutUser}>
+              <Tooltip
+                placement="bottom"
+                contentColor="default"
+                color="primary"
+                content="Logout"
+              >
+                <a
+                  className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400"
+                  onClick={logoutUser}
+                >
                   <BiLogOut />
                 </a>
               </Tooltip>
-            )}
+            )} */}
 
-            {!["/login", "/signup", "/verify", "/profile","/welcome"].includes(
+            {/* {!["/login", "/signup", "/verify", "/profile", "/welcome"].includes(
               router.pathname
             ) && (
-              <Tooltip placement="bottom" contentColor="default" color="primary" content="Profile"><Link href={"/profile"}>
-                <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400" onClick={check}>
-                  <CgProfile />
-                </a>
-              </Link></Tooltip>
+              <Tooltip
+                placement="bottom"
+                contentColor="default"
+                color="primary"
+                content="Profile"
+              >
+                <Link href={"/profile"}>
+                  <a className="text-white text-2xl mx-2 py-1 px-1 rounded-md hover:text-blue-400">
+                    <CgProfile />
+                  </a>
+                </Link>
+              </Tooltip>
+            )} */}
+
+            {!showMenu && (
+              <Tooltip
+                placement="bottom"
+                contentColor="default"
+                color="primary"
+                content="Menu"
+              >
+                <span
+                  className="text-2xl mr-2 hover:text-black dark:hover:text-white"
+                  onClick={() => {
+                    setShowMenu(true);
+                  }}
+                >
+                  <AiOutlineMenuFold />
+                </span>
+              </Tooltip>
             )}
 
             {/* <div className="z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 block" id="user-dropdown" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(476px, 76px, 0px);">
@@ -154,6 +229,293 @@ export default function Navbar({logoutUser , cancel , speaking , supported}) {
   </div> */}
         </div>
       </nav>
+      {/* {showMenu && <div className="absolute right-0 top-0">Hello</div>} */}
+      {/* {showMenu && ( */}
+
+      <div
+        className={`absolute top-0 transition-all duration-500 ${
+          showMenu
+            ? "right-0"
+            : "-right-[75vw] md:-right-[30vw] lg:-right-[20vw]"
+        } h-[100vh] scrollbar_hide overflow-auto w-[75vw] lg:w-[20vw] md:w-[30vw] dark:bg-gray-600 dark:text-white text-black bg-gray-300`}
+      >
+        <span className="flex text-2xl pt-3 pl-3">
+          <AiOutlineMenuUnfold
+            className="cursor-pointer"
+            onClick={() => {
+              setShowMenu(false);
+            }}
+          />
+          {currentUser && <p className="pl-3">{currentUser.name}</p>}
+        </span>
+        <div className="pt-1 pl-3">
+          {/* profile */}
+          {!["/login", "/signup", "/verify", "/profile", "/welcome"].includes(
+            router.pathname
+          ) && (
+            <Tooltip
+              placement="left"
+              contentColor="default"
+              color="primary"
+              content="Profile"
+            >
+              <Link href={"/profile"}>
+                <a className="flex text-2xl py-1 rounded-md hover:text-blue-400">
+                  <CgProfile /> <p className="pl-3">Profile</p>
+                </a>
+              </Link>
+            </Tooltip>
+          )}
+
+          {/* register */}
+          {![
+            "/signup",
+            "/verify",
+            "/",
+            "/profile",
+            "/createpost",
+            "/profile/[userId]",
+          ].includes(router.pathname) && (
+            <Link href={"/signup"}>
+              <a className="flex py-1 hover:text-blue-400">
+                <IoPersonAddOutline /> <p className="pl-3">Signup</p>
+              </a>
+            </Link>
+          )}
+
+          {/* createpost */}
+          {![
+            "/login",
+            "/signup",
+            "/verify",
+            "/createpost",
+            "/welcome",
+          ].includes(router.pathname) && (
+            <Tooltip
+              placement="bottom"
+              contentColor="default"
+              color="primary"
+              content="New Post"
+            >
+              <Link href={"/createpost"}>
+                <a className="flex text-2xl py-1 rounded-md hover:text-blue-400">
+                  <BiMessageAdd /> <p className="pl-3">Create Post</p>
+                </a>
+              </Link>
+            </Tooltip>
+          )}
+
+          {/* imagepost or textpost */}
+          {[
+            "/"
+          ].includes(router.pathname) && (
+            <div className="my-3">
+              <p>Select Post type</p>
+              <div className="flex items-center mb-1 ml-4 mt-2">
+                <input
+                  id="imagePost"
+                  type="radio"
+                  value=""
+                  name="post-radio"
+                  checked={photoPost}
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPhotoPost(true);
+                  }}
+                />
+                <label htmlFor="imagePost" className="ml-2 text-sm font-medium">
+                  Image Posts
+                </label>
+              </div>
+              <div className="flex items-center ml-4">
+                <input
+                  checked={!photoPost}
+                  id="textPost"
+                  type="radio"
+                  value=""
+                  name="post-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPhotoPost(false);
+                  }}
+                />
+                <label htmlFor="textPost" className="ml-2 text-sm font-medium">
+                  Text Posts
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Filter */}
+          {[
+            "/"
+          ].includes(router.pathname) && (
+            <div className="mt-3">
+              <p>Filter</p>
+              <div className="flex items-center mb-1 ml-4 mt-2">
+                <input
+                  id="all"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  checked={postFilter === "all"}
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("all");
+                  }}
+                />
+                <label htmlFor="all" className="ml-2 text-sm font-medium">
+                  All
+                </label>
+              </div>
+              <div className="flex items-center mb-1 ml-4">
+                <input
+                  checked={postFilter === "today"}
+                  id="today"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("today");
+                  }}
+                />
+                <label htmlFor="today" className="ml-2 text-sm font-medium">
+                  Today
+                </label>
+              </div>
+              <div className="flex items-center mb-1 ml-4">
+                <input
+                  checked={postFilter === "last_week"}
+                  id="lastWeek"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("last_week");
+                  }}
+                />
+                <label htmlFor="lastWeek" className="ml-2 text-sm font-medium">
+                  Last Week
+                </label>
+              </div>
+              <div className="flex items-center mb-1 ml-4">
+                <input
+                  checked={postFilter === "last_30_days"}
+                  id="last30days"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("last_30_days");
+                  }}
+                />
+                <label
+                  htmlFor="last30days"
+                  className="ml-2 text-sm font-medium"
+                >
+                  Last 30 days
+                </label>
+              </div>
+              <div
+                className={`flex items-center ml-4 ${
+                  showModal ? "mb-1" : "mb-4"
+                }`}
+              >
+                <input
+                  checked={postFilter === "between_two_dates"}
+                  id="betweeonTwoDates"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("between_two_dates");
+                  }}
+                />
+                <label
+                  htmlFor="betweeonTwoDates"
+                  className="ml-2 text-sm font-medium"
+                >
+                  Betweeon Two Dates
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* modal */}
+          {showModal && (
+            <div className={`pb-4 ml-5`}>
+              <div className="mt-2">
+                <p className="text-xs ml-5">Please select valid dates</p>
+                <div>
+                  <p>From</p>
+                  <input
+                    type="date"
+                    className="cursor-pointer bg-transparent"
+                    onChange={(e) => {
+                      setDate1(e.target.value);
+                    }}
+                  />
+                </div>
+                <div className="pb-2">
+                  <p>To</p>
+                  <input
+                    type="date"
+                    className="cursor-pointer bg-transparent"
+                    onChange={(e) => {
+                      setDate2(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="mt-3 pb-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // setShowModal(false);
+                    setDate1(null);
+                    setDate2(null);
+                    setPostFilter(previousPostFilter);
+                  }}
+                  className="border-2 border-gray-800 px-3 py-1 rounded-md bg-transparent hover:bg-white hover:text-black"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* logout */}
+          {!["/login", "/signup", "/verify", "/welcome"].includes(
+            router.pathname
+          ) && (
+            <Tooltip
+              placement="left"
+              contentColor="default"
+              color="primary"
+              content="Logout"
+            >
+              <a
+                className="flex text-2xl py-1 rounded-md hover:text-blue-400"
+                onClick={() => {
+                  setCurrentUser(null);
+                  logoutUser();
+                }}
+              >
+                <BiLogOut /> <p className="pl-3">Logout</p>
+              </a>
+            </Tooltip>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
