@@ -9,7 +9,7 @@ import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 
 const PAGE_SIZE = 3;
-let category = "media";
+let category = "Media";
 const fetcher = (url) =>
   fetch(url, {
     method: "GET",
@@ -36,7 +36,7 @@ export default function MyProfile({
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
-  const [fetchedCategory, setFetchedCategory] = useState("media");
+  const [fetchedCategory, setFetchedCategory] = useState("Media");
   const [isPlaying, setIsPlaying] = useState(false);
   const [postId, setPostId] = useState("");
   // const { data, error } = useSWR("/api/allpost", fetcher);
@@ -51,9 +51,9 @@ export default function MyProfile({
     year: "numeric",
     month: "long",
     day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
+    // hour: "numeric",
+    // minute: "numeric",
+    // second: "numeric",
   };
 
   useEffect(() => {
@@ -81,6 +81,7 @@ export default function MyProfile({
     if (data) {
       setPosts([].concat.apply([], data));
     }
+    console.log(posts);
   }, [data]);
 
   const changeCategory = (cat) => {
@@ -100,17 +101,28 @@ export default function MyProfile({
 
       if (speaking) {
         cancel();
+        setTimeout(() => {
+          setPostId(post._id);
+          // speak({ text: post.body, voice: voices[voiceIndex] });
+          speak({ text: post.body });
+        }, 300);
+      } else {
+        setPostId(post._id);
+        // speak({ text: post.body, voice: voices[voiceIndex] });
+        speak({ text: post.body });
       }
 
-      setPostId(post._id);
-      setIsPlaying(true);
-      speak({ text: post.body });
+      // if (speaking) {
+      //   cancel();
+      // }
 
+      // setPostId(post._id);
+      // setIsPlaying(true);
+      // speak({ text: post.body });
     } else {
       alert("Sorry!! This feature is not supported in your browser");
     }
   };
-  
 
   useEffect(() => {
     console.log(postId);
@@ -164,7 +176,7 @@ export default function MyProfile({
               <p>Following</p>
             </div>
           </div>
-          <button className="text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
+          <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
             Edit Profile
           </button>
         </div>
@@ -183,40 +195,40 @@ export default function MyProfile({
       <div className="flex justify-evenly mt-10">
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "media" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("media");
+            changeCategory("Media");
           }}
         >
           Photos
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "joke" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("joke");
+            changeCategory("Joke");
           }}
         >
           Jokes
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "shayari" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("shayari");
+            changeCategory("Shayari");
           }}
         >
           Shayari
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "quote" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("quote");
+            changeCategory("Quote");
           }}
         >
           Quotes
@@ -239,15 +251,15 @@ export default function MyProfile({
             </p>
           }
         >
-          <div className="flex flex-wrap items-center w-full px-2 md:px-10">
-            {fetchedCategory === "media" &&
+          <div className="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
+            {fetchedCategory === "Media" &&
               posts.map((post) => (
                 <div
                   key={post._id}
                   className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
                 >
                   <Image
-                    className="hover:opacity-20"
+                    className="hover:opacity-40 hover:cursor-pointer"
                     src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${post.photo}`}
                     width={50}
                     height={50}
@@ -255,11 +267,11 @@ export default function MyProfile({
                   />
                 </div>
               ))}
-            {fetchedCategory !== "media" &&
+            {fetchedCategory !== "Media" &&
               posts.map((post) => (
                 <div
                   key={post._id}
-                  className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-black"
+                  className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                 >
                   <p className="pl-4 text-2xl font-bold">{post.body}</p>
                   <p className="text-right pr-4">
