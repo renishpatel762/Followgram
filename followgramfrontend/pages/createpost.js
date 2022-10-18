@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import Image from "next/image";
 import { FiUpload } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AiOutlineArrowDown, AiOutlineArrowUp } from "react-icons/ai";
+import { UserContext } from "./_app";
 
 export default function CreatePost() {
+  // const [state,dispatch]=useContext(UserContext);
   const [withPhoto, setWithPhoto] = useState(true);
   const [postImg, setPostImg] = useState(undefined);
   const [caption, setCaption] = useState("");
   const [title, setTitle] = useState("");
   const [captionTitle, setCaptionTitle] = useState("Enter Caption");
   const [dropdown, setDropdown] = useState(false);
-  const [type, setType] = useState("Select");
+  const [type, setType] = useState("Media");
 
   const router = useRouter();
 
@@ -103,10 +105,10 @@ export default function CreatePost() {
   const uploadData = async (img) => {
     let imageName = "";
     let ty = type;
-    if (ty === "Select") {
-      showToastError("Please select post type");
-      return;
-    }
+    // if (ty === "Select") {
+    //   showToastError("Please select post type");
+    //   return;
+    // }
     if (img) {
       imageName = img;
       ty = "Media";
@@ -126,6 +128,9 @@ export default function CreatePost() {
     }).then((response) => response.json());
     // console.log(res);
     if (res.post) {
+      if(res.user){
+        dispatch({type:"USER",payload:res.user});
+      }
       toast.success("Post Created Successfully..", {
         position: "top-right",
         autoClose: 1500,
@@ -135,6 +140,7 @@ export default function CreatePost() {
         draggable: true,
         progress: undefined,
       });
+      router.push("/profile");
       setTitle("");
       setCaption("");
       setPostImg(undefined);

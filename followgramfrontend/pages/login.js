@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserContext } from "./_app";
 
 export default function Login() {
+  const [state,dispatch]=useContext(UserContext);
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [disabled, setDisabled] = useState(true);
-
+  // console.log(user);
+  console.log("state is login ",state);
   useEffect(() => {
     if (email.length > 0 && password.length > 0) {
       setDisabled(false);
@@ -42,6 +45,8 @@ export default function Login() {
       if (res.success) {
         localStorage.setItem("token", res.token);
         localStorage.setItem("user", JSON.stringify(res.user));
+        // dispatch({type:"USER",payload:res.user})
+        dispatch({type:'USER',payload:res.user})
         router.push("/");
       } else {
         toast.error(res.error, {
