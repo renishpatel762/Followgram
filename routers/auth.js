@@ -138,11 +138,11 @@ router.post("/signin", (req, res) => {
       .then((doMatch) => {
         if (doMatch) {
           const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
-          const { _id, name, email, followers, following, pic } = savedUser;
+          const { _id, name, email, posts, followers, following, pic } = savedUser;
           res.json({
             success: true,
             token,
-            user: { _id, name, email, followers, following, pic },
+            user: { _id, name, email, posts, followers, following, pic },
           }); //token:token key and value both are equal
         } else {
           return res

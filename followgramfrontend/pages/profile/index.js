@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -7,6 +7,7 @@ import useSWRInfinite from "swr/infinite";
 import loader from "../../public/loader.svg";
 import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
+import { UserContext } from "../_app";
 
 const PAGE_SIZE = 3;
 let category = "Media";
@@ -33,6 +34,9 @@ export default function MyProfile({
   supported,
   voices,
 }) {
+
+  const [state,dispatch]=useContext(UserContext);
+  // const[totalpost,setTotalPost]=useState(0);
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
@@ -54,13 +58,16 @@ export default function MyProfile({
     // hour: "numeric",
     // minute: "numeric",
     // second: "numeric",
-  };
-
+  };  
+   console.log("state is",state);
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) {
       const parsedUser = JSON.parse(user);
       setUser(parsedUser);
+      console.log("lhklj",parsedUser.posts);
+      // console.log(user.posts.length);
+      // setTotalPost(parsedUser.posts.length);
     } else {
       router.push("/welcome");
     }
@@ -164,15 +171,15 @@ export default function MyProfile({
           <h2 className="text-md">{user.email}</h2>
           <div className="flex py-5 text-sm md:text-lg">
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>0</p>
+              <p>{state ? state.posts.length : 0}</p>
               <p>Posts</p>
             </div>
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>{user.followers ? user.followers.length : 0}</p>
+              <p>{state ? state.followers.length : 0}</p>
               <p>Followers</p>
             </div>
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>{user.following ? user.following.length : 0}</p>
+              <p>{state ? state.following.length : 0}</p>
               <p>Following</p>
             </div>
           </div>
