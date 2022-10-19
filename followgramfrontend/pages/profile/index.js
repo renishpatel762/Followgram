@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -7,9 +7,10 @@ import useSWRInfinite from "swr/infinite";
 import loader from "../../public/loader.svg";
 import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
+import { UserContext } from "../_app";
 
 const PAGE_SIZE = 3;
-let category = "photo";
+let category = "Media";
 const fetcher = (url) =>
   fetch(url, {
     method: "GET",
@@ -33,10 +34,13 @@ export default function MyProfile({
   supported,
   voices,
 }) {
+
+  const [state,dispatch]=useContext(UserContext);
+  // const[totalpost,setTotalPost]=useState(0);
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
-  const [fetchedCategory, setFetchedCategory] = useState("photo");
+  const [fetchedCategory, setFetchedCategory] = useState("Media");
   const [isPlaying, setIsPlaying] = useState(false);
   const [postId, setPostId] = useState("");
   // const { data, error } = useSWR("/api/allpost", fetcher);
@@ -51,16 +55,19 @@ export default function MyProfile({
     year: "numeric",
     month: "long",
     day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-  };
-
+    // hour: "numeric",
+    // minute: "numeric",
+    // second: "numeric",
+  };  
+   console.log("state is",state);
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) {
       const parsedUser = JSON.parse(user);
       setUser(parsedUser);
+      console.log("lhklj",parsedUser.posts);
+      // console.log(user.posts.length);
+      // setTotalPost(parsedUser.posts.length);
     } else {
       router.push("/welcome");
     }
@@ -81,6 +88,7 @@ export default function MyProfile({
     if (data) {
       setPosts([].concat.apply([], data));
     }
+    console.log(posts);
   }, [data]);
 
   const changeCategory = (cat) => {
@@ -100,17 +108,28 @@ export default function MyProfile({
 
       if (speaking) {
         cancel();
+        setTimeout(() => {
+          setPostId(post._id);
+          // speak({ text: post.body, voice: voices[voiceIndex] });
+          speak({ text: post.body });
+        }, 300);
+      } else {
+        setPostId(post._id);
+        // speak({ text: post.body, voice: voices[voiceIndex] });
+        speak({ text: post.body });
       }
 
-      setPostId(post._id);
-      setIsPlaying(true);
-      speak({ text: post.body });
+      // if (speaking) {
+      //   cancel();
+      // }
 
+      // setPostId(post._id);
+      // setIsPlaying(true);
+      // speak({ text: post.body });
     } else {
       alert("Sorry!! This feature is not supported in your browser");
     }
   };
-  
 
   useEffect(() => {
     console.log(postId);
@@ -152,19 +171,19 @@ export default function MyProfile({
           <h2 className="text-md">{user.email}</h2>
           <div className="flex py-5 text-sm md:text-lg">
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>0</p>
+              <p>{state ? state.posts.length : 0}</p>
               <p>Posts</p>
             </div>
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>{user.followers ? user.followers.length : 0}</p>
+              <p>{state ? state.followers.length : 0}</p>
               <p>Followers</p>
             </div>
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>{user.following ? user.following.length : 0}</p>
+              <p>{state ? state.following.length : 0}</p>
               <p>Following</p>
             </div>
           </div>
-          <button className="text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
+          <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
             Edit Profile
           </button>
         </div>
@@ -183,40 +202,40 @@ export default function MyProfile({
       <div className="flex justify-evenly mt-10">
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "photo" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("photo");
+            changeCategory("Media");
           }}
         >
           Photos
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "jokes" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("jokes");
+            changeCategory("Joke");
           }}
         >
           Jokes
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "shayari" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("shayari");
+            changeCategory("Shayari");
           }}
         >
           Shayari
         </p>
         <p
           className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "quotes" ? "" : "border-blue-400 border-b-2"
+            fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
           }`}
           onClick={() => {
-            changeCategory("quotes");
+            changeCategory("Quote");
           }}
         >
           Quotes
@@ -239,15 +258,15 @@ export default function MyProfile({
             </p>
           }
         >
-          <div className="flex flex-wrap items-center w-full px-2 md:px-10">
-            {fetchedCategory === "photo" &&
+          <div className="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
+            {fetchedCategory === "Media" &&
               posts.map((post) => (
                 <div
                   key={post._id}
                   className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
                 >
                   <Image
-                    className="hover:opacity-20"
+                    className="hover:opacity-40 hover:cursor-pointer"
                     src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${post.photo}`}
                     width={50}
                     height={50}
@@ -255,11 +274,11 @@ export default function MyProfile({
                   />
                 </div>
               ))}
-            {fetchedCategory !== "photo" &&
+            {fetchedCategory !== "Media" &&
               posts.map((post) => (
                 <div
                   key={post._id}
-                  className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-black"
+                  className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                 >
                   <p className="pl-4 text-2xl font-bold">{post.body}</p>
                   <p className="text-right pr-4">

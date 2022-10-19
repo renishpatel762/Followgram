@@ -4,19 +4,21 @@ const {ObjectId} = mongoose.Schema.Types
 const postSchema = new mongoose.Schema({
     title:{
         type:String,
-        required:true
+        // required:true
     },
     body:{
         type:String,
-        required:true
+        // required:true
     },
-    isOnlyText:Boolean,
+    type:{
+        type:String,
+        require:true
+    },
     photo:{
         type:String,
         // required:true
     },
     likes:[{type:ObjectId,ref:"User"}],
-
     //remark
     comments:[{
         text:String,

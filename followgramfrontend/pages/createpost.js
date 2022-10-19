@@ -1,16 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import Image from "next/image";
 import { FiUpload } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AiOutlineArrowDown, AiOutlineArrowUp } from "react-icons/ai";
+import { UserContext } from "./_app";
 
 export default function CreatePost() {
+  // const [state,dispatch]=useContext(UserContext);
   const [withPhoto, setWithPhoto] = useState(true);
   const [postImg, setPostImg] = useState(undefined);
   const [caption, setCaption] = useState("");
   const [title, setTitle] = useState("");
   const [captionTitle, setCaptionTitle] = useState("Enter Caption");
+  const [dropdown, setDropdown] = useState(false);
+  const [type, setType] = useState("Media");
 
   const router = useRouter();
 
@@ -24,6 +29,7 @@ export default function CreatePost() {
   const toggleSwitch = () => {
     if (withPhoto) {
       setCaptionTitle("Enter Text");
+      setType("Select");
     } else {
       setCaptionTitle("Enter Caption");
     }
@@ -41,7 +47,7 @@ export default function CreatePost() {
   };
 
   const showToastError = (msg) => {
-    toast.error(msg , {
+    toast.error(msg, {
       position: "top-right",
       autoClose: 1500,
       hideProgressBar: false,
@@ -49,25 +55,29 @@ export default function CreatePost() {
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      });
-  }
+    });
+  };
 
   const handleSubmit = async () => {
-    if(title.length < 4){
-      showToastError('Please Enter title having more than 3 characters');
-      return ;
+    if (title.length < 4) {
+      showToastError("Please Enter title having more than 3 characters");
+      return;
     }
 
-    if(caption.length < 6){
-      showToastError(`Please Enter ${captionTitle.substring(6)} having more than 5 characters`)
-      return ;
+    if (caption.length < 6) {
+      showToastError(
+        `Please Enter ${captionTitle.substring(
+          6
+        )} having more than 5 characters`
+      );
+      return;
     }
 
     if (withPhoto) {
       // create post with photo
-      if(!postImg){
-        showToastError("Please Select Photo")
-        return ;
+      if (!postImg) {
+        showToastError("Please Select Photo");
+        return;
       }
       const formData = new FormData();
       formData.append("file", postImg);
@@ -94,10 +104,14 @@ export default function CreatePost() {
 
   const uploadData = async (img) => {
     let imageName = "";
-    let isText = true;
+    let ty = type;
+    // if (ty === "Select") {
+    //   showToastError("Please select post type");
+    //   return;
+    // }
     if (img) {
       imageName = img;
-      isText = false;
+      ty = "Media";
     }
     const res = await fetch("/api/createpost", {
       method: "POST",
@@ -109,12 +123,15 @@ export default function CreatePost() {
         title,
         body: caption,
         pic: imageName,
-        isOnlyText: isText,
+        type: ty,
       }),
     }).then((response) => response.json());
     // console.log(res);
     if (res.post) {
-      toast.success('Post Created Successfully..', {
+      if(res.user){
+        dispatch({type:"USER",payload:res.user});
+      }
+      toast.success("Post Created Successfully..", {
         position: "top-right",
         autoClose: 1500,
         hideProgressBar: false,
@@ -122,7 +139,8 @@ export default function CreatePost() {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        });
+      });
+      router.push("/profile");
       setTitle("");
       setCaption("");
       setPostImg(undefined);
@@ -130,12 +148,12 @@ export default function CreatePost() {
       setWithPhoto(true);
     } else {
       // not getting post as response means something went wrong..
-      showToastError('Something went wrong !! Please try again later');
+      showToastError("Something went wrong !! Please try again later");
     }
   };
 
   return (
-    <div className="min-h-screen py-2 dark:text-white dark:bg-gray-800">
+    <div className="min-h-screen py-2 bg-gray-100 dark:text-white dark:bg-gray-800">
       <ToastContainer
         position="top-right"
         autoClose={1500}
@@ -216,8 +234,69 @@ export default function CreatePost() {
             value={title}
             onChange={handleChange}
             placeholder="Enter Title"
+            onFocus={() => {
+              setDropdown(false);
+            }}
           />
         </div>
+        {!withPhoto && (
+          <div className="mb-4 relative pl-4 md:p-0">
+            <label
+              className="block text-gray-700 dark:text-white text-lg font-bold mb-2"
+              // htmlFor="caption"
+            >
+              Select Type
+            </label>
+            <div
+              className={`flex items-center relative cursor-pointer w-36 mt-3 py-2 rounded-md ${
+                dropdown ? "bg-blue-600" : "bg-blue-400"
+              }`}
+              onClick={() => {
+                setDropdown(!dropdown);
+              }}
+            >
+              <p className="mx-auto">{type}</p>
+              <span className="absolute right-3">
+                {dropdown ? (
+                  <AiOutlineArrowDown className="ml-2 mt-1" />
+                ) : (
+                  <AiOutlineArrowUp className="ml-2 mt-1" />
+                )}
+              </span>
+            </div>
+            {dropdown && (
+              <div className="absolute w-36 top-20 text-center bg-blue-500">
+                <p
+                  className={`px-4 border-b-2 cursor-pointer py-1`}
+                  onClick={() => {
+                    setType("Joke");
+                    setDropdown(false);
+                  }}
+                >
+                  Joke
+                </p>
+                <p
+                  className={`px-4 cursor-pointer py-1`}
+                  onClick={() => {
+                    setType("Shayari");
+                    setDropdown(false);
+                  }}
+                >
+                  Shayari
+                </p>
+                <p
+                  className={`px-4 border-y-2 cursor-pointer py-1`}
+                  onClick={() => {
+                    setType("Quote");
+                    setDropdown(false);
+                  }}
+                >
+                  Quote
+                </p>
+              </div>
+            )}
+          </div>
+        )}
         <div className="mb-4">
           <label
             className="block text-gray-700 dark:text-white text-lg font-bold mb-2"
@@ -233,11 +312,14 @@ export default function CreatePost() {
             onChange={handleChange}
             rows={4}
             placeholder={captionTitle}
+            onFocus={() => {
+              setDropdown(false);
+            }}
           ></textarea>
         </div>
         <div className="my-4 text-center">
           <button
-            className="text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+            className="text-black dark:text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
             onClick={handleSubmit}
           >
             Create
