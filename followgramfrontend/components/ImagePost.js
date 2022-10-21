@@ -8,6 +8,7 @@ import { FaRegComment } from "react-icons/fa";
 import { UserContext } from "../pages/_app";
 import { useRouter } from "next/router";
 import styles from "../styles/ImagePost.module.css";
+import Modal from "./Modal";
 
 const PAGE_SIZE = 5;
 const fetcher = (url) =>
@@ -29,7 +30,9 @@ const getKey = (pageIndex, previousPageData) => {
 export default function ImagePost({ postFilter, previousPostFilter, date1, date2 }) {
   const [state, dispatch] = useContext(UserContext);
   const [posts, setPosts] = useState([]);
+  const [post , setPost] = useState(null);
   const [morePosts, setMorePosts] = useState(true);
+  const [modal, setModal] = useState(false);
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
     getKey,
     fetcher
@@ -181,8 +184,18 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
           </button>
         </div>
       </div> */}
+      <div id="modalBox">
+        {modal && (
+          <Modal
+            post={post}
+            closeModal={() => {
+              setModal(false);
+            }}
+          />
+        )}
+      </div>
       <div
-        className={`pt-1 md:pt-4 -z-0 dark:bg-gray-800 dark:text-white bg-white text-black`}
+        className={`pt-1 md:pt-4 -z-0 dark:bg-gray-800 dark:text-white bg-white text-black ${modal ? 'opacity-80' : 'opacity-100'}`}
       >
         <InfiniteScroll
           dataLength={posts.length}
@@ -247,7 +260,8 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
                             <p>{post.likes.length} likes</p>
                           </div>
                       }
-                      <FaRegComment style={{ cursor: 'pointer' }} onClick={() => { router.push("/post/" + post._id); }} />
+                      {/* <FaRegComment style={{ cursor: 'pointer' }} onClick={() => { router.push("/post/" + post._id); }} /> */}
+                      <FaRegComment style={{ cursor: 'pointer' }} onClick={() => { setPost(post); setModal(true); }} />
                     </div>
                     <div>
                       {

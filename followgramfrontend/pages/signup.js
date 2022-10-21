@@ -5,12 +5,15 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 
 export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profile, setProfile] = useState(undefined);
   const [imageName, setImageName] = useState("");
 
@@ -105,7 +108,7 @@ export default function Signup() {
     const res = await fetch("/api/signup", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name,
@@ -138,6 +141,12 @@ export default function Signup() {
       }, 1000);
     } else {
       showErrorToast(res.error);
+    }
+  };
+
+  const handleEnter = (event) => {
+    if (event.keyCode == 13) {
+      handleSubmit();
     }
   };
 
@@ -196,7 +205,8 @@ export default function Signup() {
           </label>
           {profile && (
             <span className="text-lg">
-              {profile.name.substring(0,40)}{profile.name.length > 40 ? '...' : ''}
+              {profile.name.substring(0, 40)}
+              {profile.name.length > 40 ? "..." : ""}
             </span>
           )}
           {!profile && (
@@ -225,6 +235,7 @@ export default function Signup() {
             type="text"
             value={name}
             onChange={handleChange}
+            onKeyUp={handleEnter}
             placeholder="Enter Your Name"
           />
         </div>
@@ -242,6 +253,7 @@ export default function Signup() {
             type="email"
             value={email}
             onChange={handleChange}
+            onKeyUp={handleEnter}
             placeholder="Enter Email"
           />
         </div>
@@ -252,15 +264,26 @@ export default function Signup() {
           >
             Password
           </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-800 leading-tight focus:outline-none focus:shadow-outline"
-            id="password"
-            name="password"
-            type="password"
-            value={password}
-            onChange={handleChange}
-            placeholder="Enter Password"
-          />
+          <div className="relative">
+            <span
+              className={`absolute right-2 top-2 cursor-pointer text-black text-xl`}
+              onClick={() => {
+                setShowPassword(!showPassword);
+              }}
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </span>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-800 leading-tight focus:outline-none focus:shadow-outline"
+              id="password"
+              name="password"
+              type={`${showPassword ? "text" : "password"}`}
+              value={password}
+              onChange={handleChange}
+              onKeyUp={handleEnter}
+              placeholder="Enter Password"
+            />
+          </div>
         </div>
         <div className="mb-4">
           <label
@@ -269,15 +292,26 @@ export default function Signup() {
           >
             Confirm Password
           </label>
+          <div className="relative">
+          <span
+              className={`absolute right-2 top-2 cursor-pointer text-black text-xl`}
+              onClick={() => {
+                setShowConfirmPassword(!showConfirmPassword);
+              }}
+            >
+              {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </span>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-800 leading-tight focus:outline-none focus:shadow-outline"
             id="confirmPassword"
             name="confirmPassword"
-            type="password"
+            type={`${showConfirmPassword ? "text" : "password"}`}
             value={confirmPassword}
             onChange={handleChange}
+            onKeyUp={handleEnter}
             placeholder="Confirm Password"
           />
+          </div>
         </div>
         <div className="my-4 text-center">
           <button
