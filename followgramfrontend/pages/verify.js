@@ -15,6 +15,12 @@ export default function Verify() {
     }
   }, []);
 
+  const handleEnter = (event) => {
+    if(event.keyCode == 13){
+      handleSubmit();
+    }
+  }
+
   const handleSubmit = async () => {
     if (otp.length === 6) {
       const res = await fetch("/api/verify", {
@@ -94,6 +100,7 @@ export default function Verify() {
             onChange={(e) => {
               setOtp(e.target.value);
             }}
+            onKeyUp={handleEnter}
             placeholder="Enter OTP here"
           />
           <div className="my-4 text-center">
