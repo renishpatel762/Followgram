@@ -3,7 +3,7 @@
 // }
 export const initialState = null;
 export const reducer = (state,action)=>{
-    console.log(localStorage.getItem("user"));
+    // console.log(localStorage.getItem("user"));
     if(action.type==="USER"){
         return action.payload;
     }

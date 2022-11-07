@@ -8,7 +8,7 @@ import { AiOutlineArrowDown, AiOutlineArrowUp } from "react-icons/ai";
 import { UserContext } from "./_app";
 
 export default function CreatePost() {
-  // const [state,dispatch]=useContext(UserContext);
+  const [state,dispatch]=useContext(UserContext);
   const [withPhoto, setWithPhoto] = useState(true);
   const [postImg, setPostImg] = useState(undefined);
   const [caption, setCaption] = useState("");

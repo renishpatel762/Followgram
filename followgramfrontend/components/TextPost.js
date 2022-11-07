@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useSWRInfinite from "swr/infinite";
 import loader from "../public/loader.svg";
 import { AiOutlineUserAdd, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { FaRegComment } from "react-icons/fa";
+import { UserContext } from "../pages/_app";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
+import Modal from "./Modal";
+import TextModal from "./TextModal";
+import { useRouter } from "next/router";
 
 const PAGE_SIZE = 5;
-let cat = "joke";
+let cat = "Joke";
 const fetcher = (url) =>
   fetch(url, {
     method: "GET",
@@ -35,16 +39,26 @@ export default function TextPost({
   previousPostFilter,
   date1,
   date2,
+  posts,
+  setPosts,
+  post,
+  setPost,
+  likePost,
+  unLikePost,
+  makeComment
 }) {
-  const [posts, setPosts] = useState([]);
-  const [category, setCategory] = useState("joke");
+  const [state, dispatch] = useContext(UserContext);
+  // const [posts, setPosts] = useState([]);
+  const [category, setCategory] = useState("Joke");
   const [morePosts, setMorePosts] = useState(true);
   const [postId, setPostId] = useState("");
   const [voiceIndex, setVoiceIndex] = useState(0);
+  const [textModal, setTextModal] = useState(false);
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
     getKey,
     fetcher
   );
+  const router = useRouter();
 
   let isLoadingMore = true,
     isReachedEnd = false;
@@ -96,34 +110,48 @@ export default function TextPost({
 
   return (
     <div>
+      <div id="modalBox">
+        {textModal && (
+          <TextModal
+            post={post}
+            state={state}
+            likePost={likePost}
+            unLikePost={unLikePost}
+            makeComment={makeComment}
+            speaking={speaking}
+            handleAudio={handleAudio}
+            postId={postId}
+            closeTextModal={() => {
+              setTextModal(false);
+            }}
+          />
+        )}
+      </div>
       <div className="pt-1 md:pt-4 dark:bg-gray-800 dark:text-white bg-white text-black">
         <div className="flex justify-evenly mb-2">
           <p
-            className={`text-xl ${
-              category === "joke" ? "border-b-2 font-semibold" : ""
-            } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Joke" ? "border-b-2 font-semibold" : ""
+              } border-gray-800 cursor-pointer px-2`}
             onClick={() => {
-              changeCategory("joke");
+              changeCategory("Joke");
             }}
           >
             Jokes
           </p>
           <p
-            className={`text-xl ${
-              category === "shayari" ? "border-b-2 font-semibold" : ""
-            } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Shayari" ? "border-b-2 font-semibold" : ""
+              } border-gray-800 cursor-pointer px-2`}
             onClick={() => {
-              changeCategory("shayari");
+              changeCategory("Shayari");
             }}
           >
             Shayari
           </p>
           <p
-            className={`text-xl ${
-              category === "quote" ? "border-b-2 font-semibold" : ""
-            } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Quote" ? "border-b-2 font-semibold" : ""
+              } border-gray-800 cursor-pointer px-2`}
             onClick={() => {
-              changeCategory("quote");
+              changeCategory("Quote");
             }}
           >
             Quotes
@@ -162,9 +190,8 @@ export default function TextPost({
                     value={index}
                     className="dark:text-black"
                   >
-                    {`${option.lang} - ${option.name} ${
-                      option.default ? "- Default" : ""
-                    }`}
+                    {`${option.lang} - ${option.name} ${option.default ? "- Default" : ""
+                      }`}
                   </option>
                 ))}
               </select>
@@ -175,7 +202,14 @@ export default function TextPost({
                   key={post._id}
                   className={`my-3 bg-gray-700 p-2 rounded-md`}
                 >
-                  <div className="flex items-center pb-1 border-b-2 border-gray-800 relative">
+                  <div className="flex items-center pb-1 border-b-2 border-gray-800 relative cursor-pointer"
+                    onClick={() => {
+                      if (post.postedBy._id !== state._id)
+                        router.push("/profile/" + post.postedBy._id)
+                      else
+                        router.push("/profile");
+                    }}
+                  >
                     <Image
                       className="rounded-full bg-white"
                       src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post.postedBy.pic}`}
@@ -188,10 +222,33 @@ export default function TextPost({
                     </span>
                   </div>
                   <div className="my-1">
-                    <p className="text-2xl px-1 py-2 text-white">{post.body}</p>
+                    <p className="text-2xl px-1 py-2 text-white cursor-pointer" onClick={() => {
+                      setPost(post); setTextModal(true);
+                    }}>{post.body}</p>
                     <div className="flex my-2 justify-evenly text-2xl">
-                      <AiFillHeart />
-                      <FaRegComment />
+                      {
+                        (state && post.likes.includes(state._id))
+                          ?
+                          <div onClick={() => { unLikePost(post._id) }}>
+                            <AiFillHeart className="cursor-pointer"/>
+                            <p>{post.likes.length} likes</p>
+                          </div>
+                          :
+                          <div onClick={() => { likePost(post._id) }}>
+                            <AiOutlineHeart className="cursor-pointer" />
+                            <p>{post.likes.length} likes</p>
+                          </div>
+                      }
+                      <div className="cursor-pointer" onClick={() => { setPost(post); setTextModal(true); }}>
+                        <FaRegComment/>
+                        {
+                          post.comments.length > 0
+                            ?
+                            <p>{post.comments.length} comments</p>
+                            :
+                            <p>No Comments</p>
+                        }
+                      </div>
                       {speaking && postId === post._id ? (
                         <BsStop
                           className="cursor-pointer"

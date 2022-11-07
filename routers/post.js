@@ -9,9 +9,10 @@ const requireLogin = require('../middleware/requireLogin');
 //all post
 router.get('/allpost', requireLogin, (req, res) => {
     console.log(req.query);
-    const { limit, page } = req.query;
-    Post.find()
+    const { limit, page,category } = req.query;
+    Post.find({type:category})
         .populate("postedBy", "_id name pic")
+        .populate("comments.postedBy", "_id name pic")
         .sort('-createdAt')//sort in descending order
         .skip((parseInt(page) - 1) * parseInt(limit))
         .limit(parseInt(limit))
@@ -72,7 +73,8 @@ router.get('/mypost', requireLogin, (req, res) => {
     const { limit, page, category } = req.query;
     console.log(req.query);
     Post.find({ postedBy: req.user._id, type: category })
-        .populate("postedBy", "_id name")
+        .populate("postedBy", "_id name pic")
+        .populate("comments.postedBy", "_id name pic")
         .sort('-createdAt')
         .skip((parseInt(page) - 1) * parseInt(limit))
         .limit(parseInt(limit))
@@ -91,7 +93,8 @@ router.put('/like', requireLogin, (req, res) => {
     }, {
         new: true
     })
-    .populate("postedBy", "_id name")
+    .populate("postedBy", "_id name pic")
+    .populate("comments.postedBy", "_id name pic")
     .exec((err, result) => {
         if (err) {
             return res.status(422).json({success: false, error: err })
@@ -108,7 +111,8 @@ router.put('/unlike', requireLogin, (req, res) => {
     }, {
         new: true
     })
-    .populate("postedBy", "_id name")
+    .populate("postedBy", "_id name pic")
+    .populate("comments.postedBy", "_id name pic")
     .exec((err, result) => {
         if (err) {
             return res.status(422).json({success: false, error: err })
@@ -129,8 +133,8 @@ router.put('/comment', requireLogin, (req, res) => {
         $push: { comments: comment }
     }, {
         new: true
-    }).populate("comments.postedBy", "_id name")
-        .populate("postedBy", "_id name")
+    }).populate("comments.postedBy", "_id name pic")
+        .populate("postedBy", "_id name pic")
         .exec((err, result) => {
             if (err) {
                 return res.status(422).json({ error: err })
@@ -139,5 +143,6 @@ router.put('/comment', requireLogin, (req, res) => {
             }
         })
 });
+
 
 module.exports = router;
