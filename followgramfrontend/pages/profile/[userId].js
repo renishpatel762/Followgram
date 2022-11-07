@@ -5,26 +5,52 @@ import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useSWRInfinite from "swr/infinite";
 import loader from "../../public/loader.svg";
-import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
+import { AiOutlineLike, AiOutlineDislike, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 import { UserContext } from "../_app";
+import Modal from "../../components/Modal";
+import { likePost, unLikePost, makeComment } from "../../components/Functionset";
+import { FaRegComment } from "react-icons/fa";
+import TextModal from "../../components/TextModal";
 
 const PAGE_SIZE = 3;
 let category = "Media";
-const fetcher = (url) =>
-  fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-  }).then((response) => response.json());
+let bodyuid = "";
+const fetcher = (url) => {
+
+
+
+  //temporary adjustment
+
+
+
+  return bodyuid != "" && (
+    fetch(url, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        uid: bodyuid
+      })
+      // how to pass uid in body
+
+
+
+
+
+
+
+    }).then((response) => response.json())
+  )
+}
 
 const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
   // return `/api/allpost`; // SWR key
-  return `/api/mypost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${category}`; // SWR key
+  return `/api/userpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${category}`; // SWR key
 };
 
 export default function Profile({
@@ -44,11 +70,17 @@ export default function Profile({
   const [fetchedCategory, setFetchedCategory] = useState("Media");
   const [isPlaying, setIsPlaying] = useState(false);
   const [postId, setPostId] = useState("");
+  // const [showFollow, setShowFollow] = useState(state ? !state.following.includes(userId) : true);
+  const [showFollow, setShowFollow] = useState();
   // const { data, error } = useSWR("/api/allpost", fetcher);
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
     getKey,
     fetcher
   );
+  const [post, setPost] = useState(null);
+  const [modal, setModal] = useState(false);
+  const [textModal, setTextModal] = useState(false);
+
 
   let isLoadingMore = true,
     isReachedEnd = false;
@@ -60,6 +92,18 @@ export default function Profile({
     // minute: "numeric",
     // second: "numeric",
   };
+  // console.log("state in [userId]", state);
+
+  // useEffect(() => {
+  //   console.log("use Effect for stateis scalled,state", state);
+  //   if (state && state.following.includes(userId)) {
+  //     console.log("why including", state);
+  //     setShowFollow(false);
+  //   } else {
+  //     console.log("why not including", state);
+  //   }
+  // }, [state])
+
 
   // useEffect(() => {
   //   const user = localStorage.getItem("user");
@@ -76,6 +120,8 @@ export default function Profile({
 
 
   useEffect(() => {
+    console.log("userId is", userId);
+    bodyuid = userId;
     if (userId) {
       const getUser = async () => {
         // try to fetch user
@@ -160,8 +206,114 @@ export default function Profile({
     }
   };
 
+  const followUser = () => {
+    fetch('/api/follow', {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({
+        followId: userId
+      })
+    }).then(res => res.json())
+      .then(({ success, data }) => {
+        console.log("data is ", data);
+        dispatch({ type: "UPDATE", payload: { following: data.following, followers: data.followers } })
+        localStorage.setItem("user", JSON.stringify(data))
+        setUser((prevState) => {
+          return {
+            ...prevState,
+            // user: {
+            // ...prevState.user,
+            followers: [...prevState.followers, data._id]
+            // }
+          }
+        })
+        setShowFollow(false);
+      })
+  }
+  const unfollowUser = () => {
+    fetch('/api/unfollow', {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({
+        unfollowId: userId
+      })
+    }).then(res => res.json())
+      .then(({ success, data }) => {
+        dispatch({ type: "UPDATE", payload: { following: data.following, followers: data.followers } })
+        localStorage.setItem("user", JSON.stringify(data))
+
+        // setProfile((prevState) => {
+        //   const newFollower = prevState.user.followers.filter(item => item != data._id)
+        //   return {
+        //     ...prevState,
+        //     user: {
+        //       ...prevState.user,
+        //       followers: newFollower
+        //     }
+        //   }
+        // })
+        setUser((prevState) => {
+          const newFollower = prevState.followers.filter(item => item != data._id)
+          return {
+            ...prevState,
+            followers: newFollower
+          }
+        })
+        setShowFollow(true);
+      })
+  }
+
+
   return (
     <div>
+      {/* this is for modal */}
+
+      <div id="modalBox">
+        {modal && (
+          <Modal
+            post={post}
+            state={state}
+            posts={posts}
+            setPosts={setPosts}
+            setPost={setPost}
+            likePost={likePost}
+            unLikePost={unLikePost}
+            makeComment={makeComment}
+            isFromFunctionset="true"
+            closeModal={() => {
+              setModal(false);
+            }}
+          />
+        )}
+        {
+          textModal && (
+            <TextModal
+              post={post}
+              state={state}
+              posts={posts}
+              setPosts={setPosts}
+              setPost={setPost}
+              likePost={likePost}
+              unLikePost={unLikePost}
+              makeComment={makeComment}
+              handleAudio={handleAudio}
+              isFromFunctionset="true"
+              //just some
+
+              closeTextModal={() => {
+                setTextModal(false);
+              }}
+            />
+          )
+        }
+      </div>
+
       {user !== null && (
         <div className="min-h-screen px-2 dark:text-white dark:bg-gray-800">
           <Head>
@@ -193,29 +345,50 @@ export default function Profile({
               </div>
               {/* <button className="mt-2">Change Profile</button> */}
             </div>
-            <div className="w-2/3 pt-3 pl-4 md:pl-0 overflow-x-hidden">
-              <h2 className="text-2xl">{user.name}</h2>
-              <h2 className="text-md">{user.email}</h2>
-              <div className="flex py-5 text-sm md:text-lg">
-                <div className="w-1/3 md:w-1/5 text-center">
-                  <p>{state ? state.posts.length : 0}</p>
-                  <p>Posts</p>
-                </div>
-                <div className="w-1/3 md:w-1/5 text-center">
-                  <p>{state ? state.followers.length : 0}</p>
-                  <p>Followers</p>
-                </div>
-                <div className="w-1/3 md:w-1/5 text-center">
-                  <p>{state ? state.following.length : 0}</p>
-                  <p>Following</p>
-                </div>
-              </div>
-              <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
-                Follow
-              </button>
-            </div>
-          </div>
+            {
+              user &&
+              <div className="w-2/3 pt-3 pl-4 md:pl-0 overflow-x-hidden">
 
+                <h2 className="text-2xl">{user.name}</h2>
+                <h2 className="text-md">{user.email}</h2>
+                <div className="flex py-5 text-sm md:text-lg">
+                  <div className="w-1/3 md:w-1/5 text-center">
+                    <p>{(user && user.posts) ? user.posts.length : 0}</p>
+                    <p>Posts</p>
+                  </div>
+                  <div className="w-1/3 md:w-1/5 text-center">
+                    <p>{(user && user.followers) ? user.followers.length : 0}</p>
+                    {/* <p>{user ? user.followers.length : 0}</p> */}
+                    <p>Followers</p>
+                  </div>
+                  <div className="w-1/3 md:w-1/5 text-center">
+                    {/* {console.log("user is", user)} */}
+                    <p>{(user && user.following) ? user.following.length : 0}</p>
+                    {/* <p>{user ? user.following.length : 0}</p> */}
+                    <p>Following</p>
+                  </div>
+
+                </div>
+                {
+                  // showFollow
+                  state && !state.following.includes(userId)
+                    ?
+                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+                      onClick={() => followUser()}
+                    >
+                      Follow
+                    </button>
+                    :
+                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+                      onClick={() => unfollowUser()}
+                    >
+                      Un Follow
+                    </button>
+                }
+
+              </div>
+            }
+          </div>
           {/* load posts here */}
           <hr className="mt-7 h-0.5 bg-white" />
           {error && (
@@ -228,9 +401,8 @@ export default function Profile({
           {/* {!error && !data && <h1>Loading...</h1>} */}
           <div className="flex justify-evenly mt-10">
             <p
-              className={`mx-2 text-2xl cursor-pointer ${
-                fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
-              }`}
+              className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
+                }`}
               onClick={() => {
                 changeCategory("Media");
               }}
@@ -238,9 +410,8 @@ export default function Profile({
               Photos
             </p>
             <p
-              className={`mx-2 text-2xl cursor-pointer ${
-                fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
-              }`}
+              className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
+                }`}
               onClick={() => {
                 changeCategory("Joke");
               }}
@@ -248,11 +419,10 @@ export default function Profile({
               Jokes
             </p>
             <p
-              className={`mx-2 text-2xl cursor-pointer ${
-                fetchedCategory !== "Shayari"
-                  ? ""
-                  : "border-blue-400 border-b-2"
-              }`}
+              className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Shayari"
+                ? ""
+                : "border-blue-400 border-b-2"
+                }`}
               onClick={() => {
                 changeCategory("Shayari");
               }}
@@ -260,9 +430,8 @@ export default function Profile({
               Shayari
             </p>
             <p
-              className={`mx-2 text-2xl cursor-pointer ${
-                fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
-              }`}
+              className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
+                }`}
               onClick={() => {
                 changeCategory("Quote");
               }}
@@ -300,6 +469,11 @@ export default function Profile({
                         width={50}
                         height={50}
                         layout="responsive"
+                        onClick={() => {
+                          setPost(post);
+                          setModal(true);
+                        }}
+                      // onMouseEnter
                       />
                     </div>
                   ))}
@@ -309,7 +483,10 @@ export default function Profile({
                       key={post._id}
                       className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                     >
-                      <p className="pl-4 text-2xl font-bold">{post.body}</p>
+                      <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                        setPost(post);
+                        setTextModal(true);
+                      }}>{post.body}</p>
                       <p className="text-right pr-4">
                         {new Date(post.createdAt).toLocaleDateString(
                           "en-US",
@@ -317,8 +494,33 @@ export default function Profile({
                         )}
                       </p>
                       <div className="flex justify-evenly">
-                        <AiOutlineLike className="text-2xl cursor-pointer" />
-                        <AiOutlineDislike className="text-2xl cursor-pointer" />
+                        {
+                          ((state && post.likes) && post.likes.includes(state._id))
+                            ?
+                            <div onClick={() => { unLikePost(post._id, posts, setPosts, setPost) }}>
+                              <AiFillHeart className="cursor-pointer" />
+                              <p>{post.likes.length} likes</p>
+                            </div>
+                            :
+                            <div onClick={() => { likePost(post._id, posts, setPosts, setPost) }}>
+                              <AiOutlineHeart className="cursor-pointer" />
+                              <p>{post.likes.length} likes</p>
+                            </div>
+                        }
+                        <div className="cursor-pointer" onClick={() => {
+                          setPost(post);
+                          setTextModal(true);
+                        }}>
+                          <FaRegComment />
+
+                          {
+                            post.comments.length > 0
+                              ?
+                              <p>{post.comments.length} comments</p>
+                              :
+                              <p>No Comments</p>
+                          }
+                        </div>
                         {speaking && postId === post._id ? (
                           <BsStop
                             className={`text-2xl cursor-pointer`}

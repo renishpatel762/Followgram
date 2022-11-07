@@ -5,10 +5,13 @@ import { useRouter } from "next/router";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useSWRInfinite from "swr/infinite";
 import loader from "../../public/loader.svg";
-import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
+import { AiOutlineLike, AiOutlineDislike, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 import { UserContext } from "../_app";
-
+import Modal from "../../components/Modal";
+import { FaRegCalendar, FaRegComment } from "react-icons/fa";
+import TextModal from "../../components/TextModal";
+import { likePost, unLikePost, makeComment } from "../../components/Functionset";
 const PAGE_SIZE = 3;
 let category = "Media";
 const fetcher = (url) =>
@@ -35,9 +38,9 @@ export default function MyProfile({
   voices,
 }) {
 
-  const [state,dispatch]=useContext(UserContext);
+  const [state, dispatch] = useContext(UserContext);
   // const[totalpost,setTotalPost]=useState(0);
-  const [user, setUser] = useState({});
+  // const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
   const [fetchedCategory, setFetchedCategory] = useState("Media");
@@ -48,6 +51,10 @@ export default function MyProfile({
     getKey,
     fetcher
   );
+  const [post, setPost] = useState(null);
+  const [modal, setModal] = useState(false);
+  const [textModal, setTextModal] = useState(false);
+
   const router = useRouter();
   let isLoadingMore = true,
     isReachedEnd = false;
@@ -58,20 +65,21 @@ export default function MyProfile({
     // hour: "numeric",
     // minute: "numeric",
     // second: "numeric",
-  };  
-   console.log("state is",state);
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const parsedUser = JSON.parse(user);
-      setUser(parsedUser);
-      console.log("lhklj",parsedUser.posts);
-      // console.log(user.posts.length);
-      // setTotalPost(parsedUser.posts.length);
-    } else {
-      router.push("/welcome");
-    }
-  }, []);
+  };
+  // console.log("state is", state);
+
+  // useEffect(() => {
+  // const user = localStorage.getItem("user");
+  // if (user) {
+  //   const parsedUser = JSON.parse(user);
+  //   setUser(parsedUser);
+  //   // console.log("lhklj", parsedUser.posts);
+  //   // console.log(user.posts.length);
+  //   // setTotalPost(parsedUser.posts.length);
+  // } else {
+  //   router.push("/welcome");
+  // }
+  // }, []);
 
   useEffect(() => {
     // console.log(data);
@@ -137,6 +145,45 @@ export default function MyProfile({
 
   return (
     <div className="min-h-screen px-2 dark:text-white dark:bg-gray-800">
+      <div id="modalBox">
+        {modal && (
+          <Modal
+            post={post}
+            state={state}
+            posts={posts}
+            setPosts={setPosts}
+            setPost={setPost}
+            likePost={likePost}
+            unLikePost={unLikePost}
+            makeComment={makeComment}
+            isFromFunctionset="true"
+            closeModal={() => {
+              setModal(false);
+            }}
+          />
+        )}
+        {
+          textModal && (
+            <TextModal
+              post={post}
+              state={state}
+              posts={posts}
+              setPosts={setPosts}
+              setPost={setPost}
+              likePost={likePost}
+              unLikePost={unLikePost}
+              makeComment={makeComment}
+              handleAudio={handleAudio}
+              isFromFunctionset="true"
+              //just some
+
+              closeTextModal={() => {
+                setTextModal(false);
+              }}
+            />
+          )
+        }
+      </div>
       <Head>
         <title>Profile - Followgram</title>
         <meta
@@ -147,7 +194,7 @@ export default function MyProfile({
       <div className="flex w-full pt-5 md:pt-10">
         <div className="w-1/3 text-center items-center">
           <div>
-            {!user && (
+            {!state && (
               <Image
                 className="rounded-full bg-white"
                 src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
@@ -155,10 +202,10 @@ export default function MyProfile({
                 height={150}
               />
             )}
-            {user && (
+            {(state && state.pic) && (
               <Image
                 className="rounded-full bg-white"
-                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${user.pic}`}
+                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${state.pic}`}
                 width={150}
                 height={150}
               />
@@ -167,8 +214,8 @@ export default function MyProfile({
           <button className="mt-2">Change Profile</button>
         </div>
         <div className="w-2/3 pt-3 pl-4 md:pl-0 overflow-x-hidden">
-          <h2 className="text-2xl">{user.name}</h2>
-          <h2 className="text-md">{user.email}</h2>
+          <h2 className="text-2xl">{state && state.name}</h2>
+          <h2 className="text-md">{state && state.email}</h2>
           <div className="flex py-5 text-sm md:text-lg">
             <div className="w-1/3 md:w-1/5 text-center">
               <p>{state ? state.posts.length : 0}</p>
@@ -201,9 +248,8 @@ export default function MyProfile({
       {/* {!error && !data && <h1>Loading...</h1>} */}
       <div className="flex justify-evenly mt-10">
         <p
-          className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
-          }`}
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
+            }`}
           onClick={() => {
             changeCategory("Media");
           }}
@@ -211,9 +257,8 @@ export default function MyProfile({
           Photos
         </p>
         <p
-          className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
-          }`}
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
+            }`}
           onClick={() => {
             changeCategory("Joke");
           }}
@@ -221,9 +266,8 @@ export default function MyProfile({
           Jokes
         </p>
         <p
-          className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
-          }`}
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
+            }`}
           onClick={() => {
             changeCategory("Shayari");
           }}
@@ -231,9 +275,8 @@ export default function MyProfile({
           Shayari
         </p>
         <p
-          className={`mx-2 text-2xl cursor-pointer ${
-            fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
-          }`}
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
+            }`}
           onClick={() => {
             changeCategory("Quote");
           }}
@@ -271,6 +314,11 @@ export default function MyProfile({
                     width={50}
                     height={50}
                     layout="responsive"
+                    // onMouseEnter={}
+                    onClick={() => {
+                      setPost(post);
+                      setModal(true);
+                    }}
                   />
                 </div>
               ))}
@@ -280,7 +328,7 @@ export default function MyProfile({
                   key={post._id}
                   className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                 >
-                  <p className="pl-4 text-2xl font-bold">{post.body}</p>
+                  <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => { setPost(post); setTextModal(true); }}>{post.body}</p>
                   <p className="text-right pr-4">
                     {new Date(post.createdAt).toLocaleDateString(
                       "en-US",
@@ -288,8 +336,32 @@ export default function MyProfile({
                     )}
                   </p>
                   <div className="flex justify-evenly">
-                    <AiOutlineLike className="text-2xl cursor-pointer" />
-                    <AiOutlineDislike className="text-2xl cursor-pointer" />
+                    {
+                      (state && post.likes.includes(state._id))
+                        ?
+                        <div onClick={() => { unLikePost(post._id, posts, setPosts, setPost) }}>
+                          <AiFillHeart className="cursor-pointer" />
+                          <p>{post.likes.length} likes</p>
+                        </div>
+                        :
+                        <div onClick={() => { likePost(post._id, posts, setPosts, setPost) }}>
+                          <AiOutlineHeart className="cursor-pointer" />
+                          <p>{post.likes.length} likes</p>
+                        </div>
+                    }
+                    <div className="cursor-pointer" onClick={() => {
+                      setPost(post);
+                      setTextModal(true);
+                    }}>
+                      <FaRegComment />
+                      {
+                        post.comments.length > 0
+                          ?
+                          <p>{post.comments.length} comments</p>
+                          :
+                          <p>No Comments</p>
+                      }
+                    </div>
                     {speaking && postId === post._id ? (
                       <BsStop
                         className={`text-2xl cursor-pointer`}

@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(()=>{
     const localuser=JSON.parse(localStorage.getItem("user"));
-    console.log("Hey on refresh local user is",localuser);
+    // console.log("Hey on refresh local user is",localuser);
     if(localuser){
       dispatch({type:"USER",payload:localuser});
       // console.log(localuser);

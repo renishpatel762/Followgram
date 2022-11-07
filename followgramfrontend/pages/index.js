@@ -23,6 +23,10 @@ export default function Home({
   // const [postFilter, setPostFilter] = useState("all");
   // const [previousPostFilter, setPreviousPostFilter] = useState("all");
   // const [showModal, setShowModal] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [post, setPost] = useState(null);
+
+
   useEffect(() => {
     if (!localStorage.getItem("user")) {
       router.push("/welcome");
@@ -33,6 +37,95 @@ export default function Home({
     console.log(date1);
     console.log(date2);
   }, [date1, date2]);
+
+  const likePost = (pid) => {
+    // console.log(pid);
+    fetch('/api/like', {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        postId: pid
+      })
+    })
+      .then((res) => res.json())
+      .then(result => {
+        setPost(result);
+        const newData = posts.map(item => {
+          if (item._id === result._id) {
+            return result;
+          } else {
+            return item;
+          }
+        })
+        setPosts(newData);
+        // console.log("like result is", result);
+      }).catch(err => {
+        console.error(err);
+      })
+  }
+
+  const unLikePost = (pid) => {
+    // console.log(pid);
+    fetch('/api/unlike', {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        postId: pid
+      })
+    })
+      .then((res) => res.json())
+      .then(result => {
+        setPost(result);//setting post for modal
+
+        const newData = posts.map(item => {
+          if (item._id === result._id) {
+            return result;
+          } else {
+            return item;
+          }
+        })
+        setPosts(newData);
+        // console.log("like result is", result);
+      }).catch(err => {
+        console.error(err);
+      })
+  }
+
+  const makeComment = (text, postId) => {
+    if (text === "" || text === null || text == " ") {
+      return;
+    }
+    fetch("/api/comment", {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        postId,
+        text
+      }),
+    }).then((response) => response.json())
+      .then(result => {
+        setPost(result);//for modal
+        const newData = posts.map(item => {
+          if (item._id === result._id) {
+            return result;
+          } else {
+            return item;
+          }
+        })
+        setPosts(newData);
+      }).catch(err => {
+        console.log(err);
+      })
+  }
 
   return (
     <div className="h-full">
@@ -46,14 +139,28 @@ export default function Home({
       <div>
         {photoPost ? (
           <ImagePost
-            postFilter={postFilter}
-            previousPostFilter={previousPostFilter}
-            date1={date1}
-            date2={date2}
+          posts={posts}
+          setPosts={setPosts}
+          post={post}
+          setPost={setPost}
+          likePost={likePost}
+          unLikePost={unLikePost}
+          makeComment={makeComment}
+          postFilter={postFilter}
+          previousPostFilter={previousPostFilter}
+          date1={date1}
+          date2={date2}
           />
-        ) : (
+          ) : (
           <TextPost
             speak={speak}
+            posts={posts}
+            setPosts={setPosts}
+            post={post}
+            setPost={setPost}
+            likePost={likePost}
+            unLikePost={unLikePost}
+            makeComment={makeComment}
             cancel={cancel}
             speaking={speaking}
             supported={supported}
