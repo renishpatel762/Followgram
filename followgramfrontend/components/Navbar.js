@@ -7,7 +7,6 @@ import { CgProfile } from "react-icons/cg";
 import { Tooltip } from "@nextui-org/react";
 import { AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
 import { IoPersonAddOutline } from "react-icons/io5";
-import SearchModal from "./SearchModal";
 
 export default function Navbar({
   logoutUser,
@@ -30,7 +29,6 @@ export default function Navbar({
   const [showModal, setShowModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
-  const [searchModal, setSearchModal] = useState(false);
 
   useEffect(() => {
     // console.log(router.pathname);
@@ -57,20 +55,6 @@ export default function Navbar({
 
   return (
     <div className="sticky top-0 z-20">
-      <div id="modalBox">
-        {searchModal && (
-          <SearchModal
-            // post={post}
-            // state={state}
-            // likePost={likePost}
-            // unLikePost={unLikePost}
-            // makeComment={makeComment}
-            closeModal={() => {
-              setSearchModal(false);
-            }}
-          />
-        )}
-      </div>
       <nav className="bg-gray-300 text-gray-700 border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-900 dark:text-gray-400">
         <div className="flex flex-wrap justify-between items-center mx-auto">
           <Link href={"/"}>
@@ -321,7 +305,7 @@ export default function Navbar({
             )}
 
 
-{/* //search deone by galaxy */}
+          {/* //search done by galaxy */}
           {![
             "/login",
             "/signup",
@@ -333,18 +317,17 @@ export default function Navbar({
                 placement="bottom"
                 contentColor="default"
                 color="primary"
-                content="Search"
+                content="Exlpore"
               >
-                {/* <Link href={"/createpost"}> */}
-                <a className="flex text-2xl py-1 rounded-md hover:text-blue-400"
-                  onClick={() => {
-                    setSearchModal(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  <BiSearch /> <p className="pl-3">Search</p>
-                </a>
-                {/* </Link> */}
+                <Link href={"/search"}>
+                  <a className="flex text-2xl py-1 rounded-md hover:text-blue-400"
+                    onClick={() => {
+
+                    }}
+                  >
+                    <BiSearch /> <p className="pl-3">Explore</p>
+                  </a>
+                </Link>
               </Tooltip>
             )}
 

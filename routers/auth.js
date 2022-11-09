@@ -81,7 +81,7 @@ router.post("/signup", (req, res) => {
                 const otp = parseInt(buffer.toString("hex"), 16)
                   .toString()
                   .substring(0, 6);
-                console.log(otp);
+                // console.log(otp);
                 transporter.sendMail({
                   to: email,
                   from: "officialfollowgram@gmail.com",
@@ -103,7 +103,7 @@ router.post("/signup", (req, res) => {
                 auth
                   .save()
                   .then((savedauth) => {
-                    console.log(savedauth);
+                    // console.log(savedauth);
                   })
                   .catch((err) => console.error(err));
               });
@@ -158,7 +158,7 @@ router.post("/signin", (req, res) => {
 
 router.post("/verify", (req, res) => {
   const { email, otp } = req.body;
-  console.log("req.body is", req.body);
+  // console.log("req.body is", req.body);
   if (!email || !otp) {
     res
       .status(422)
@@ -199,7 +199,7 @@ router.post("/verify", (req, res) => {
             .catch((err) => console.error(err));
           Auth.deleteOne({ email: email })
             .then((suc) => {
-              console.log("Auth removed");
+              // console.log("Auth removed");
             })
             .catch((err) => console.error(err));
         })

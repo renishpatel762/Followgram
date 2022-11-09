@@ -49,11 +49,13 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
               />
               <div>
                 <p className="pl-4">{post.postedBy.name}</p>
-                <p className="pl-4 text-sm">{post.body}</p>
+                {/* <div style={{height:'100px'}}> */}
+                  <p className="pl-4 text-sm mr-20">{post.body}</p>
+                {/* </div> */}
               </div>
-              <span className="absolute right-10 text-xl cursor-pointer">
+              <div className="absolute right-10 text-xl cursor-pointer">
                 <AiOutlineUserAdd />
-              </span>
+              </div>
             </div>
             {/* border-b-2 border-gray-300  */}
             <div className={styles.middlediv}>
@@ -67,10 +69,10 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
                         <div className="flex cursor-pointer"
                           onClick={() => {
                             closeModal();
-                            if (citem.postedBy._id !== state._id){
+                            if (citem.postedBy._id !== state._id) {
                               router.push("/profile/" + citem.postedBy._id)
                             }
-                            else{
+                            else {
                               router.push("/profile");
                             }
                           }}>

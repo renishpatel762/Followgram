@@ -26,7 +26,7 @@ const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
   // return `/api/allpost`; // SWR key
-  return `/api/allpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${cat}`; // SWR key
+  return `/api/followingpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${cat}`; // SWR key
 };
 
 export default function TextPost({

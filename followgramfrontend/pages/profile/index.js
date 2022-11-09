@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useSWRInfinite from "swr/infinite";
 import loader from "../../public/loader.svg";
-import { AiOutlineLike, AiOutlineDislike, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 import { UserContext } from "../_app";
 import Modal from "../../components/Modal";
