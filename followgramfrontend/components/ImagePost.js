@@ -24,7 +24,7 @@ const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
   // return `/api/allpost`; // SWR key
-  return `/api/allpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=Media`; // SWR key
+  return `/api/followingpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=Media`; // SWR key
 };
 
 export default function ImagePost({ postFilter, previousPostFilter, date1, date2, post, posts, setPost, setPosts, likePost, unLikePost, makeComment }) {

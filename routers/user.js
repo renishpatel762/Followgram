@@ -88,25 +88,53 @@ router.put('/unfollow', requireLogin, (req, res) => {
     })
 });
 
-router.post('/search', requireLogin, (req, res) => {
-    console.log(req.body);
-    let userPattern = new RegExp("^" + req.body.searchquery)
+router.post('/accountsearch', requireLogin, (req, res) => {
+    console.log("accountsearch");
+    // let userPattern = new RegExp("^" + req.body.searchquery)
+    let userPattern = new RegExp(req.body.searchquery)
+
     User.find({ email: { $regex: userPattern } })
-
-
-
-
-
-
-
         //change to name or content based search
-
-        .select("_id email name")
+        .select("_id email name pic")
         .then(accountdata => {
+            console.log("accountdata", accountdata);
             res.json({ success: true, accountdata })
         }).catch(err => {
             console.log({ success: false, err });
         })
 })
+router.post('/mediasearch', requireLogin, (req, res) => {
+    console.log("mediasearch");
+    let postPattern = new RegExp(req.body.searchquery)
 
+    Post.find({ type: "Media", body: { $regex: postPattern, $options: '/i' } })
+
+        //change to name or content based search
+        .select("_id title photo body likes comments postedBy")
+        .populate("postedBy")
+        .populate("comments.postedBy", "_id name pic")
+        .then(mediadata => {
+            console.log("mediadata", mediadata);
+            res.json({ success: true, mediadata })
+        }).catch(err => {
+            console.log({ success: false, err });
+        })
+})
+router.post('/textpostsearch', requireLogin, (req, res) => {
+    console.log("textpostsearch");
+
+    let textPostPattern = new RegExp(req.body.searchquery)
+    let category = ['Joke', "Shayari", "Quote"]
+    Post.find({ type: { $in: category }, body: { $regex: textPostPattern, $options: '/i' } })
+        //change to name or content based search
+        .select("_id type body likes comments postedBy")
+        .populate("postedBy")
+        .populate("comments.postedBy", "_id name pic")
+        .then(textpostdata => {
+            console.log("mediadata", textpostdata);
+            res.json({ success: true, textpostdata })
+        }).catch(err => {
+            console.log({ success: false, err });
+        })
+})
 module.exports = router;
