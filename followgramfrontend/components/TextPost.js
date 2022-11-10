@@ -22,11 +22,16 @@ const fetcher = (url) =>
     },
   }).then((response) => response.json());
 
+let currentPostFilter = "all"
+
+let bdate1 = "";
+let bdate2 = "";
+
 const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
   // return `/api/allpost`; // SWR key
-  return `/api/followingpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${cat}`; // SWR key
+  return `/api/followingpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${cat}&postFilter=${currentPostFilter}&date1=${bdate1}&date2=${bdate2}`; // SWR key
 };
 
 export default function TextPost({
@@ -84,6 +89,23 @@ export default function TextPost({
     cat = c;
     setSize(1);
   };
+  useEffect(()=>{
+    console.log("post filter called",postFilter);
+    currentPostFilter=postFilter;
+    setPosts([]);
+  },[postFilter]);
+
+  useEffect(()=>{
+    console.log("date1",date1);
+    console.log("date2",date2);
+    if(date1!=null && date2!=null){
+      console.log("both not null calling");
+
+      bdate1=date1;
+      bdate2=date2;
+      setPosts([]);
+    }
+  },[date1,date2])
 
   const handleAudio = (post) => {
     if (supported) {
@@ -127,11 +149,11 @@ export default function TextPost({
           />
         )}
       </div>
-      <div className="pt-1 md:pt-4 dark:bg-gray-800 dark:text-white bg-white text-black">
+      <div className={`pt-1 md:pt-4 dark:bg-gray-800 dark:text-white bg-white text-black min-h-screen ${textModal ? 'opacity-80' : 'opacity-100'}`}>
         <div className="flex justify-evenly mb-2">
           <p
-            className={`text-xl ${category === "Joke" ? "border-b-2 font-semibold" : ""
-              } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Joke" ? "border-b-2 border-white font-semibold" : ""
+              }  cursor-pointer px-2`}
             onClick={() => {
               changeCategory("Joke");
             }}
@@ -139,8 +161,8 @@ export default function TextPost({
             Jokes
           </p>
           <p
-            className={`text-xl ${category === "Shayari" ? "border-b-2 font-semibold" : ""
-              } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Shayari" ? "border-b-2 border-white font-semibold" : ""
+              }  cursor-pointer px-2`}
             onClick={() => {
               changeCategory("Shayari");
             }}
@@ -148,8 +170,8 @@ export default function TextPost({
             Shayari
           </p>
           <p
-            className={`text-xl ${category === "Quote" ? "border-b-2 font-semibold" : ""
-              } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Quote" ? "border-b-2 border-white font-semibold" : ""
+              }  cursor-pointer px-2`}
             onClick={() => {
               changeCategory("Quote");
             }}
@@ -230,7 +252,7 @@ export default function TextPost({
                         (state && post.likes.includes(state._id))
                           ?
                           <div onClick={() => { unLikePost(post._id) }}>
-                            <AiFillHeart className="cursor-pointer"/>
+                            <AiFillHeart className="cursor-pointer" />
                             <p>{post.likes.length} likes</p>
                           </div>
                           :
@@ -240,7 +262,7 @@ export default function TextPost({
                           </div>
                       }
                       <div className="cursor-pointer" onClick={() => { setPost(post); setTextModal(true); }}>
-                        <FaRegComment/>
+                        <FaRegComment />
                         {
                           post.comments.length > 0
                             ?
