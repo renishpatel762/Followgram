@@ -115,14 +115,21 @@ export default function TextModal({
                     ?
                     <p className="text-3xl text-white cursor-pointer" onClick={() => setPostSettingModal(true)}>...</p>
                     :
-                    <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
-                      if (post.postedBy._id !== state._id)
-                        router.push("/profile/" + post.postedBy._id)
-                      else {
-                        router.push("/profile");
-                        closeModal();
+                    <>
+                      {
+                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id!==post.postedBy._id)  
+                        &&
+
+                        <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
+                          if (post.postedBy._id !== state._id)
+                            router.push("/profile/" + post.postedBy._id)
+                          else {
+                            router.push("/profile");
+                            closeModal();
+                          }
+                        }} />
                       }
-                    }} />
+                    </>
                 }
                 <p className="text-xs">
                   {new Date(post.createdAt).toLocaleDateString("en-US", {

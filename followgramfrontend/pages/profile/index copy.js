@@ -56,7 +56,6 @@ export default function MyProfile({
   const [modal, setModal] = useState(false);
   const [textModal, setTextModal] = useState(false);
 
-  //for collection
   const [collectionData, setCollectionData] = useState([]);
   const [expand, setExpand] = useState(false);
 
@@ -175,6 +174,9 @@ export default function MyProfile({
       .catch(err => {
         console.error(err);
       })
+
+
+
   }, []);
 
   return (
@@ -255,7 +257,7 @@ export default function MyProfile({
           <h2 className="text-md">{state && state.email}</h2>
           <div className="flex py-5 text-sm md:text-lg">
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>{(state && state.posts) ? state.posts.length : 0}</p>
+              <p>{(state && state.posts ) ? state.posts.length : 0}</p>
               <p>Posts</p>
             </div>
             <div className="w-1/3 md:w-1/5 text-center">
@@ -267,9 +269,9 @@ export default function MyProfile({
               <p>Following</p>
             </div>
           </div>
-          <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
-            onClick={() => router.push('/profile/setting')}>
-            Settings
+          <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400" 
+          onClick={()=>router.push('/profile/setting')}>
+              Settings
           </button>
         </div>
       </div>
@@ -294,7 +296,7 @@ export default function MyProfile({
         >
           Photos
         </p>
-        {/* <p
+        <p
           className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
             }`}
           onClick={() => {
@@ -320,9 +322,9 @@ export default function MyProfile({
           }}
         >
           Quotes
-        </p> */}
+        </p>
 
-        <p
+        {/* <p
           className={`mx-2 text-2xl cursor-pointer ${(fetchedCategory !== "TextPost" && fetchedCategory !== "Joke" && fetchedCategory !== "Shayari" && fetchedCategory !== "Quote") ? "" : "border-blue-400 border-b-2"
             }`}
           onClick={() => {
@@ -330,8 +332,8 @@ export default function MyProfile({
           }}
         >
           TextPost
-        </p>
-        <p
+        </p> */}
+        {/* <p
           className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection" ? "" : "border-blue-400 border-b-2"
             }`}
           onClick={() => {
@@ -339,9 +341,9 @@ export default function MyProfile({
           }}
         >
           Collections
-        </p>
+        </p> */}
       </div>
-      <div className="flex justify-evenly mt-10">
+      {/* <div className="flex justify-evenly mt-10">
         {
           (fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
           <>
@@ -373,7 +375,7 @@ export default function MyProfile({
               Quotes
             </p>
           </>}
-      </div>
+      </div> */}
       {/* posts */}
       <div className="mt-10">
         <InfiniteScroll
@@ -478,77 +480,64 @@ export default function MyProfile({
               ))}
 
 
-            {
-              (fetchedCategory === "Collection" && collectionData.length > 0)
+            {/* {
+              fetchedCategory === "Collection"
               &&
-              collectionData.map((citem, cindex) => (
+              collectionData.map((citem,cindex) => (
                 <div
                   key={citem._id}
                   className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                 >
                   <p>Name: {citem.name}</p>
+                  <p>ImagePost {citem.imagePost.length}</p>
+                  <p>TextPost {citem.textPost.length}</p>
                   <div className="">
-                    {/* <button onClick={() => {
-                      expandArray[cindex] = 1
+                    <button onClick={() => {
+                      expandArray[cindex]= 1
                       console.log(expandArray[cindex]);
-                    }}>expand</button> */}
-                    <p>ImagePost {citem.imagePost.length}</p>
-
+                      }}>expand</button>
                     {
                       expandArray[cindex] === 1 &&
                       <>
-                        <div
-                          // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
-                          style={{ display: 'flex', flexWrap: 'wrap', width: '100%', border: '1px solid gray' }}
-                        >
-                          {
-                            citem.imagePost.length > 0
-                            &&
-                            citem.imagePost.map(ciitem => (
-                              <div
-                                key={ciitem._id}
-                                // className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
-                                className="w-1/4 text-center py-1 px-1 md:py-2 md:px-3"
-                              >
-                                <Image
-                                  className="hover:opacity-40 hover:cursor-pointer"
-                                  src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
-                                  width={50}
-                                  height={50}
-                                  layout="responsive"
-                                  onClick={() => {
-                                    setPost(ciitem);
-                                    setModal(true);
-                                  }}
-                                />
+                        {
+                          citem.imagePost.length > 0
+                          &&
+                          citem.imagePost.map(ciitem => (
+                            <div
+                              key={ciitem._id}
+                              className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
+                            >
+                              <Image
+                                className="hover:opacity-40 hover:cursor-pointer"
+                                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
+                                width={50}
+                                height={50}
+                                layout="responsive"
+                                onClick={() => {
+                                  setPost(ciitem);
+                                  setModal(true);
+                                }}
+                              />
 
-                              </div>
-                            ))
-
-                          }
-                        </div>
-                        <p>TextPost {citem.textPost.length}</p>
-                        <div
-                        style={{border:'1px solid gray',padding:'0 10px'}} 
-                        // className="border-white border-solid"
-                        >
-                          {
-                            citem.textPost.length > 0
-                            &&
-                            citem.textPost.map(ctitem => (
-                              <div
-                                key={ctitem._id}
-                                className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white bg-gray-300 text-black"
-                              >
-                                <p className="text-2xl">{ctitem.type}</p>
-                                <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
-                                  setPost(ctitem);
-                                  setTextModal(true);
-                                }}>{ctitem.body}</p>
-                              </div>
-                            ))
-                          }
-                          </div>
+                            </div>
+                          ))
+                        }
+                        {
+                          citem.textPost.length > 0
+                          &&
+                          citem.textPost.map(ctitem => (
+                            <div
+                              key={ctitem._id}
+                              className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
+                            >
+                              <p>{ctitem.type}</p>
+                              <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                                setPost(ctitem);
+                                setTextModal(true);
+                              }}>{ctitem.body}</p>
+                            </div>
+                          ))
+                        }
                       </>
 
                     }
@@ -558,7 +547,7 @@ export default function MyProfile({
                 </div>
               ))
 
-            }
+            } */}
           </div>
         </InfiniteScroll>
       </div>

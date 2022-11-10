@@ -5,7 +5,7 @@ import { AiOutlineUserAdd, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import styles from "../styles/Modal.module.css";
 import { useRouter } from "next/router";
 
-export default function Modal({ closeModal, post, state, likePost, makeComment, unLikePost, posts, setPosts, setPost, isFromProfilePage,handleDeletePost }) {
+export default function Modal({ closeModal, post, state, likePost, makeComment, unLikePost, posts, setPosts, setPost, isFromProfilePage, handleDeletePost }) {
   // console.log("post is", post);
   const [postSettingModal, setPostSettingModal] = useState(false);
   const router = useRouter();
@@ -30,9 +30,11 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
               className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-200 rounded-md py-4`}
             >
               <div className="text-center cursor-pointer">
-                <p className="text-red-600" onClick={()=>{handleDeletePost(post._id)
-                closeModal()}}>Delete Post</p>
-                <p onClick={()=>setPostSettingModal(false)}>Cancel</p>
+                <p className="text-red-600" onClick={() => {
+                  handleDeletePost(post._id)
+                  closeModal()
+                }}>Delete Post</p>
+                <p onClick={() => setPostSettingModal(false)}>Cancel</p>
               </div>
             </div>
           </div>
@@ -40,7 +42,7 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
         <div className="flex">
           <div className="pl-6 w-1/2">
             <Image
-            className="rounded-sm"
+              className="rounded-sm"
               src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${post.photo}`}
               width={500}
               height={500}
@@ -83,14 +85,22 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
                     ?
                     <p className="text-3xl text-white cursor-pointer" onClick={() => setPostSettingModal(true)}>...</p>
                     :
-                    <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
-                      if (post.postedBy._id !== state._id)
-                        router.push("/profile/" + post.postedBy._id)
-                      else {
-                        router.push("/profile");
-                        closeModal();
+                    <>
+                      {
+                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id!==post.postedBy._id)  
+                        &&
+
+                        <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
+                          if (post.postedBy._id !== state._id)
+                            router.push("/profile/" + post.postedBy._id)
+                          else {
+                            router.push("/profile");
+                            closeModal();
+                          }
+                        }} />
                       }
-                    }} />
+                    </>
+
                 }
                 <p className="text-xs">
                   {new Date(post.createdAt).toLocaleDateString("en-US", {
@@ -138,7 +148,7 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
                   </div>
               }
             </div>
-            <hr className="h-[1px] bg-gray-600 my-1"/>
+            <hr className="h-[1px] bg-gray-600 my-1" />
             {/* flex text-2xl mt-2 */}
             <div className={`${styles.bottomdiv} pt-1`}>
               {

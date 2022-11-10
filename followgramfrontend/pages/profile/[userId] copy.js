@@ -16,8 +16,6 @@ import TextModal from "../../components/TextModal";
 const PAGE_SIZE = 3;
 let category = "Media";
 let bodyuid = "";
-let expandArray = [];
-
 const fetcher = (url) => {
 
 
@@ -83,9 +81,6 @@ export default function Profile({
   const [modal, setModal] = useState(false);
   const [textModal, setTextModal] = useState(false);
 
-  //for collection
-  const [collectionData, setCollectionData] = useState([]);
-  const [expand, setExpand] = useState(false);
 
   let isLoadingMore = true,
     isReachedEnd = false;
@@ -150,30 +145,6 @@ export default function Profile({
       };
       getUser();
       console.log(user);
-
-
-      // calling for getting collection data
-      console.log("getuserscollections called", userId);
-      fetch('/api/getuserscollections', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-        body: JSON.stringify({
-          uid: userId
-        })
-      }).then((response) => response.json())
-        .then(({ usercoll }) => {
-          console.log("collection result is", usercoll);
-          expandArray = Array(usercoll.length);
-          expandArray.fill(1)
-          console.log("expandArray", expandArray);
-          setCollectionData(usercoll)
-        })
-        .catch(err => {
-          console.error(err);
-        })
     }
   }, [userId]);
 
@@ -195,11 +166,9 @@ export default function Profile({
     console.log(posts);
   }, [data]);
 
-
   const changeCategory = (cat) => {
     setFetchedCategory(cat);
-    if (cat !== "Collection")
-      category = cat;
+    category = cat;
     setSize(1);
   };
 
@@ -236,7 +205,6 @@ export default function Profile({
       alert("Sorry!! This feature is not supported in your browser");
     }
   };
-
 
   const followUser = () => {
     fetch('/api/follow', {
@@ -441,7 +409,7 @@ export default function Profile({
             >
               Photos
             </p>
-            {/* <p
+            <p
               className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
                 }`}
               onClick={() => {
@@ -469,58 +437,7 @@ export default function Profile({
               }}
             >
               Quotes
-            </p> */}
-            <p
-              className={`mx-2 text-2xl cursor-pointer ${(fetchedCategory !== "TextPost" && fetchedCategory !== "Joke" && fetchedCategory !== "Shayari" && fetchedCategory !== "Quote") ? "" : "border-blue-400 border-b-2"
-                }`}
-              onClick={() => {
-                changeCategory("Joke");
-              }}
-            >
-              TextPost
             </p>
-            <p
-              className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection" ? "" : "border-blue-400 border-b-2"
-                }`}
-              onClick={() => {
-                changeCategory("Collection");
-              }}
-            >
-              Collections
-            </p>
-          </div>
-          <div className="flex justify-evenly mt-10">
-            {
-              (fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
-              <>
-                <p
-                  className={`mx-2 text- xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
-                    }`}
-                  onClick={() => {
-                    changeCategory("Joke");
-                  }}
-                >
-                  Jokes
-                </p>
-                <p
-                  className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
-                    }`}
-                  onClick={() => {
-                    changeCategory("Shayari");
-                  }}
-                >
-                  Shayari
-                </p>
-                <p
-                  className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
-                    }`}
-                  onClick={() => {
-                    changeCategory("Quote");
-                  }}
-                >
-                  Quotes
-                </p>
-              </>}
           </div>
           {/* posts */}
           <div className="mt-10">
@@ -560,7 +477,7 @@ export default function Profile({
                       />
                     </div>
                   ))}
-                {(fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
+                {fetchedCategory !== "Media" &&
                   posts.map((post) => (
                     <div
                       key={post._id}
@@ -628,92 +545,9 @@ export default function Profile({
                       </div>
                     </div>
                   ))}
-                {
-                  console.log("------------------",collectionData.length)
-                }
-                {
-                  
-                  (fetchedCategory === "Collection" && collectionData.length > 0)
-                  && collectionData.map((citem, cindex) => (
-                    <div
-                      key={citem._id}
-                      className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
-                    >
-                      <p>Name: {citem.name}</p>
-                      <div className="">
-                        {/* <button onClick={() => {
-                      expandArray[cindex] = 1
-                      console.log(expandArray[cindex]);
-                    }}>expand</button> */}
-                        <p>ImagePost {citem.imagePost.length}</p>
-
-                        {
-                          expandArray[cindex] === 1 &&
-                          <>
-                            <div
-                              // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
-                              style={{ display: 'flex', flexWrap: 'wrap', width: '100%', border: '1px solid gray' }}
-                            >
-                              {
-                                citem.imagePost.length > 0
-                                &&
-                                citem.imagePost.map(ciitem => (
-                                  <div
-                                    key={ciitem._id}
-                                    // className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
-                                    className="w-1/4 text-center py-1 px-1 md:py-2 md:px-3"
-                                  >
-                                    <Image
-                                      className="hover:opacity-40 hover:cursor-pointer"
-                                      src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
-                                      width={50}
-                                      height={50}
-                                      layout="responsive"
-                                      onClick={() => {
-                                        setPost(ciitem);
-                                        setModal(true);
-                                      }}
-                                    />
-
-                                  </div>
-                                ))
-
-                              }
-                            </div>
-                            <p>TextPost {citem.textPost.length}</p>
-                            <div
-                              style={{ border: '1px solid gray', padding: '0 10px' }}
-                            // className="border-white border-solid"
-                            >
-                              {
-                                citem.textPost.length > 0
-                                &&
-                                citem.textPost.map(ctitem => (
-                                  <div
-                                    key={ctitem._id}
-                                    className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white bg-gray-300 text-black"
-                                  >
-                                    <p className="text-2xl">{ctitem.type}</p>
-                                    <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
-                                      setPost(ctitem);
-                                      setTextModal(true);
-                                    }}>{ctitem.body}</p>
-                                  </div>
-                                ))
-                              }
-                            </div>
-                          </>
-
-                        }
-                      </div>
-                      <div>
-                      </div>
-                    </div>
-                  ))
-
-                }
               </div>
-            </InfiniteScroll>          </div>
+            </InfiniteScroll>
+          </div>
         </div>
       )}
       {user == null && <div>Something went wrong...</div>}

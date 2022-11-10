@@ -89,23 +89,23 @@ export default function TextPost({
     cat = c;
     setSize(1);
   };
-  useEffect(()=>{
-    console.log("post filter called",postFilter);
-    currentPostFilter=postFilter;
+  useEffect(() => {
+    console.log("post filter called", postFilter);
+    currentPostFilter = postFilter;
     setPosts([]);
-  },[postFilter]);
+  }, [postFilter]);
 
-  useEffect(()=>{
-    console.log("date1",date1);
-    console.log("date2",date2);
-    if(date1!=null && date2!=null){
+  useEffect(() => {
+    console.log("date1", date1);
+    console.log("date2", date2);
+    if (date1 != null && date2 != null) {
       console.log("both not null calling");
 
-      bdate1=date1;
-      bdate2=date2;
+      bdate1 = date1;
+      bdate2 = date2;
       setPosts([]);
     }
-  },[date1,date2])
+  }, [date1, date2])
 
   const handleAudio = (post) => {
     if (supported) {
@@ -240,7 +240,18 @@ export default function TextPost({
                     />
                     <h1 className="pl-4 text-white">{post.postedBy.name}</h1>
                     <span className="absolute right-4 text-xl cursor-pointer text-gray-800">
-                      <AiOutlineUserAdd />
+                      {
+                        (state && state.followings && state.followings.includes(post.postedBy._id)) &&
+
+                        <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
+                          if (post.postedBy._id !== state._id)
+                            router.push("/profile/" + post.postedBy._id)
+                          else {
+                            router.push("/profile");
+                            closeModal();
+                          }
+                        }} />
+                      }
                     </span>
                   </div>
                   <div className="my-1">
