@@ -86,6 +86,7 @@ router.post('/createpost', requireLogin, (req, res) => {
 
 //to get loged in user post
 router.get('/mypost', requireLogin, (req, res) => {
+    console.log(req.user._id);
     const { limit, page, category } = req.query;
     console.log(req.query);
     Post.find({ postedBy: req.user._id, type: category })
@@ -153,12 +154,55 @@ router.put('/comment', requireLogin, (req, res) => {
         .populate("postedBy", "_id name pic")
         .exec((err, result) => {
             if (err) {
-                return res.status(422).json({ error: err })
+                return res.status(422).json({ success: false,error: err })
             } else {
                 res.json(result)
             }
         })
 });
 
+router.post('/gettag', requireLogin, (req, res) => {
+    // console.log(req.query);
+    const { limit, page, category } = req.query;
+    console.log("tagpostsearch",req.body);
+
+    let tagname = new RegExp("#"+req.body.tagname)
+
+    Post.find({ type: category ,body: { $regex: tagname, $options: '/i' } })
+        .populate("postedBy", "_id name pic")
+        .populate("comments.postedBy", "_id name pic")
+        .sort('-createdAt')//sort in descending order
+        .skip((parseInt(page) - 1) * parseInt(limit))
+        .limit(parseInt(limit))
+        .then(posts => {
+            res.json(posts);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+router.delete('/deletepost/:postId', requireLogin, (req, res) => {
+    Post.findOne({ _id: req.params.postId })
+        .populate("postedBy", "_id")
+        .exec((err, post) => {
+            if (err || !post) {
+                return res.status(422).json({ success: false, error: err })
+            }
+            if (post.postedBy._id.toString() === req.user._id.toString()) {
+                post.remove()
+                    .then(result => {
+                        res.json({success:true,result})
+                        User.findByIdAndUpdate(req.user._id, {
+                            $pull: { posts: post._id }
+                        }, {
+                            new: true
+                        }).then(user=>console.log(user))
+                    }).catch(err => {
+                        console.log(err)
+                    })
+            }
+        })
+})
 
 module.exports = router;

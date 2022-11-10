@@ -29,6 +29,17 @@ router.get('/user/:id', requireLogin, (req, res) => {
 });
 
 router.post('/userpost', requireLogin, (req, res) => {
+
+
+    //
+
+
+
+
+
+    //
+
+    //or do with array that user have directly
     const { limit, page, category } = req.query;
     console.log(req.query);
     console.log("body is", req.body);
@@ -120,6 +131,7 @@ router.post('/mediasearch', requireLogin, (req, res) => {
             console.log({ success: false, err });
         })
 })
+
 router.post('/textpostsearch', requireLogin, (req, res) => {
     console.log("textpostsearch");
 

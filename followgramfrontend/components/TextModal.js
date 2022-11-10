@@ -6,9 +6,10 @@ import styles from "../styles/TextModal.module.css";
 import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 import { useRouter } from "next/router";
 
-export default function TextModal({ closeTex, tModal, post, state, likePost, makeComment, unLikePost, speaking, postId, handleAudio, closeTextModal, isFromFunctionset, posts, setPosts, setPost }) {
+export default function TextModal({ closeTex, tModal, post, state, likePost, makeComment, unLikePost, speaking, postId, handleAudio, closeTextModal, isFromProfilePage, posts, setPosts, setPost, handleDeletePost }) {
     const router = useRouter();
-    console.log("post is", post);
+    const [postSettingModal, setPostSettingModal] = useState(false);
+    // console.log("post is", post);
     return (
         <div className="opacity-100">
             <div
@@ -22,6 +23,23 @@ export default function TextModal({ closeTex, tModal, post, state, likePost, mak
                         <GrClose />
                     </span>
                 </div>
+                {
+                    postSettingModal
+                    &&
+                    <div className="opacity-100">
+                        <div
+                            className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-200 rounded-md py-4`}
+                        >
+                            <div className="text-center cursor-pointer">
+                                <p className="text-red-600" onClick={() => {
+                                    handleDeletePost(post._id)
+                                    closeTextModal()
+                                }}>Delete Post</p>
+                                <p onClick={() => setPostSettingModal(false)}>Cancel</p>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <div className="flex ">
                     <div className="pl-6 w-1/2">
                         <h3>{post.type}</h3>
@@ -52,28 +70,57 @@ export default function TextModal({ closeTex, tModal, post, state, likePost, mak
                     </div>
                     {/* className="relative pl-6 w-1/2 pr-6 " */}
                     <div className={styles.maincontainer} >
-                        <div className="flex items-center pb-1 border-b-2 border-gray-300 upperdiv cursor-pointer"
-                            onClick={() => {
-                                if (post.postedBy._id !== state._id)
-                                    router.push("/profile/" + post.postedBy._id)
-                                else {
-                                    router.push("/profile");
-                                    closeTextModal();
-                                }
-                            }}>
+                        <div className="flex items-center pb-1 border-b-2 border-gray-300 upperdiv ">
                             <Image
-                                className="rounded-full bg-white"
+                                className="rounded-full bg-white cursor-pointer"
                                 src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post.postedBy.pic}`}
                                 width={40}
                                 height={40}
+                                onClick={() => {
+                                    if (post.postedBy._id !== state._id)
+                                        router.push("/profile/" + post.postedBy._id)
+                                    else {
+                                        router.push("/profile");
+                                        closeTextModal();
+                                    }
+                                }}
                             />
                             <div>
-                                <p className="pl-4">{post.postedBy.name}</p>
+                                <p className="pl-4 cursor-pointer" onClick={() => {
+                                    if (post.postedBy._id !== state._id)
+                                        router.push("/profile/" + post.postedBy._id)
+                                    else {
+                                        router.push("/profile");
+                                        closeTextModal();
+                                    }
+                                }}>{post.postedBy.name}</p>
                                 <p className="pl-4 text-sm">{post.title}</p>
                             </div>
-                            <span className="absolute right-10 text-xl cursor-pointer">
-                                <AiOutlineUserAdd />
-                            </span>
+
+                            <div className="absolute right-10 text-xl">
+                                {
+                                    // console.log("isFromProfilePage",isFromProfilePage)
+                                    isFromProfilePage
+                                        ?
+                                        <p className="text-3xl cursor-pointer" onClick={() => setPostSettingModal(true)}>...</p>
+                                        :
+                                        <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
+                                            if (post.postedBy._id !== state._id)
+                                                router.push("/profile/" + post.postedBy._id)
+                                            else {
+                                                router.push("/profile");
+                                                closeTextModal();
+                                            }
+                                        }} />
+                                }
+                                <p className="text-xs">
+                                    {new Date(post.createdAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    })}
+                                </p>
+                            </div>
                         </div>
                         {/* border-b-2 border-gray-300  */}
                         <div className={styles.middlediv}>
@@ -86,7 +133,7 @@ export default function TextModal({ closeTex, tModal, post, state, likePost, mak
                                             <div className="flex m-5 cursor-pointer"
                                                 onClick={() => {
                                                     closeTextModal();
-                                                    if (citem.postedBy._id !== state._id){
+                                                    if (citem.postedBy._id !== state._id) {
                                                         router.push("/profile/" + post.postedBy._id)
                                                     }
                                                     else {

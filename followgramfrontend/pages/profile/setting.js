@@ -5,33 +5,13 @@ import { useRouter } from "next/router";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useSWRInfinite from "swr/infinite";
 import loader from "../../public/loader.svg";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 import { UserContext } from "../_app";
 import Modal from "../../components/Modal";
 import { FaRegCalendar, FaRegComment } from "react-icons/fa";
-import TextModal from "../../components/TextModal";
-import { likePost, unLikePost, makeComment } from "../../components/Functionset";
-const PAGE_SIZE = 3;
-let category = "Media";
-let expandArray=[];
-const fetcher = (url) =>
-  fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-  }).then((response) => response.json());
 
-const getKey = (pageIndex, previousPageData) => {
-  pageIndex = pageIndex + 1;
-  if (previousPageData && !previousPageData.length) return null; // reached the end
-  // return `/api/allpost`; // SWR key
-  return `/api/mypost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${category}`; // SWR key
-};
 
-export default function MyProfile({
+
+export default function Setting({
   speak,
   cancel,
   speaking,
@@ -42,11 +22,11 @@ export default function MyProfile({
   const [state, dispatch] = useContext(UserContext);
   // const[totalpost,setTotalPost]=useState(0);
   // const [user, setUser] = useState({});
-  const [posts, setPosts] = useState([]);
-  const [morePosts, setMorePosts] = useState(true);
-  const [fetchedCategory, setFetchedCategory] = useState("Media");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [postId, setPostId] = useState("");
+//   const [posts, setPosts] = useState([]);
+//   const [morePosts, setMorePosts] = useState(true);
+//   const [fetchedCategory, setFetchedCategory] = useState("Media");
+//   const [isPlaying, setIsPlaying] = useState(false);
+//   const [postId, setPostId] = useState("");
   // const { data, error } = useSWR("/api/allpost", fetcher);
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
     getKey,
@@ -56,18 +36,31 @@ export default function MyProfile({
   const [modal, setModal] = useState(false);
   const [textModal, setTextModal] = useState(false);
 
-  const [collectionData, setCollectionData] = useState([]);
-  const [expand, setExpand] = useState(false);
-
   const router = useRouter();
   let isLoadingMore = true,
     isReachedEnd = false;
   let options = {
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
+    // hour: "numeric",
+    // minute: "numeric",
+    // second: "numeric",
   };
+  // console.log("state is", state);
 
+  // useEffect(() => {
+  // const user = localStorage.getItem("user");
+  // if (user) {
+  //   const parsedUser = JSON.parse(user);
+  //   setUser(parsedUser);
+  //   // console.log("lhklj", parsedUser.posts);
+  //   // console.log(user.posts.length);
+  //   // setTotalPost(parsedUser.posts.length);
+  // } else {
+  //   router.push("/welcome");
+  // }
+  // }, []);
 
   useEffect(() => {
     // console.log(data);
@@ -87,12 +80,9 @@ export default function MyProfile({
     console.log(posts);
   }, [data]);
 
-
   const changeCategory = (cat) => {
     setFetchedCategory(cat);
-
-    if (cat !== "Collection")
-      category = cat;
+    category = cat;
     setSize(1);
   };
 
@@ -156,75 +146,10 @@ export default function MyProfile({
     console.log(postId);
   }, [postId]);
 
-  useEffect(() => {
-    fetch('/api/getcollections', {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    }).then((response) => response.json())
-      .then(({ usercoll }) => {
-        console.log("collection result is", usercoll);
-        expandArray=Array(usercoll.length);
-        expandArray.fill(1)
-        console.log("expandArray",expandArray);
-        setCollectionData(usercoll)
-      })
-      .catch(err => {
-        console.error(err);
-      })
-    
-    
-
-  }, []);
-
   return (
     <div className="min-h-screen px-2 dark:text-white dark:bg-gray-800">
-      <div id="modalBox">
-        {modal && (
-          <Modal
-            post={post}
-            state={state}
-            posts={posts}
-            setPosts={setPosts}
-            setPost={setPost}
-            likePost={likePost}
-            unLikePost={unLikePost}
-            makeComment={makeComment}
-            isFromProfilePage={true}
-            handleDeletePost={handleDeletePost}
-            closeModal={() => {
-              setModal(false);
-            }}
-          />
-        )}
-        {
-          textModal && (
-            <TextModal
-              post={post}
-              state={state}
-              posts={posts}
-              setPosts={setPosts}
-              setPost={setPost}
-              likePost={likePost}
-              unLikePost={unLikePost}
-              makeComment={makeComment}
-              handleAudio={handleAudio}
-              isFromProfilePage={true}
-              handleDeletePost={handleDeletePost}
-              // isFromFunctionset="true"
-              //just some
-
-              closeTextModal={() => {
-                setTextModal(false);
-              }}
-            />
-          )
-        }
-      </div>
       <Head>
-        <title>Profile - Followgram</title>
+        <title>Setting - Followgram</title>
         <meta
           name="description"
           content="Followgram share posts & text with your friend"
@@ -296,56 +221,32 @@ export default function MyProfile({
           Photos
         </p>
         <p
-          className={`mx-2 text-2xl cursor-pointer ${(fetchedCategory !== "TextPost" && fetchedCategory !== "Joke" && fetchedCategory !== "Shayari" && fetchedCategory !== "Quote") ? "" : "border-blue-400 border-b-2"
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
             }`}
           onClick={() => {
             changeCategory("Joke");
           }}
         >
-          TextPost
+          Jokes
         </p>
         <p
-          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection" ? "" : "border-blue-400 border-b-2"
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
             }`}
           onClick={() => {
-            changeCategory("Collection");
+            changeCategory("Shayari");
           }}
         >
-          Collections
+          Shayari
         </p>
-      </div>
-      <div className="flex justify-evenly mt-10">
-        {
-          (fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
-          <>
-            <p
-              className={`mx-2 text- xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
-                }`}
-              onClick={() => {
-                changeCategory("Joke");
-              }}
-            >
-              Jokes
-            </p>
-            <p
-              className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
-                }`}
-              onClick={() => {
-                changeCategory("Shayari");
-              }}
-            >
-              Shayari
-            </p>
-            <p
-              className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
-                }`}
-              onClick={() => {
-                changeCategory("Quote");
-              }}
-            >
-              Quotes
-            </p>
-          </>}
+        <p
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
+            }`}
+          onClick={() => {
+            changeCategory("Quote");
+          }}
+        >
+          Quotes
+        </p>
       </div>
       {/* posts */}
       <div className="mt-10">
@@ -385,7 +286,7 @@ export default function MyProfile({
                   />
                 </div>
               ))}
-            {(fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
+            {fetchedCategory !== "Media" &&
               posts.map((post) => (
                 <div
                   key={post._id}
@@ -449,87 +350,6 @@ export default function MyProfile({
                   </div>
                 </div>
               ))}
-
-
-            {
-              fetchedCategory === "Collection"
-              &&
-              collectionData.map((citem,cindex) => (
-                <div
-                  key={citem._id}
-                  className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
-                >
-                  {/* <p className="text-right pr-4">
-                    {new Date(citem.createdAt).toLocaleDateString(
-                      "en-US",
-                      options
-                    )}
-                  </p> */}
-                  <p>Name: {citem.name}</p>
-                  <p>ImagePost {citem.imagePost.length}</p>
-                  <p>TextPost {citem.textPost.length}</p>
-                  {/* <div className="flex justify-evenly"> */}
-                  <div className="">
-                    <button onClick={() => {
-                      expandArray[cindex]= 1
-                      console.log(expandArray[cindex]);
-                      }}>expand</button>
-                    {
-                      expandArray[cindex] === 1 &&
-                      <>
-                        {
-                          citem.imagePost.length > 0
-                          &&
-                          citem.imagePost.map(ciitem => (
-                            <div
-                              key={ciitem._id}
-                              className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
-                            >
-                              <Image
-                                className="hover:opacity-40 hover:cursor-pointer"
-                                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
-                                width={50}
-                                height={50}
-                                layout="responsive"
-                                onClick={() => {
-                                  setPost(ciitem);
-                                  setModal(true);
-                                }}
-                              // onMouseEnter
-                              />
-
-                            </div>
-                          ))
-                          // :
-                          // <p>No Media Post available for current search</p>
-
-                        }
-                        {
-                          citem.textPost.length > 0
-                          &&
-                          citem.textPost.map(ctitem => (
-                            <div
-                              key={ctitem._id}
-                              className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
-                            >
-                              <p>{ctitem.type}</p>
-                              <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
-                                setPost(ctitem);
-                                setTextModal(true);
-                              }}>{ctitem.body}</p>
-                            </div>
-                          ))
-                        }
-                      </>
-
-                    }
-                  </div>
-                  <div>
-                  </div>
-                </div>
-              ))
-
-            }
           </div>
         </InfiniteScroll>
       </div>

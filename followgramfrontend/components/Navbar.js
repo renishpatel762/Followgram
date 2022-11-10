@@ -6,7 +6,7 @@ import { BiMessageAdd, BiLogOut, BiSearch } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { Tooltip } from "@nextui-org/react";
 import { AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
-import { IoPersonAddOutline } from "react-icons/io5";
+import { IoPersonAddOutline, IoSettings } from "react-icons/io5";
 
 export default function Navbar({
   logoutUser,
@@ -282,6 +282,27 @@ export default function Navbar({
               </Link>
             )}
 
+          {/* Setting */}
+          {![
+            "/login",
+            "/signup",
+            "/verify",
+            "/createpost",
+            "/welcome",
+          ].includes(router.pathname) && (
+              <Tooltip
+                placement="bottom"
+                contentColor="default"
+                color="primary"
+                content="Settings"
+              >
+                <Link href={"/profile/setting"}>
+                  <a className="flex text-2xl py-1 rounded-md hover:text-blue-400">
+                    <IoSettings /> <p className="pl-3">Setting</p>
+                  </a>
+                </Link>
+              </Tooltip>
+            )}
           {/* createpost */}
           {![
             "/login",

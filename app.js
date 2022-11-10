@@ -25,11 +25,13 @@ app.use(express.json());
 require('./model/user');
 require('./model/post');
 require('./model/auth');
+require('./model/usercollection');
 
 // routres
 app.use(require('./routers/auth'));
 app.use(require('./routers/post'));
 app.use(require('./routers/user'));
+app.use(require('./routers/usercollection'));
 
 app.listen(PORT,()=>{
     console.log("Server is running on port",PORT);
