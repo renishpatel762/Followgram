@@ -127,11 +127,11 @@ export default function TextPost({
           />
         )}
       </div>
-      <div className="pt-1 md:pt-4 dark:bg-gray-800 dark:text-white bg-white text-black">
+      <div className={`pt-1 md:pt-4 dark:bg-gray-800 dark:text-white bg-white text-black min-h-screen ${textModal ? 'opacity-80' : 'opacity-100'}`}>
         <div className="flex justify-evenly mb-2">
           <p
-            className={`text-xl ${category === "Joke" ? "border-b-2 font-semibold" : ""
-              } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Joke" ? "border-b-2 border-white font-semibold" : ""
+              }  cursor-pointer px-2`}
             onClick={() => {
               changeCategory("Joke");
             }}
@@ -139,8 +139,8 @@ export default function TextPost({
             Jokes
           </p>
           <p
-            className={`text-xl ${category === "Shayari" ? "border-b-2 font-semibold" : ""
-              } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Shayari" ? "border-b-2 border-white font-semibold" : ""
+              }  cursor-pointer px-2`}
             onClick={() => {
               changeCategory("Shayari");
             }}
@@ -148,8 +148,8 @@ export default function TextPost({
             Shayari
           </p>
           <p
-            className={`text-xl ${category === "Quote" ? "border-b-2 font-semibold" : ""
-              } border-gray-800 cursor-pointer px-2`}
+            className={`text-xl ${category === "Quote" ? "border-b-2 border-white font-semibold" : ""
+              }  cursor-pointer px-2`}
             onClick={() => {
               changeCategory("Quote");
             }}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { FiUpload } from "react-icons/fi";
 import { useRouter } from "next/router";
@@ -8,11 +8,11 @@ import { AiOutlineArrowDown, AiOutlineArrowUp } from "react-icons/ai";
 import { UserContext } from "./_app";
 
 export default function CreatePost() {
-  const [state,dispatch]=useContext(UserContext);
+  const [state, dispatch] = useContext(UserContext);
   const [withPhoto, setWithPhoto] = useState(true);
   const [postImg, setPostImg] = useState(undefined);
   const [caption, setCaption] = useState("");
-  const [title, setTitle] = useState("");
+  // const [title, setTitle] = useState("");
   const [captionTitle, setCaptionTitle] = useState("Enter Caption");
   const [dropdown, setDropdown] = useState(false);
   const [type, setType] = useState("Media");
@@ -39,9 +39,11 @@ export default function CreatePost() {
   const handleChange = (e) => {
     if (e.target.name === "img") {
       setPostImg(e.target.files[0]);
-    } else if (e.target.name === "title") {
-      setTitle(e.target.value);
-    } else if (e.target.name === "caption") {
+    }
+    // else if (e.target.name === "title") {
+    //   setTitle(e.target.value);
+    // }
+    else if (e.target.name === "caption") {
       setCaption(e.target.value);
     }
   };
@@ -59,10 +61,10 @@ export default function CreatePost() {
   };
 
   const handleSubmit = async () => {
-    if (title.length < 4) {
-      showToastError("Please Enter title having more than 3 characters");
-      return;
-    }
+    // if (title.length < 4) {
+    //   showToastError("Please Enter title having more than 3 characters");
+    //   return;
+    // }
 
     if (caption.length < 6) {
       showToastError(
@@ -120,7 +122,7 @@ export default function CreatePost() {
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
       body: JSON.stringify({
-        title,
+        // title,
         body: caption,
         pic: imageName,
         type: ty,
@@ -128,8 +130,8 @@ export default function CreatePost() {
     }).then((response) => response.json());
     // console.log(res);
     if (res.post) {
-      if(res.user){
-        dispatch({type:"USER",payload:res.user});
+      if (res.user) {
+        dispatch({ type: "USER", payload: res.user });
       }
       toast.success("Post Created Successfully..", {
         position: "top-right",
@@ -141,7 +143,7 @@ export default function CreatePost() {
         progress: undefined,
       });
       router.push("/profile");
-      setTitle("");
+      // setTitle("");
       setCaption("");
       setPostImg(undefined);
       setCaptionTitle("Enter Caption");
@@ -219,7 +221,7 @@ export default function CreatePost() {
             />
           </div>
         )}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label
             className="block text-gray-700 dark:text-white text-lg font-bold mb-2"
             htmlFor="title"
@@ -238,7 +240,7 @@ export default function CreatePost() {
               setDropdown(false);
             }}
           />
-        </div>
+        </div> */}
         {!withPhoto && (
           <div className="mb-4 relative pl-4 md:p-0">
             <label
