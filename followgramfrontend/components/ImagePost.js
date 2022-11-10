@@ -20,11 +20,15 @@ const fetcher = (url) =>
     },
   }).then((response) => response.json());
 
+let currentPostFilter="all"
+
+let bdate1="";
+let bdate2="";
 const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
   // return `/api/allpost`; // SWR key
-  return `/api/followingpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=Media`; // SWR key
+  return `/api/followingpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=Media&postFilter=${currentPostFilter}&date1=${bdate1}&date2=${bdate2}`; // SWR key
 };
 
 export default function ImagePost({ postFilter, previousPostFilter, date1, date2, post, posts, setPost, setPosts, likePost, unLikePost, makeComment }) {
@@ -61,106 +65,23 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
     }
     // console.log(data);
   }, [data]);
+  useEffect(()=>{
+    console.log("post filter called",postFilter);
+    currentPostFilter=postFilter;
+    setPosts([]);
+  },[postFilter]);
 
-  // const likePost = (pid) => {
-  //   // console.log(pid);
-  //   fetch('/api/like', {
-  //     method: "put",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + localStorage.getItem("token"),
-  //     },
-  //     body: JSON.stringify({
-  //       postId: pid
-  //     })
-  //   })
-  //     .then((res) => res.json())
-  //     .then(result => {
-  //       setPost(result);
-  //       const newData = posts.map(item => {
-  //         if (item._id === result._id) {
-  //           return result;
-  //         } else {
-  //           return item;
-  //         }
-  //       })
-  //       setPosts(newData);
-  //       // console.log("like result is", result);
-  //     }).catch(err => {
-  //       console.error(err);
-  //     })
-  // }
+  useEffect(()=>{
+    console.log("date1",date1);
+    console.log("date2",date2);
+    if(date1!=null && date2!=null){
+      console.log("both not null calling");
 
-  // const unLikePost = (pid) => {
-  //   // console.log(pid);
-  //   fetch('/api/unlike', {
-  //     method: "put",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + localStorage.getItem("token"),
-  //     },
-  //     body: JSON.stringify({
-  //       postId: pid
-  //     })
-  //   })
-  //     .then((res) => res.json())
-  //     .then(result => {
-  //       setPost(result);//setting post for modal
-
-  //       const newData = posts.map(item => {
-  //         if (item._id === result._id) {
-  //           return result;
-  //         } else {
-  //           return item;
-  //         }
-  //       })
-  //       setPosts(newData);
-  //       // console.log("like result is", result);
-  //     }).catch(err => {
-  //       console.error(err);
-  //     })
-  // }
-
-  // const makeComment = (text, postId) => {
-  //   if (text === "" || text === null || text == " ") {
-  //     return;
-  //   }
-  //   fetch("/api/comment", {
-  //     method: "put",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + localStorage.getItem("token"),
-  //     },
-  //     body: JSON.stringify({
-  //       postId,
-  //       text
-  //     }),
-  //   }).then((response) => response.json())
-  //     .then(result => {
-  //       setPost(result);//for modal
-  //       const newData = posts.map(item => {
-  //         if (item._id === result._id) {
-  //           return result;
-  //         } else {
-  //           return item;
-  //         }
-  //       })
-  //       setPosts(newData);
-  //     }).catch(err => {
-  //       console.log(err);
-  //     })
-  // }
-
-  // if (typeof window !== "undefined") {
-  //   // Client-side-only code
-  //   window.addEventListener("click", function (e) {
-  //     // console.log(e.target);
-  //     if(!this.document.getElementById('modalBox').contains(e.target)){
-  //       // setModal(false);
-  //       console.log("Got it");
-  //     }
-  //   });
-  // }
+      bdate1=date1;
+      bdate2=date2;
+      setPosts([]);
+    }
+  },[date1,date2])
 
   return (
     <div>
@@ -203,7 +124,7 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
         )}
       </div>
       <div
-        className={`pt-1 md:pt-4 -z-0 dark:bg-gray-800 dark:text-white bg-white text-black ${modal ? 'opacity-80' : 'opacity-100'}`}
+        className={`pt-1 md:pt-4 -z-0 dark:bg-gray-800 dark:text-white bg-white text-black ${modal ? 'opacity-90' : 'opacity-100'}`}
       >
         <InfiniteScroll
           dataLength={posts.length}
@@ -223,7 +144,7 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
           <div className="lg:w-2/4 md:w-2/3 px-2 mx-auto md:px-10">
             {posts &&
               posts.map((post) => (
-                <div key={post._id} className={`my-3`} >
+                <div key={post._id} className={`my-6`} >
                   <div className="flex items-center pb-1 border-b-2 border-gray-300 relative  cursor-pointer"
                     onClick={() => {
                       if (post.postedBy._id !== state._id)

@@ -15,7 +15,7 @@ import TextModal from "../../components/TextModal";
 
 const PAGE_SIZE = 3;
 let category = "Media";
-let bodyuid = "";
+let bodytagname = "";
 const fetcher = (url) => {
 
 
@@ -24,7 +24,7 @@ const fetcher = (url) => {
 
 
 
-  return bodyuid != "" && (
+  return bodytagname != "" && (
     fetch(url, {
       method: "post",
       headers: {
@@ -32,7 +32,7 @@ const fetcher = (url) => {
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
       body: JSON.stringify({
-        uid: bodyuid
+        tagname: bodytagname
       })
       // how to pass uid in body
 
@@ -50,7 +50,7 @@ const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
   // return `/api/allpost`; // SWR key
-  return `/api/userpost?page=${pageIndex}&limit=${PAGE_SIZE}&category=${category}`; // SWR key
+  return `/api/gettag?page=${pageIndex}&limit=${PAGE_SIZE}&category=${category}`; // SWR key
 };
 
 export default function Profile({
@@ -61,16 +61,15 @@ export default function Profile({
   voices,
 }) {
   const router = useRouter();
-  const { userId } = router.query;
+  const { tagname } = router.query;
   const [state, dispatch] = useContext(UserContext);
   // const[totalpost,setTotalPost]=useState(0);
-  const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
   const [fetchedCategory, setFetchedCategory] = useState("Media");
   const [isPlaying, setIsPlaying] = useState(false);
   const [postId, setPostId] = useState("");
-  // const [showFollow, setShowFollow] = useState(state ? !state.following.includes(userId) : true);
+  // const [showFollow, setShowFollow] = useState(state ? !state.following.includes(tagname) : true);
   const [showFollow, setShowFollow] = useState();
   // const { data, error } = useSWR("/api/allpost", fetcher);
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
@@ -92,61 +91,35 @@ export default function Profile({
     // minute: "numeric",
     // second: "numeric",
   };
-  // console.log("state in [userId]", state);
-
-  // useEffect(() => {
-  //   console.log("use Effect for stateis scalled,state", state);
-  //   if (state && state.following.includes(userId)) {
-  //     console.log("why including", state);
-  //     setShowFollow(false);
-  //   } else {
-  //     console.log("why not including", state);
-  //   }
-  // }, [state])
-
-
-  // useEffect(() => {
-  //   const user = localStorage.getItem("user");
-  //   if (user) {
-  //     const parsedUser = JSON.parse(user);
-  //     setUser(parsedUser);
-  //     console.log("lhklj",parsedUser.posts);
-  //     // console.log(user.posts.length);
-  //     // setTotalPost(parsedUser.posts.length);
-  //   } else {
-  //     router.push("/welcome");
-  //   }
-  // }, []);
-
 
   useEffect(() => {
-    console.log("userId is", userId);
-    bodyuid = userId;
-    if (userId) {
-      const getUser = async () => {
-        // try to fetch user
-        const res = await fetch(`/api/user/${userId}`, {
-          // method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-          // body: JSON.stringify({
-          //   email,
-          //   password,
-          // }),
-        }).then((response) => response.json());
-        // console.log(res);
-        if (res.success) {
-          setUser(res.user);
-        } else {
-          setUser(null);
-        }
-      };
-      getUser();
-      console.log(user);
+    console.log("tagname is", tagname);
+    bodytagname = tagname;
+    if (tagname) {
+    //   const getUser = async () => {
+    //     // try to fetch user
+    //     const res = await fetch(`/api/user/${tagname}`, {
+    //       // method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: "Bearer " + localStorage.getItem("token"),
+    //       },
+    //       // body: JSON.stringify({
+    //       //   email,
+    //       //   password,
+    //       // }),
+    //     }).then((response) => response.json());
+    //     // console.log(res);
+    //     if (res.success) {
+    //       setUser(res.user);
+    //     } else {
+    //       setUser(null);
+    //     }
+    //   };
+    //   getUser();
+    //   console.log(user);
     }
-  }, [userId]);
+  }, [tagname]);
 
   useEffect(() => {
     // console.log(data);
@@ -214,7 +187,7 @@ export default function Profile({
         "Authorization": "Bearer " + localStorage.getItem("token")
       },
       body: JSON.stringify({
-        followId: userId
+        followId: tagname
       })
     }).then(res => res.json())
       .then(({ success, data }) => {
@@ -241,7 +214,7 @@ export default function Profile({
         "Authorization": "Bearer " + localStorage.getItem("token")
       },
       body: JSON.stringify({
-        unfollowId: userId
+        unfollowId: tagname
       })
     }).then(res => res.json())
       .then(({ success, data }) => {
@@ -285,7 +258,7 @@ export default function Profile({
             likePost={likePost}
             unLikePost={unLikePost}
             makeComment={makeComment}
-            // isFromFunctionset="true"
+            isFromFunctionset="true"
             closeModal={() => {
               setModal(false);
             }}
@@ -303,7 +276,7 @@ export default function Profile({
               unLikePost={unLikePost}
               makeComment={makeComment}
               handleAudio={handleAudio}
-              // isFromFunctionset="true"
+              isFromFunctionset="true"
               //just some
 
               closeTextModal={() => {
@@ -314,10 +287,10 @@ export default function Profile({
         }
       </div>
 
-      {user !== null && (
+      {tagname !== null && (
         <div className="min-h-screen px-2 dark:text-white dark:bg-gray-800">
           <Head>
-            <title>User Profile - Followgram</title>
+            <title>Tag - Followgram</title>
             <meta
               name="description"
               content="Followgram share posts & text with your friend"
@@ -326,18 +299,18 @@ export default function Profile({
           <div className="flex w-full pt-5 md:pt-10">
             <div className="w-1/3 text-center items-center">
               <div>
-                {!user && (
+                {/* {!user && (
                   <Image
                     className="rounded-full bg-white"
                     src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
                     width={150}
                     height={150}
                   />
-                )}
-                {user && (
+                )} */}
+                {tagname && (
                   <Image
                     className="rounded-full bg-white"
-                    src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${user.pic}`}
+                    // src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${user.pic}`}
                     width={150}
                     height={150}
                   />
@@ -346,44 +319,24 @@ export default function Profile({
               {/* <button className="mt-2">Change Profile</button> */}
             </div>
             {
-              user &&
+              tagname &&
               <div className="w-2/3 pt-3 pl-4 md:pl-0 overflow-x-hidden">
-
-                <h2 className="text-2xl">{user.name}</h2>
-                <h2 className="text-md">{user.email}</h2>
-                <div className="flex py-5 text-sm md:text-lg">
-                  <div className="w-1/3 md:w-1/5 text-center">
-                    <p>{(user && user.posts) ? user.posts.length : 0}</p>
-                    <p>Posts</p>
-                  </div>
-                  <div className="w-1/3 md:w-1/5 text-center">
-                    <p>{(user && user.followers) ? user.followers.length : 0}</p>
-                    {/* <p>{user ? user.followers.length : 0}</p> */}
-                    <p>Followers</p>
-                  </div>
-                  <div className="w-1/3 md:w-1/5 text-center">
-                    {/* {console.log("user is", user)} */}
-                    <p>{(user && user.following) ? user.following.length : 0}</p>
-                    {/* <p>{user ? user.following.length : 0}</p> */}
-                    <p>Following</p>
-                  </div>
-
-                </div>
+                <h1>#{tagname}</h1>
                 {
                   // showFollow
-                  state && !state.following.includes(userId)
-                    ?
-                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
-                      onClick={() => followUser()}
-                    >
-                      Follow
-                    </button>
-                    :
-                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
-                      onClick={() => unfollowUser()}
-                    >
-                      Un Follow
-                    </button>
+                //   state && !state.following.includes(tagname)
+                //     ?
+                //     <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+                //       onClick={() => followUser()}
+                //     >
+                //       Follow
+                //     </button>
+                //     :
+                //     <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+                //       onClick={() => unfollowUser()}
+                //     >
+                //       Un Follow
+                //     </button>
                 }
 
               </div>
@@ -550,7 +503,7 @@ export default function Profile({
           </div>
         </div>
       )}
-      {user == null && <div>Something went wrong...</div>}
+      {/* {user == null && <div>Something went wrong...</div>} */}
     </div>
   );
 }

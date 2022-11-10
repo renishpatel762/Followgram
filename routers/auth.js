@@ -208,4 +208,6 @@ router.post("/verify", (req, res) => {
     .catch((err) => console.error(err));
 });
 
+// router.delete('/deleteaccount',())
+
 module.exports = router;

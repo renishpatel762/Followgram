@@ -5,8 +5,12 @@ import { useRouter } from "next/router";
 import { BiMessageAdd, BiLogOut, BiSearch } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { Tooltip } from "@nextui-org/react";
-import { AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
-import { IoPersonAddOutline } from "react-icons/io5";
+import {
+  AiOutlineMenuFold,
+  AiOutlineMenuUnfold,
+  AiOutlineHome,
+} from "react-icons/ai";
+import { IoPersonAddOutline, IoSettings } from "react-icons/io5";
 
 export default function Navbar({
   logoutUser,
@@ -100,14 +104,16 @@ export default function Navbar({
               "/profile",
               "/",
               "/createpost",
+              "/search",
+            "/explore",
               "/profile/[userId]",
             ].includes(router.pathname) && (
-                <Link href={"/login"}>
-                  <a className="mx-5 text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
-                    Login
-                  </a>
-                </Link>
-              )}
+              <Link href={"/login"}>
+                <a className="mx-5 text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
+                  Login
+                </a>
+              </Link>
+            )}
 
             {/* {![
               "/login",
@@ -233,10 +239,11 @@ export default function Navbar({
       {/* {showMenu && ( */}
 
       <div
-        className={`absolute top-0 transition-all duration-500 ${showMenu
-          ? "right-0"
-          : "-right-[75vw] md:-right-[30vw] lg:-right-[20vw]"
-          } h-[100vh] scrollbar_hide overflow-auto w-[75vw] lg:w-[20vw] md:w-[30vw] dark:bg-gray-600 dark:text-white text-black bg-gray-300`}
+        className={`absolute top-0 transition-all duration-500 ${
+          showMenu
+            ? "right-0"
+            : "-right-[75vw] md:-right-[30vw] lg:-right-[20vw]"
+        } h-[100vh] scrollbar_hide overflow-auto w-[75vw] lg:w-[20vw] md:w-[30vw] dark:bg-gray-600 dark:text-white text-black bg-gray-300`}
       >
         <span className="flex text-2xl pt-3 pl-3">
           <AiOutlineMenuUnfold
@@ -248,23 +255,44 @@ export default function Navbar({
           {currentUser && <p className="pl-3">{currentUser.name}</p>}
         </span>
         <div className="pt-1 pl-3">
+
+          {/* Home */}
+          {!["/login", "/signup", "/verify", "/welcome" , "/"].includes(
+            router.pathname
+          ) && (
+            <Tooltip
+              placement="left"
+              contentColor="default"
+              color="primary"
+              content="Home"
+            >
+              <Link href={"/"}>
+                <a className="flex text-2xl py-1 rounded-md hover:text-blue-400">
+                  <AiOutlineHome /> <p className="pl-3">Home</p>
+                </a>
+              </Link>
+            </Tooltip>
+          )}
+
           {/* profile */}
           {!["/login", "/signup", "/verify", "/profile", "/welcome"].includes(
             router.pathname
           ) && (
-              <Tooltip
-                placement="left"
-                contentColor="default"
-                color="primary"
-                content="Profile"
-              >
-                <Link href={"/profile"}>
-                  <a className="flex text-2xl py-1 rounded-md hover:text-blue-400">
-                    <CgProfile /> <p className="pl-3">Profile</p>
-                  </a>
-                </Link>
-              </Tooltip>
-            )}
+            <Tooltip
+              placement="left"
+              contentColor="default"
+              color="primary"
+              content="Profile"
+            >
+              <Link href={"/profile"}>
+                <a className="flex text-2xl py-1 rounded-md hover:text-blue-400">
+                  <CgProfile /> <p className="pl-3">Profile</p>
+                </a>
+              </Link>
+            </Tooltip>
+          )}
+
+          
 
           {/* register */}
           {![
@@ -273,14 +301,16 @@ export default function Navbar({
             "/",
             "/profile",
             "/createpost",
+            "/search",
+            "/explore",
             "/profile/[userId]",
           ].includes(router.pathname) && (
-              <Link href={"/signup"}>
-                <a className="flex py-1 hover:text-blue-400">
-                  <IoPersonAddOutline /> <p className="pl-3">Signup</p>
-                </a>
-              </Link>
-            )}
+            <Link href={"/signup"}>
+              <a className="flex py-1 hover:text-blue-400">
+                <IoPersonAddOutline /> <p className="pl-3">Signup</p>
+              </a>
+            </Link>
+          )}
 
           {/* createpost */}
           {![
@@ -304,7 +334,6 @@ export default function Navbar({
               </Tooltip>
             )}
 
-
           {/* //search done by galaxy */}
           {![
             "/login",
@@ -312,168 +341,165 @@ export default function Navbar({
             "/verify",
             "/createpost",
             "/welcome",
+            "/search"
           ].includes(router.pathname) && (
-              <Tooltip
-                placement="bottom"
-                contentColor="default"
-                color="primary"
-                content="Exlpore"
-              >
-                <Link href={"/search"}>
-                  <a className="flex text-2xl py-1 rounded-md hover:text-blue-400"
-                    onClick={() => {
-
-                    }}
-                  >
-                    <BiSearch /> <p className="pl-3">Explore</p>
-                  </a>
-                </Link>
-              </Tooltip>
-            )}
+            <Tooltip
+              placement="bottom"
+              contentColor="default"
+              color="primary"
+              content="Exlpore"
+            >
+              <Link href={"/search"}>
+                <a
+                  className="flex text-2xl py-1 rounded-md hover:text-blue-400"
+                  onClick={() => {}}
+                >
+                  <BiSearch /> <p className="pl-3">Explore</p>
+                </a>
+              </Link>
+            </Tooltip>
+          )}
 
           {/* imagepost or textpost */}
-          {[
-            "/"
-          ].includes(router.pathname) && (
-              <div className="my-3">
-                <p>Select Post type</p>
-                <div className="flex items-center mb-1 ml-4 mt-2">
-                  <input
-                    id="imagePost"
-                    type="radio"
-                    value=""
-                    name="post-radio"
-                    checked={photoPost}
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPhotoPost(true);
-                    }}
-                  />
-                  <label htmlFor="imagePost" className="ml-2 text-sm font-medium">
-                    Image Posts
-                  </label>
-                </div>
-                <div className="flex items-center ml-4">
-                  <input
-                    checked={!photoPost}
-                    id="textPost"
-                    type="radio"
-                    value=""
-                    name="post-radio"
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPhotoPost(false);
-                    }}
-                  />
-                  <label htmlFor="textPost" className="ml-2 text-sm font-medium">
-                    Text Posts
-                  </label>
-                </div>
+          {["/"].includes(router.pathname) && (
+            <div className="my-3">
+              <p>Select Post type</p>
+              <div className="flex items-center mb-1 ml-4 mt-2">
+                <input
+                  id="imagePost"
+                  type="radio"
+                  value=""
+                  name="post-radio"
+                  checked={photoPost}
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPhotoPost(true);
+                  }}
+                />
+                <label htmlFor="imagePost" className="ml-2 text-sm font-medium">
+                  Image Posts
+                </label>
               </div>
-            )}
+              <div className="flex items-center ml-4">
+                <input
+                  checked={!photoPost}
+                  id="textPost"
+                  type="radio"
+                  value=""
+                  name="post-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPhotoPost(false);
+                  }}
+                />
+                <label htmlFor="textPost" className="ml-2 text-sm font-medium">
+                  Text Posts
+                </label>
+              </div>
+            </div>
+          )}
 
           {/* Filter */}
-          {[
-            "/"
-          ].includes(router.pathname) && (
-              <div className="mt-3">
-                <p>Filter</p>
-                <div className="flex items-center mb-1 ml-4 mt-2">
-                  <input
-                    id="all"
-                    type="radio"
-                    value=""
-                    name="filter-radio"
-                    checked={postFilter === "all"}
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPreviousPostFilter(postFilter);
-                      setPostFilter("all");
-                    }}
-                  />
-                  <label htmlFor="all" className="ml-2 text-sm font-medium">
-                    All
-                  </label>
-                </div>
-                <div className="flex items-center mb-1 ml-4">
-                  <input
-                    checked={postFilter === "today"}
-                    id="today"
-                    type="radio"
-                    value=""
-                    name="filter-radio"
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPreviousPostFilter(postFilter);
-                      setPostFilter("today");
-                    }}
-                  />
-                  <label htmlFor="today" className="ml-2 text-sm font-medium">
-                    Today
-                  </label>
-                </div>
-                <div className="flex items-center mb-1 ml-4">
-                  <input
-                    checked={postFilter === "last_week"}
-                    id="lastWeek"
-                    type="radio"
-                    value=""
-                    name="filter-radio"
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPreviousPostFilter(postFilter);
-                      setPostFilter("last_week");
-                    }}
-                  />
-                  <label htmlFor="lastWeek" className="ml-2 text-sm font-medium">
-                    Last Week
-                  </label>
-                </div>
-                <div className="flex items-center mb-1 ml-4">
-                  <input
-                    checked={postFilter === "last_30_days"}
-                    id="last30days"
-                    type="radio"
-                    value=""
-                    name="filter-radio"
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPreviousPostFilter(postFilter);
-                      setPostFilter("last_30_days");
-                    }}
-                  />
-                  <label
-                    htmlFor="last30days"
-                    className="ml-2 text-sm font-medium"
-                  >
-                    Last 30 days
-                  </label>
-                </div>
-                <div
-                  className={`flex items-center ml-4 ${showModal ? "mb-1" : "mb-4"
-                    }`}
-                >
-                  <input
-                    checked={postFilter === "between_two_dates"}
-                    id="betweeonTwoDates"
-                    type="radio"
-                    value=""
-                    name="filter-radio"
-                    className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-                    onChange={() => {
-                      setPreviousPostFilter(postFilter);
-                      setPostFilter("between_two_dates");
-                    }}
-                  />
-                  <label
-                    htmlFor="betweeonTwoDates"
-                    className="ml-2 text-sm font-medium"
-                  >
-                    Betweeon Two Dates
-                  </label>
-                </div>
+          {["/"].includes(router.pathname) && (
+            <div className="mt-3">
+              <p>Filter</p>
+              <div className="flex items-center mb-1 ml-4 mt-2">
+                <input
+                  id="all"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  checked={postFilter === "all"}
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("all");
+                  }}
+                />
+                <label htmlFor="all" className="ml-2 text-sm font-medium">
+                  All
+                </label>
               </div>
-            )}
+              <div className="flex items-center mb-1 ml-4">
+                <input
+                  checked={postFilter === "today"}
+                  id="today"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("today");
+                  }}
+                />
+                <label htmlFor="today" className="ml-2 text-sm font-medium">
+                  Today
+                </label>
+              </div>
+              <div className="flex items-center mb-1 ml-4">
+                <input
+                  checked={postFilter === "last_week"}
+                  id="lastWeek"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("last_week");
+                  }}
+                />
+                <label htmlFor="lastWeek" className="ml-2 text-sm font-medium">
+                  Last Week
+                </label>
+              </div>
+              <div className="flex items-center mb-1 ml-4">
+                <input
+                  checked={postFilter === "last_30_days"}
+                  id="last30days"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("last_30_days");
+                  }}
+                />
+                <label
+                  htmlFor="last30days"
+                  className="ml-2 text-sm font-medium"
+                >
+                  Last 30 days
+                </label>
+              </div>
+              <div
+                className={`flex items-center ml-4 ${
+                  showModal ? "mb-1" : "mb-4"
+                }`}
+              >
+                <input
+                  checked={postFilter === "between_two_dates"}
+                  id="betweeonTwoDates"
+                  type="radio"
+                  value=""
+                  name="filter-radio"
+                  className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={() => {
+                    setPreviousPostFilter(postFilter);
+                    setPostFilter("between_two_dates");
+                  }}
+                />
+                <label
+                  htmlFor="betweeonTwoDates"
+                  className="ml-2 text-sm font-medium"
+                >
+                  Betweeon Two Dates
+                </label>
+              </div>
+            </div>
+          )}
 
           {/* modal */}
           {showModal && (
@@ -522,23 +548,23 @@ export default function Navbar({
           {!["/login", "/signup", "/verify", "/welcome"].includes(
             router.pathname
           ) && (
-              <Tooltip
-                placement="left"
-                contentColor="default"
-                color="primary"
-                content="Logout"
+            <Tooltip
+              placement="left"
+              contentColor="default"
+              color="primary"
+              content="Logout"
+            >
+              <a
+                className="flex text-2xl py-1 rounded-md hover:text-blue-400"
+                onClick={() => {
+                  setCurrentUser(null);
+                  logoutUser();
+                }}
               >
-                <a
-                  className="flex text-2xl py-1 rounded-md hover:text-blue-400"
-                  onClick={() => {
-                    setCurrentUser(null);
-                    logoutUser();
-                  }}
-                >
-                  <BiLogOut /> <p className="pl-3">Logout</p>
-                </a>
-              </Tooltip>
-            )}
+                <BiLogOut /> <p className="pl-3">Logout</p>
+              </a>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>

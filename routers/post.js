@@ -8,19 +8,120 @@ const requireLogin = require('../middleware/requireLogin');
 
 router.get('/followingpost', requireLogin, (req, res) => {
     // console.log(req.query);
-    const { limit, page, category } = req.query;
-    Post.find({ type: category, postedBy:{$in:req.user.following} })
-        .populate("postedBy", "_id name pic")
-        .populate("comments.postedBy", "_id name pic")
-        .sort('-createdAt')//sort in descending order
-        .skip((parseInt(page) - 1) * parseInt(limit))
-        .limit(parseInt(limit))
-        .then(posts => {
-            res.json(posts);
-        })
-        .catch(err => {
-            console.log(err);
-        });
+    const { limit, page, category, postFilter, date1, date2 } = req.query;
+    console.log("post filter is", postFilter);
+    if (postFilter === "all") {
+        console.log("all post called");
+        Post.find({ type: category, postedBy: { $in: req.user.following } })
+            .populate("postedBy", "_id name pic")
+            .populate("comments.postedBy", "_id name pic")
+            .sort('-createdAt')//sort in descending order
+            .skip((parseInt(page) - 1) * parseInt(limit))
+            .limit(parseInt(limit))
+            .then(posts => {
+                res.json(posts);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    } else if (postFilter === "today") {
+        console.log("today post called");
+
+        var start = new Date();
+        start.setHours(0, 0, 0, 0);
+        var end = new Date();
+        end.setHours(23, 59, 59, 999);
+
+        // let tday = Date.now();
+        // console.log("tday", tday);
+        Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
+            .populate("postedBy", "_id name pic")
+            .populate("comments.postedBy", "_id name pic")
+            .sort('-createdAt')//sort in descending order
+            .skip((parseInt(page) - 1) * parseInt(limit))
+            .limit(parseInt(limit))
+            .then(posts => {
+                res.json(posts);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    } else if (postFilter === "last_week") {
+        console.log("last week post called");
+
+        var start = new Date(new Date() - 7 * 60 * 60 * 24 * 1000);
+        start.setHours(0, 0, 0, 0);
+        console.log(start);
+        var end = new Date();
+        end.setHours(23, 59, 59, 999);
+        console.log(end);
+
+        // let tday = Date.now();
+        // console.log("tday", tday);
+        Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
+            .populate("postedBy", "_id name pic")
+            .populate("comments.postedBy", "_id name pic")
+            .sort('-createdAt')//sort in descending order
+            .skip((parseInt(page) - 1) * parseInt(limit))
+            .limit(parseInt(limit))
+            .then(posts => {
+                res.json(posts);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    } else if (postFilter === "last_30_days") {
+        console.log("last 30 days post called");
+
+        var start = new Date(new Date() - 30 * 60 * 60 * 24 * 1000);
+        start.setHours(0, 0, 0, 0);
+        console.log(start);
+        var end = new Date();
+        end.setHours(23, 59, 59, 999);
+        console.log(end);
+
+        // let tday = Date.now();
+        // console.log("tday", tday);
+        Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
+            .populate("postedBy", "_id name pic")
+            .populate("comments.postedBy", "_id name pic")
+            .sort('-createdAt')//sort in descending order
+            .skip((parseInt(page) - 1) * parseInt(limit))
+            .limit(parseInt(limit))
+            .then(posts => {
+                res.json(posts);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    } else if (postFilter === "between_two_dates") {
+        console.log("between_two_dates post called");
+        console.log(date1, date2);
+        if (date1 !== undefined && date2 !== undefined) {
+            var start = new Date(date1);
+            start.setHours(0, 0, 0, 0);
+            console.log(start);
+            var end = new Date(date2);
+            end.setHours(23, 59, 59, 999);
+            console.log(end);
+
+            // let tday = Date.now();
+            // console.log("tday", tday);
+            Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
+                .populate("postedBy", "_id name pic")
+                .populate("comments.postedBy", "_id name pic")
+                .sort('-createdAt')//sort in descending order
+                // .skip((parseInt(page) - 1) * parseInt(limit))
+                // .limit(parseInt(limit))
+                .then(posts => {
+                    res.json(posts);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    }
+
 });
 //all post
 router.get('/allpost', requireLogin, (req, res) => {
@@ -86,6 +187,7 @@ router.post('/createpost', requireLogin, (req, res) => {
 
 //to get loged in user post
 router.get('/mypost', requireLogin, (req, res) => {
+    console.log(req.user._id);
     const { limit, page, category } = req.query;
     console.log(req.query);
     Post.find({ postedBy: req.user._id, type: category })
@@ -153,12 +255,55 @@ router.put('/comment', requireLogin, (req, res) => {
         .populate("postedBy", "_id name pic")
         .exec((err, result) => {
             if (err) {
-                return res.status(422).json({ error: err })
+                return res.status(422).json({ success: false, error: err })
             } else {
                 res.json(result)
             }
         })
 });
 
+router.post('/gettag', requireLogin, (req, res) => {
+    // console.log(req.query);
+    const { limit, page, category } = req.query;
+    console.log("tagpostsearch", req.body);
+
+    let tagname = new RegExp("#" + req.body.tagname)
+
+    Post.find({ type: category, body: { $regex: tagname, $options: '/i' } })
+        .populate("postedBy", "_id name pic")
+        .populate("comments.postedBy", "_id name pic")
+        .sort('-createdAt')//sort in descending order
+        .skip((parseInt(page) - 1) * parseInt(limit))
+        .limit(parseInt(limit))
+        .then(posts => {
+            res.json(posts);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+router.delete('/deletepost/:postId', requireLogin, (req, res) => {
+    Post.findOne({ _id: req.params.postId })
+        .populate("postedBy", "_id")
+        .exec((err, post) => {
+            if (err || !post) {
+                return res.status(422).json({ success: false, error: err })
+            }
+            if (post.postedBy._id.toString() === req.user._id.toString()) {
+                post.remove()
+                    .then(result => {
+                        res.json({ success: true, result })
+                        User.findByIdAndUpdate(req.user._id, {
+                            $pull: { posts: post._id }
+                        }, {
+                            new: true
+                        }).then(user => console.log(user))
+                    }).catch(err => {
+                        console.log(err)
+                    })
+            }
+        })
+})
 
 module.exports = router;

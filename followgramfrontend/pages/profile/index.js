@@ -14,6 +14,7 @@ import TextModal from "../../components/TextModal";
 import { likePost, unLikePost, makeComment } from "../../components/Functionset";
 const PAGE_SIZE = 3;
 let category = "Media";
+let expandArray = [];
 const fetcher = (url) =>
   fetch(url, {
     method: "GET",
@@ -55,31 +56,18 @@ export default function MyProfile({
   const [modal, setModal] = useState(false);
   const [textModal, setTextModal] = useState(false);
 
+  const [collectionData, setCollectionData] = useState([]);
+  const [expand, setExpand] = useState(false);
+
   const router = useRouter();
   let isLoadingMore = true,
     isReachedEnd = false;
   let options = {
     year: "numeric",
     month: "long",
-    day: "numeric",
-    // hour: "numeric",
-    // minute: "numeric",
-    // second: "numeric",
+    day: "numeric"
   };
-  // console.log("state is", state);
 
-  // useEffect(() => {
-  // const user = localStorage.getItem("user");
-  // if (user) {
-  //   const parsedUser = JSON.parse(user);
-  //   setUser(parsedUser);
-  //   // console.log("lhklj", parsedUser.posts);
-  //   // console.log(user.posts.length);
-  //   // setTotalPost(parsedUser.posts.length);
-  // } else {
-  //   router.push("/welcome");
-  // }
-  // }, []);
 
   useEffect(() => {
     // console.log(data);
@@ -99,9 +87,12 @@ export default function MyProfile({
     console.log(posts);
   }, [data]);
 
+
   const changeCategory = (cat) => {
     setFetchedCategory(cat);
-    category = cat;
+
+    if (cat !== "Collection")
+      category = cat;
     setSize(1);
   };
 
@@ -139,9 +130,54 @@ export default function MyProfile({
     }
   };
 
+  const handleDeletePost = (pid) => {
+    console.log("handleDeletePost called", pid);
+    fetch(`/api/deletepost/${pid}`, {
+      method: "delete",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    }).then((response) => response.json())
+      .then(result => {
+        console.log(result);
+        const newData = posts.map(item => {
+          if (item._id === result._id) {
+            return result;
+          } else {
+            return item;
+          }
+        })
+        setPosts(newData);
+      })
+
+  }
   useEffect(() => {
     console.log(postId);
   }, [postId]);
+
+  useEffect(() => {
+    fetch('/api/getcollections', {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    }).then((response) => response.json())
+      .then(({ usercoll }) => {
+        console.log("collection result is", usercoll);
+        expandArray = Array(usercoll.length);
+        expandArray.fill(1)
+        console.log("expandArray", expandArray);
+        setCollectionData(usercoll)
+      })
+      .catch(err => {
+        console.error(err);
+      })
+
+
+
+  }, []);
 
   return (
     <div className="min-h-screen px-2 dark:text-white dark:bg-gray-800">
@@ -156,7 +192,8 @@ export default function MyProfile({
             likePost={likePost}
             unLikePost={unLikePost}
             makeComment={makeComment}
-            isFromFunctionset="true"
+            isFromProfilePage={true}
+            handleDeletePost={handleDeletePost}
             closeModal={() => {
               setModal(false);
             }}
@@ -174,7 +211,9 @@ export default function MyProfile({
               unLikePost={unLikePost}
               makeComment={makeComment}
               handleAudio={handleAudio}
-              isFromFunctionset="true"
+              isFromProfilePage={true}
+              handleDeletePost={handleDeletePost}
+              // isFromFunctionset="true"
               //just some
 
               closeTextModal={() => {
@@ -218,7 +257,7 @@ export default function MyProfile({
           <h2 className="text-md">{state && state.email}</h2>
           <div className="flex py-5 text-sm md:text-lg">
             <div className="w-1/3 md:w-1/5 text-center">
-              <p>{state ? state.posts.length : 0}</p>
+              <p>{(state && state.posts ) ? state.posts.length : 0}</p>
               <p>Posts</p>
             </div>
             <div className="w-1/3 md:w-1/5 text-center">
@@ -230,8 +269,9 @@ export default function MyProfile({
               <p>Following</p>
             </div>
           </div>
-          <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
-            Edit Profile
+          <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400" 
+          onClick={()=>router.push('/profile/setting')}>
+              Settings
           </button>
         </div>
       </div>
@@ -283,7 +323,59 @@ export default function MyProfile({
         >
           Quotes
         </p>
+
+        {/* <p
+          className={`mx-2 text-2xl cursor-pointer ${(fetchedCategory !== "TextPost" && fetchedCategory !== "Joke" && fetchedCategory !== "Shayari" && fetchedCategory !== "Quote") ? "" : "border-blue-400 border-b-2"
+            }`}
+          onClick={() => {
+            changeCategory("Joke");
+          }}
+        >
+          TextPost
+        </p> */}
+        {/* <p
+          className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection" ? "" : "border-blue-400 border-b-2"
+            }`}
+          onClick={() => {
+            changeCategory("Collection");
+          }}
+        >
+          Collections
+        </p> */}
       </div>
+      {/* <div className="flex justify-evenly mt-10">
+        {
+          (fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
+          <>
+            <p
+              className={`mx-2 text- xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
+                }`}
+              onClick={() => {
+                changeCategory("Joke");
+              }}
+            >
+              Jokes
+            </p>
+            <p
+              className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Shayari" ? "" : "border-blue-400 border-b-2"
+                }`}
+              onClick={() => {
+                changeCategory("Shayari");
+              }}
+            >
+              Shayari
+            </p>
+            <p
+              className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Quote" ? "" : "border-blue-400 border-b-2"
+                }`}
+              onClick={() => {
+                changeCategory("Quote");
+              }}
+            >
+              Quotes
+            </p>
+          </>}
+      </div> */}
       {/* posts */}
       <div className="mt-10">
         <InfiniteScroll
@@ -322,7 +414,7 @@ export default function MyProfile({
                   />
                 </div>
               ))}
-            {fetchedCategory !== "Media" &&
+            {(fetchedCategory === "TextPost" || fetchedCategory === "Joke" || fetchedCategory === "Shayari" || fetchedCategory === "Quote") &&
               posts.map((post) => (
                 <div
                   key={post._id}
@@ -386,6 +478,76 @@ export default function MyProfile({
                   </div>
                 </div>
               ))}
+
+
+            {/* {
+              fetchedCategory === "Collection"
+              &&
+              collectionData.map((citem,cindex) => (
+                <div
+                  key={citem._id}
+                  className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
+                >
+                  <p>Name: {citem.name}</p>
+                  <p>ImagePost {citem.imagePost.length}</p>
+                  <p>TextPost {citem.textPost.length}</p>
+                  <div className="">
+                    <button onClick={() => {
+                      expandArray[cindex]= 1
+                      console.log(expandArray[cindex]);
+                      }}>expand</button>
+                    {
+                      expandArray[cindex] === 1 &&
+                      <>
+                        {
+                          citem.imagePost.length > 0
+                          &&
+                          citem.imagePost.map(ciitem => (
+                            <div
+                              key={ciitem._id}
+                              className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
+                            >
+                              <Image
+                                className="hover:opacity-40 hover:cursor-pointer"
+                                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
+                                width={50}
+                                height={50}
+                                layout="responsive"
+                                onClick={() => {
+                                  setPost(ciitem);
+                                  setModal(true);
+                                }}
+                              />
+
+                            </div>
+                          ))
+                        }
+                        {
+                          citem.textPost.length > 0
+                          &&
+                          citem.textPost.map(ctitem => (
+                            <div
+                              key={ctitem._id}
+                              className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
+                            >
+                              <p>{ctitem.type}</p>
+                              <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                                setPost(ctitem);
+                                setTextModal(true);
+                              }}>{ctitem.body}</p>
+                            </div>
+                          ))
+                        }
+                      </>
+
+                    }
+                  </div>
+                  <div>
+                  </div>
+                </div>
+              ))
+
+            } */}
           </div>
         </InfiniteScroll>
       </div>
