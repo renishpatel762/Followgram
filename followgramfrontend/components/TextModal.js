@@ -30,7 +30,7 @@ export default function TextModal({
   return (
     <div className="opacity-100">
       <div
-        className={`fixed w-[100vw] md:w-[90vw] lg:w-[80vw] md:ml-[5vw] lg:ml-[10vw] top-[5vh] z-30 md:text-lg xl:text-xl bg-gray-800 text-white rounded-md py-4`}
+        className={`fixed max-h-[90vh] scroll-smooth overflow-y-auto w-[100vw] md:w-[90vw] lg:w-[80vw] md:ml-[5vw] lg:ml-[10vw] top-[5vh] z-30 md:text-lg xl:text-xl bg-gray-800 text-white rounded-md py-4`}
       >
         <div className="relative">
           <span
@@ -45,7 +45,7 @@ export default function TextModal({
           &&
           <div className="opacity-100">
             <div
-              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-200 rounded-md py-4`}
+              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-600 rounded-md py-4`}
             >
               <div className="text-center cursor-pointer">
                 <p className="text-red-600" onClick={() => {
@@ -57,8 +57,8 @@ export default function TextModal({
             </div>
           </div>
         }
-        <div className="flex">
-          <div className="pl-6 w-1/2 pt-4">
+        <div className="lg:flex">
+          <div className="lg:px-3 lg:w-1/2 pt-4 px-2">
             <h3 className="text-sm">{post.type}</h3>
             <p className="text-2xl">{post.body}</p>
             {/* <Image
