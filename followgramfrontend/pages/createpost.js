@@ -16,7 +16,14 @@ export default function CreatePost() {
   const [captionTitle, setCaptionTitle] = useState("Enter Caption");
   const [dropdown, setDropdown] = useState(false);
   const [type, setType] = useState("Media");
-
+  const [showAddtoCollection, setShowAddtoCollection] = useState(false);
+  const [collectionData, setCollectionData] = useState([]);
+  const [collectionDropdown, setCollectionDropdown] = useState(false);
+  const [collectionType, setCollectionType] = useState("");
+  const [collectionId, setCollectionId] = useState("");
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [isCreateNewCollection, setIsCreateNewCollection] = useState(false);
+  const [postData, setPostData] = useState();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +31,23 @@ export default function CreatePost() {
     if (!token) {
       router.push("/welcome");
     }
+    fetch('/api/getcollectionlist', {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    }).then((response) => response.json())
+      .then(({ usercoll }) => {
+        console.log("collection result is", usercoll);
+        // expandArray = Array(usercoll.length);
+        // expandArray.fill(1)
+        // console.log("expandArray", expandArray);
+        setCollectionData(usercoll)
+      })
+      .catch(err => {
+        console.error(err);
+      })
   }, []);
 
   const toggleSwitch = () => {
@@ -133,6 +157,9 @@ export default function CreatePost() {
       if (res.user) {
         dispatch({ type: "USER", payload: res.user });
       }
+
+      setPostData(res.post);
+
       toast.success("Post Created Successfully..", {
         position: "top-right",
         autoClose: 1500,
@@ -142,18 +169,82 @@ export default function CreatePost() {
         draggable: true,
         progress: undefined,
       });
-      router.push("/profile");
+      // router.push("/profile");
+      setShowAddtoCollection(true);
+
       // setTitle("");
-      setCaption("");
-      setPostImg(undefined);
-      setCaptionTitle("Enter Caption");
-      setWithPhoto(true);
+      // setCaption("");
+      // setPostImg(undefined);
+      // setCaptionTitle("Enter Caption");
+      // setWithPhoto(true);
     } else {
       // not getting post as response means something went wrong..
       showToastError("Something went wrong !! Please try again later");
     }
   };
+  const handleCreateCollection = () => {
+    setNewCollectionName("");
+    setIsCreateNewCollection(false);
+    console.log(newCollectionName);
+    fetch('/api/createcollection', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      }, body: JSON.stringify({
+        name: newCollectionName
+      })
+    }).then((response) => response.json())
+      .then(({ newcollection }) => {
+        console.log("newcollectionnewcollection result is", newcollection);
+        // expandArray = Array(usercoll.length);
+        // expandArray.fill(1)
+        // console.log("expandArray", expandArray);
+        setCollectionData(prevState=>[
+          ...prevState,
+          newcollection          
+        ])
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  }
 
+  const handleAddToCollection = () => {
+
+    fetch('/api/addtocollection', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      }, body: JSON.stringify({
+        collid: collectionId,
+        postid: postData._id,
+        type
+      })
+    }).then((response) => response.json())
+      .then(({ result }) => {
+        console.log("Added to Collection result result is");
+        toast.success("Added to Collection Successfully..", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        router.push("/profile");
+        // expandArray = Array(usercoll.length);
+        // expandArray.fill(1)
+        // console.log("expandArray", expandArray);
+        // setCollectionData(prevState => (prevState.push(newcollection)))
+      })
+      .catch(err => {
+        console.error(err);
+      })
+
+  }
   return (
     <div className="min-h-screen py-2 bg-gray-100 dark:text-white dark:bg-gray-800">
       <ToastContainer
@@ -245,14 +336,13 @@ export default function CreatePost() {
           <div className="mb-4 relative pl-4 md:p-0">
             <label
               className="block text-gray-700 dark:text-white text-lg font-bold mb-2"
-              // htmlFor="caption"
+            // htmlFor="caption"
             >
               Select Type
             </label>
             <div
-              className={`flex items-center relative cursor-pointer w-36 mt-3 py-2 rounded-md ${
-                dropdown ? "bg-blue-600" : "bg-blue-400"
-              }`}
+              className={`flex items-center relative cursor-pointer w-36 mt-3 py-2 rounded-md ${dropdown ? "bg-blue-600" : "bg-blue-400"
+                }`}
               onClick={() => {
                 setDropdown(!dropdown);
               }}
@@ -327,6 +417,112 @@ export default function CreatePost() {
             Create
           </button>
         </div>
+        {
+          showAddtoCollection
+          &&
+          <div className="flex">
+
+            <label
+              className="block text-gray-700 dark:text-white text-lg font-bold mb-2"
+            // htmlFor="caption"
+            >
+              Add To Collection
+            </label>
+            <div>
+              <div
+                className={`flex items-center relative cursor-pointer w-36 mt-3 py-2 rounded-md ${collectionDropdown ? "bg-blue-600" : "bg-blue-400"
+                  }`}
+                onClick={() => {
+                  setCollectionDropdown(!collectionDropdown);
+                }}
+              >
+                <p className="mx-auto">{collectionType}</p>
+                <span className="absolute right-3">
+                  {collectionDropdown ? (
+                    <AiOutlineArrowDown className="ml-2 mt-1" />
+                  ) : (
+                    <AiOutlineArrowUp className="ml-2 mt-1" />
+                  )}
+                </span>
+              </div>
+              {/* {collectionDropdown && ( */}
+
+              {
+                collectionDropdown
+                &&
+                <div className="w-36 top-20 text-center bg-blue-500">
+                  {
+                    (collectionData && collectionData.length > 0) &&
+                    collectionData.map(citem => (
+                      <p
+                        key={citem._id}
+                        className={`px-4 border-b-2 cursor-pointer py-1`}
+                        onClick={() => {
+                          setCollectionType(`${citem.name}`);
+                          setCollectionId(`${citem._id}`)
+                          setCollectionDropdown(false);
+                        }}
+                      >
+                        {citem.name}
+                      </p>
+                    ))
+                  }
+                  <p
+                    className={`px-4 border-b-2 cursor-pointer py-1`}
+                    onClick={() => {
+                      setIsCreateNewCollection(true);
+                      // setType("Joke");
+                      // setDropdown(false);
+                    }}
+                  >
+                    Create New Collection
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        {
+          isCreateNewCollection &&
+          <div>
+            <label
+              className="block text-gray-700 dark:text-white text-lg font-bold mb-2"
+              htmlFor="title"
+            >
+              Collection Name
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-800  leading-tight focus:outline-none focus:shadow-outline"
+              id="title"
+              name="title"
+              type="text"
+              value={newCollectionName}
+              onChange={(e) => setNewCollectionName(e.target.value)}
+              placeholder="Enter Collection Name"
+            // onFocus={() => {
+            //   setDropdown(false);
+            // }}
+            />
+            <button
+              className="text-black dark:text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 my-5 rounded-md hover:border-blue-400 hover:text-blue-400"
+              onClick={handleCreateCollection}
+            >
+              Create Collection
+            </button>
+
+          </div>
+
+        }
+        {
+          showAddtoCollection
+          &&
+          <button
+            className="text-black dark:text-white mx-2.5 dark:border-white border-black border-2 py-1 px-2 ml-24 my-5 rounded-md hover:border-blue-400 hover:text-blue-400"
+            onClick={handleAddToCollection}
+          >
+            Add to Collection
+          </button>
+        }
       </div>
     </div>
   );

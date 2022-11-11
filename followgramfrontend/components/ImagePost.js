@@ -161,7 +161,7 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
                     <h1 className="pl-4">{post.postedBy.name}</h1>
                     {/* <h1 className="pl-4 cursor-pointer">{post.postedBy.name}</h1> */}
                     <span className="absolute right-4 text-xl">
-                      <AiOutlineUserAdd />
+                      {/* <AiOutlineUserAdd /> */}
                     </span>
                   </div>
                   <div className="my-1">
