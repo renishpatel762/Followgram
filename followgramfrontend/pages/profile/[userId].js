@@ -648,7 +648,7 @@ export default function Profile({
                         <p>ImagePost {citem.imagePost.length}</p>
 
                         {
-                          expandArray[cindex] === 1 &&
+                          // expandArray[cindex] === 1 &&
                           <>
                             <div
                               // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">

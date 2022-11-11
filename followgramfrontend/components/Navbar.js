@@ -107,6 +107,7 @@ export default function Navbar({
               "/search",
             "/explore",
               "/profile/[userId]",
+              "/profile/setting"
             ].includes(router.pathname) && (
               <Link href={"/login"}>
                 <a className="mx-5 text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400">
@@ -374,6 +375,7 @@ export default function Navbar({
                   className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
                   onChange={() => {
                     setPhotoPost(true);
+                    setShowMenu(false);
                   }}
                 />
                 <label htmlFor="imagePost" className="ml-2 text-sm font-medium">
@@ -390,6 +392,7 @@ export default function Navbar({
                   className="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
                   onChange={() => {
                     setPhotoPost(false);
+                    setShowMenu(false);
                   }}
                 />
                 <label htmlFor="textPost" className="ml-2 text-sm font-medium">
@@ -414,6 +417,7 @@ export default function Navbar({
                   onChange={() => {
                     setPreviousPostFilter(postFilter);
                     setPostFilter("all");
+                    setShowMenu(false);
                   }}
                 />
                 <label htmlFor="all" className="ml-2 text-sm font-medium">
@@ -431,6 +435,7 @@ export default function Navbar({
                   onChange={() => {
                     setPreviousPostFilter(postFilter);
                     setPostFilter("today");
+                    setShowMenu(false);
                   }}
                 />
                 <label htmlFor="today" className="ml-2 text-sm font-medium">
@@ -448,6 +453,7 @@ export default function Navbar({
                   onChange={() => {
                     setPreviousPostFilter(postFilter);
                     setPostFilter("last_week");
+                    setShowMenu(false);
                   }}
                 />
                 <label htmlFor="lastWeek" className="ml-2 text-sm font-medium">
@@ -465,6 +471,7 @@ export default function Navbar({
                   onChange={() => {
                     setPreviousPostFilter(postFilter);
                     setPostFilter("last_30_days");
+                    setShowMenu(false);
                   }}
                 />
                 <label

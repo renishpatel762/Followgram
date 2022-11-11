@@ -18,7 +18,10 @@ export default function TextModal({
   postId,
   handleAudio,
   closeTextModal,
+  collectionName,
+  collectionId,
   isFromFunctionset,
+  isFromCollection,
   isFromProfilePage,
   posts,
   setPosts,
@@ -50,8 +53,15 @@ export default function TextModal({
               <div className="text-center cursor-pointer">
                 <p className="text-red-600" onClick={() => {
                   handleDeletePost(post._id)
-                  closeModal()
+                  closeTextModal()
                 }}>Delete Post</p>
+                {
+                  (isFromCollection && collectionName) &&
+                  <>
+                    <p>In Collection : {collectionName}</p>
+                    {/* <p className="text-red-600" onClick={()=>handleRemoveFromCollection}>remove from Collection</p> */}
+                  </>
+                }
                 <p onClick={() => setPostSettingModal(false)}>Cancel</p>
               </div>
             </div>
@@ -88,24 +98,32 @@ export default function TextModal({
           {/* className="relative pl-6 w-1/2 pr-6 " */}
           <div className={`${styles.maincontainer} pl-2`}>
             <div
-              className="flex items-center pb-1 border-b-2 border-gray-600 upperdiv cursor-pointer"
-              onClick={() => {
-                if (post.postedBy._id !== state._id)
-                  router.push("/profile/" + post.postedBy._id);
-                else {
-                  router.push("/profile");
-                  closeTextModal();
-                }
-              }}
-            >
+              className="flex items-center pb-1 border-b-2 border-gray-600 upperdiv cursor-pointer"            >
               <Image
                 className="rounded-full bg-white"
                 src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post.postedBy.pic}`}
                 width={40}
                 height={40}
+                onClick={() => {
+                  if (post.postedBy._id !== state._id)
+                    router.push("/profile/" + post.postedBy._id);
+                  else {
+                    router.push("/profile");
+                    closeTextModal();
+                  }
+                }}
               />
               <div>
-                <p className="pl-4">{post.postedBy.name}</p>
+                <p className="pl-4"
+                onClick={() => {
+                  if (post.postedBy._id !== state._id)
+                    router.push("/profile/" + post.postedBy._id);
+                  else {
+                    router.push("/profile");
+                    closeTextModal();
+                  }
+                }}
+                >{post.postedBy.name}</p>
                 {/* <p className="pl-4 text-sm">{post.body}</p> */}
               </div>
               <div className="absolute right-5 text-xl">
@@ -113,11 +131,15 @@ export default function TextModal({
                   // console.log("isFromProfilePage",isFromProfilePage)
                   isFromProfilePage
                     ?
-                    <p className="text-3xl text-white cursor-pointer" onClick={() => setPostSettingModal(true)}>...</p>
+                    <p className="text-3xl text-white cursor-pointer" onClick={() => {
+                      console.log("ds fkjdsfh ds------------");
+                      setPostSettingModal(true)
+                    }
+                    }>...</p>
                     :
                     <>
                       {
-                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id!==post.postedBy._id)  
+                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id !== post.postedBy._id)
                         &&
 
                         <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
@@ -125,7 +147,7 @@ export default function TextModal({
                             router.push("/profile/" + post.postedBy._id)
                           else {
                             router.push("/profile");
-                            closeModal();
+                            closeTextModal();
                           }
                         }} />
                       }

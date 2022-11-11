@@ -62,6 +62,9 @@ export default function MyProfile({
   //for collection
   const [collectionData, setCollectionData] = useState([]);
   const [expand, setExpand] = useState(false);
+  const [isFromCollection, setIsFromCollection] = useState(false);
+  const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const [selectedCollectionName, setSelectedCollectionName] = useState("");
 
   const router = useRouter();
   let isLoadingMore = true,
@@ -193,32 +196,45 @@ export default function MyProfile({
             makeComment={makeComment}
             isFromProfilePage={true}
             handleDeletePost={handleDeletePost}
+
+            isFromCollection={isFromCollection}
+            collectionId={selectedCollectionId}
+            collectionName={selectedCollectionName}
+            collectionData={collectionData}
             closeModal={() => {
               setModal(false);
+              setIsFromCollection(false);
             }}
           />
         )}
-        {textModal && (
-          <TextModal
-            post={post}
-            state={state}
-            posts={posts}
-            setPosts={setPosts}
-            setPost={setPost}
-            likePost={likePost}
-            unLikePost={unLikePost}
-            makeComment={makeComment}
-            handleAudio={handleAudio}
-            isFromProfilePage={true}
-            handleDeletePost={handleDeletePost}
-            // isFromFunctionset="true"
-            //just some
+        {
+          textModal && (
+            <TextModal
+              post={post}
+              state={state}
+              posts={posts}
+              setPosts={setPosts}
+              setPost={setPost}
+              likePost={likePost}
+              unLikePost={unLikePost}
+              makeComment={makeComment}
+              handleAudio={handleAudio}
+              isFromProfilePage={true}
+              handleDeletePost={handleDeletePost}
 
-            closeTextModal={() => {
-              setTextModal(false);
-            }}
-          />
-        )}
+              isFromCollection={isFromCollection}
+              collectionId={selectedCollectionId}
+              collectionName={selectedCollectionName}
+              collectionData={collectionData}
+              // isFromFunctionset="true"
+              //just some
+
+              closeTextModal={() => {
+                setTextModal(false);
+                setIsFromCollection(false);
+              }}
+            />
+          )}
       </div>
       <Head>
         <title>Profile - Followgram</title>
@@ -288,9 +304,8 @@ export default function MyProfile({
         {/* {!error && !data && <h1>Loading...</h1>} */}
         <div className="flex justify-evenly mt-10">
           <p
-            className={`mx-2 text-2xl cursor-pointer ${
-              fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
-            }`}
+            className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Media" ? "" : "border-blue-400 border-b-2"
+              }`}
             onClick={() => {
               changeCategory("Media");
             }}
@@ -326,14 +341,13 @@ export default function MyProfile({
         </p> */}
 
           <p
-            className={`mx-2 text-2xl cursor-pointer ${
-              fetchedCategory !== "TextPost" &&
-              fetchedCategory !== "Joke" &&
-              fetchedCategory !== "Shayari" &&
-              fetchedCategory !== "Quote"
+            className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "TextPost" &&
+                fetchedCategory !== "Joke" &&
+                fetchedCategory !== "Shayari" &&
+                fetchedCategory !== "Quote"
                 ? ""
                 : "border-blue-400 border-b-2"
-            }`}
+              }`}
             onClick={() => {
               changeCategory("Joke");
             }}
@@ -341,11 +355,10 @@ export default function MyProfile({
             TextPost
           </p>
           <p
-            className={`mx-2 text-2xl cursor-pointer ${
-              fetchedCategory !== "Collection"
+            className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection"
                 ? ""
                 : "border-blue-400 border-b-2"
-            }`}
+              }`}
             onClick={() => {
               changeCategory("Collection");
             }}
@@ -358,43 +371,40 @@ export default function MyProfile({
             fetchedCategory === "Joke" ||
             fetchedCategory === "Shayari" ||
             fetchedCategory === "Quote") && (
-            <>
-              <p
-                className={`mx-2 text-xl cursor-pointer ${
-                  fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
-                }`}
-                onClick={() => {
-                  changeCategory("Joke");
-                }}
-              >
-                Jokes
-              </p>
-              <p
-                className={`mx-2 text-xl cursor-pointer ${
-                  fetchedCategory !== "Shayari"
-                    ? ""
-                    : "border-blue-400 border-b-2"
-                }`}
-                onClick={() => {
-                  changeCategory("Shayari");
-                }}
-              >
-                Shayari
-              </p>
-              <p
-                className={`mx-2 text-xl cursor-pointer ${
-                  fetchedCategory !== "Quote"
-                    ? ""
-                    : "border-blue-400 border-b-2"
-                }`}
-                onClick={() => {
-                  changeCategory("Quote");
-                }}
-              >
-                Quotes
-              </p>
-            </>
-          )}
+              <>
+                <p
+                  className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
+                    }`}
+                  onClick={() => {
+                    changeCategory("Joke");
+                  }}
+                >
+                  Jokes
+                </p>
+                <p
+                  className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Shayari"
+                      ? ""
+                      : "border-blue-400 border-b-2"
+                    }`}
+                  onClick={() => {
+                    changeCategory("Shayari");
+                  }}
+                >
+                  Shayari
+                </p>
+                <p
+                  className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Quote"
+                      ? ""
+                      : "border-blue-400 border-b-2"
+                    }`}
+                  onClick={() => {
+                    changeCategory("Quote");
+                  }}
+                >
+                  Quotes
+                </p>
+              </>
+            )}
         </div>
         {/* posts */}
         <div className="mt-10">
@@ -430,6 +440,7 @@ export default function MyProfile({
                       onClick={() => {
                         setPost(post);
                         setModal(true);
+                        setIsFromCollection(false);
                       }}
                     />
                   </div>
@@ -445,9 +456,13 @@ export default function MyProfile({
                   >
                     <p
                       className="pl-4 text-2xl font-bold cursor-pointer"
+
                       onClick={() => {
+                        setIsFromCollection(false);
+
                         setPost(post);
                         setTextModal(true);
+
                       }}
                     >
                       {post.body}
@@ -481,8 +496,10 @@ export default function MyProfile({
                       <div
                         className="cursor-pointer"
                         onClick={() => {
+                          setIsFromCollection(false);
                           setPost(post);
                           setTextModal(true);
+
                         }}
                       >
                         <FaRegComment />
@@ -532,19 +549,17 @@ export default function MyProfile({
                     }}>expand</button> */}
                       <p>ImagePost {citem.imagePost.length}</p>
 
-                      {expandArray[cindex] === 1 && (
+                      {
+                        // expandArray[cindex] === 1 &&
                         <>
                           <div
                             // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
-                            style={{
-                              display: "flex",
-                              flexWrap: "wrap",
-                              width: "100%",
-                              border: "1px solid gray",
-                            }}
+                            style={{ display: 'flex', flexWrap: 'wrap', width: '100%', border: '1px solid gray' }}
                           >
-                            {citem.imagePost.length > 0 &&
-                              citem.imagePost.map((ciitem) => (
+                            {
+                              citem.imagePost.length > 0
+                              &&
+                              citem.imagePost.map(ciitem => (
                                 <div
                                   key={ciitem._id}
                                   // className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
@@ -557,44 +572,49 @@ export default function MyProfile({
                                     height={50}
                                     layout="responsive"
                                     onClick={() => {
+                                      setIsFromCollection(true);
+                                      setSelectedCollectionId(citem._id);
+                                      setSelectedCollectionName(citem.name);
                                       setPost(ciitem);
                                       setModal(true);
                                     }}
                                   />
+
                                 </div>
-                              ))}
+                              ))
+
+                            }
                           </div>
                           <p>TextPost {citem.textPost.length}</p>
                           <div
-                            style={{
-                              border: "1px solid gray",
-                              padding: "0 10px",
-                            }}
-                            // className="border-white border-solid"
+                            style={{ border: '1px solid gray', padding: '0 10px' }}
+                          // className="border-white border-solid"
                           >
-                            {citem.textPost.length > 0 &&
-                              citem.textPost.map((ctitem) => (
+                            {
+                              citem.textPost.length > 0
+                              &&
+                              citem.textPost.map(ctitem => (
                                 <div
                                   key={ctitem._id}
                                   className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white text-black"
                                 >
                                   <p className="text-2xl">{ctitem.type}</p>
-                                  <p
-                                    className="pl-4 text-2xl font-bold cursor-pointer"
-                                    onClick={() => {
-                                      setPost(ctitem);
-                                      setTextModal(true);
-                                    }}
-                                  >
-                                    {ctitem.body}
-                                  </p>
+                                  <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                                    setIsFromCollection(true);
+                                    setSelectedCollectionId(citem._id);
+                                    setSelectedCollectionName(citem.name);
+                                    setPost(ctitem);
+                                    setTextModal(true);
+
+                                  }}>{ctitem.body}</p>
                                 </div>
-                              ))}
+                              ))
+                            }
                           </div>
                         </>
-                      )}
+
+                      }
                     </div>
-                    <div></div>
                   </div>
                 ))}
             </div>
