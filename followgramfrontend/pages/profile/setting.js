@@ -2,14 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import InfiniteScroll from "react-infinite-scroll-component";
-import useSWRInfinite from "swr/infinite";
-import loader from "../../public/loader.svg";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../_app";
-import Modal from "../../components/Modal";
-import { FaRegCalendar, FaRegComment } from "react-icons/fa";
-
-
 
 export default function Setting({
   speak,
@@ -18,20 +13,21 @@ export default function Setting({
   supported,
   voices,
 }) {
-
   const [state, dispatch] = useContext(UserContext);
   // const[totalpost,setTotalPost]=useState(0);
   // const [user, setUser] = useState({});
-//   const [posts, setPosts] = useState([]);
-//   const [morePosts, setMorePosts] = useState(true);
-//   const [fetchedCategory, setFetchedCategory] = useState("Media");
-//   const [isPlaying, setIsPlaying] = useState(false);
-//   const [postId, setPostId] = useState("");
+  //   const [posts, setPosts] = useState([]);
+  //   const [morePosts, setMorePosts] = useState(true);
+  //   const [fetchedCategory, setFetchedCategory] = useState("Media");
+  //   const [isPlaying, setIsPlaying] = useState(false);
+  //   const [postId, setPostId] = useState("");
   // const { data, error } = useSWR("/api/allpost", fetcher);
   // const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
   //   getKey,
   //   fetcher
   // );
+  const [profile, setProfile] = useState(undefined);
+  const [imageName, setImageName] = useState("");
   const [post, setPost] = useState(null);
   const [modal, setModal] = useState(false);
   const [textModal, setTextModal] = useState(false);
@@ -80,10 +76,70 @@ export default function Setting({
   //   console.log(posts);
   // }, [data]);
 
+  useEffect(() => {
+    if (imageName.length > 0) {
+      uploadData();
+      // console.log("here");
+    }
+  }, [imageName]);
 
+  const handleSubmit = async () => {
+    if (profile) {
+      // uploading image to cloudinary
+      const formData = new FormData();
+      formData.append("file", profile);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_PRESET
+      );
+      formData.append("folder", process.env.NEXT_PUBLIC_CLOUDINARY_PROFILE);
+      // console.log(formData);
 
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      ).then((response) => response.json());
+      const index = res.secure_url.lastIndexOf("/");
+      const imgName = res.secure_url.substring(index + 1);
+      setImageName(imgName);
+    }
+  };
 
-
+  const uploadData = async () => {
+    // console.log("signup called");
+    const res = await fetch("/api/updateprofilepic", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        pic: imageName,
+      }),
+    }).then((response) => response.json());
+    // console.log(res);
+    if (res.success) {
+      setImageName("");
+      setProfile(undefined);
+      toast.success("Successfully Updated..", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      console.log(res.result);
+      localStorage.setItem("user", JSON.stringify(res.result));
+      // dispatch({type:"USER",payload:res.user})
+      dispatch({ type: "USER", payload: res.result });
+      router.push("/profile");
+    }
+  };
 
   return (
     <div className="min-h-screen px-2 dark:text-white dark:bg-gray-800">
@@ -94,55 +150,76 @@ export default function Setting({
           content="Followgram share posts & text with your friend"
         />
       </Head>
-      <div className="flex w-full pt-5 md:pt-10">
-        <div className="w-1/3 text-center items-center">
-          <div>
-            {!state && (
-              <Image
-                className="rounded-full bg-white"
-                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
-                width={150}
-                height={150}
-              />
-            )}
-            {(state && state.pic) && (
-              <Image
-                className="rounded-full bg-white"
-                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${state.pic}`}
-                width={150}
-                height={150}
-              />
-            )}
-          </div>
-          <button className="mt-2">Set Profile </button>
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
+      <div className="w-full max-w-md mx-auto pt-4">
+        <div className="mb-4 text-center">
+          {profile && (
+            <Image
+              className="rounded-full bg-white"
+              src={URL.createObjectURL(profile)}
+              width={150}
+              height={150}
+            />
+          )}
+          {!profile && state && (
+            // <></>
+            <Image
+              className="rounded-full bg-white"
+              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/${process.env.NEXT_PUBLIC_CLOUDINARY_PROFILE}/${state.pic}`}
+              width={150}
+              height={150}
+            />
+          )}
+          <label
+            className="block text-gray-700 text-lg font-bold my-2"
+            htmlFor="profile"
+          >
+            <img
+              src="https://img.icons8.com/fluency-systems-filled/96/000000/file-upload.png"
+              className="cursor-pointer mx-auto"
+              height={40}
+              width={40}
+            />
+          </label>
+          {profile && (
+            <span className="text-lg">
+              {profile.name.substring(0, 40)}
+              {profile.name.length > 40 ? "..." : ""}
+            </span>
+          )}
+          {!profile && (
+            <span className="text-lg cursor-pointer">Change Photo</span>
+          )}
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-800 leading-tight focus:outline-none focus:shadow-outline hidden"
+            id="profile"
+            name="profile"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setProfile(e.target.files[0])}
+          />
         </div>
-        <div className="w-2/3 pt-3 pl-4 md:pl-0 overflow-x-hidden">
-          <h2 className="text-2xl">{state && state.name}</h2>
-          <h2 className="text-md">{state && state.email}</h2>
-          <div className="flex py-5 text-sm md:text-lg">
-            <div className="w-1/3 md:w-1/5 text-center">
-              <p>{state ? state.posts.length : 0}</p>
-              <p>Posts</p>
-            </div>
-            <div className="w-1/3 md:w-1/5 text-center">
-              <p>{state ? state.followers.length : 0}</p>
-              <p>Followers</p>
-            </div>
-            <div className="w-1/3 md:w-1/5 text-center">
-              <p>{state ? state.following.length : 0}</p>
-              <p>Following</p>
-            </div>
-          </div>
+
+        <div className="my-4 text-center">
+          <button
+            className="text-white mx-2.5 text-xl dark:border-white border-black border-2 py-1 px-3 rounded-md hover:border-blue-400 hover:text-blue-400 "
+            onClick={handleSubmit}
+          >
+            Update
+          </button>
         </div>
       </div>
-
-      {/* load posts here */}
-      <hr className="mt-7 h-0.5 bg-white" />
-      {/* {error && (
-        <h1 className="my-5 text-center text-2xl">
-          Something went wrong.. Please try again later...
-        </h1>
-      )} */}
     </div>
   );
 }
