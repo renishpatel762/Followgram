@@ -15,7 +15,7 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
   return (
     <div className="opacity-100">
       <div
-        className={`fixed w-[100vw] md:w-[90vw] lg:w-[80vw] md:ml-[5vw] lg:ml-[10vw] top-[5vh] z-30 md:text-lg text-white xl:text-xl bg-gray-800 rounded-md py-4`}
+        className={`fixed max-h-[90vh] scroll-smooth overflow-y-auto w-[100vw] md:w-[90vw] lg:w-[80vw] md:ml-[5vw] lg:ml-[10vw] top-[5vh] z-30 md:text-lg text-white xl:text-xl bg-gray-800 rounded-md py-4`}
       >
         <div className="relative">
           <span
@@ -30,7 +30,7 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
           &&
           <div className="opacity-100">
             <div
-              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg text-black xl:text-xl bg-gray-200 rounded-md py-4`}
+              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-600 rounded-md py-4`}
             >
               <div className="text-center cursor-pointer">
                 <p className="text-red-600" onClick={() => {
@@ -49,8 +49,8 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
             </div>
           </div>
         }
-        <div className="flex">
-          <div className="pl-6 w-1/2">
+        <div className="lg:flex">
+          <div className="lg:pl-6 lg:w-1/2 text-center px-3 lg:px-0">
             <Image
               className="rounded-sm"
               src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${post.photo}`}
@@ -59,7 +59,7 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
             />
           </div>
           {/* className="relative pl-6 w-1/2 pr-6 " */}
-          <div className={`${styles.maincontainer} pl-2 pr-6`} >
+          <div className={`${styles.maincontainer} pl-2 pr-6 pt-3 lg:pt-0`} >
             <div className="flex items-center pb-1 border-b-2 border-gray-600 upperdiv"
             >
               <Image

@@ -18,7 +18,10 @@ export default function TextModal({
   postId,
   handleAudio,
   closeTextModal,
+  collectionName,
+  collectionId,
   isFromFunctionset,
+  isFromCollection,
   isFromProfilePage,
   posts,
   setPosts,
@@ -30,7 +33,7 @@ export default function TextModal({
   return (
     <div className="opacity-100">
       <div
-        className={`fixed w-[100vw] md:w-[90vw] lg:w-[80vw] md:ml-[5vw] lg:ml-[10vw] top-[5vh] z-30 md:text-lg xl:text-xl bg-gray-800 text-white rounded-md py-4`}
+        className={`fixed max-h-[90vh] scroll-smooth overflow-y-auto w-[100vw] md:w-[90vw] lg:w-[80vw] md:ml-[5vw] lg:ml-[10vw] top-[5vh] z-30 md:text-lg xl:text-xl bg-gray-800 text-white rounded-md py-4`}
       >
         <div className="relative">
           <span
@@ -45,20 +48,27 @@ export default function TextModal({
           &&
           <div className="opacity-100">
             <div
-              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-200 rounded-md py-4`}
+              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-600 rounded-md py-4`}
             >
               <div className="text-center cursor-pointer">
                 <p className="text-red-600" onClick={() => {
                   handleDeletePost(post._id)
-                  closeModal()
+                  closeTextModal()
                 }}>Delete Post</p>
+                {
+                  (isFromCollection && collectionName) &&
+                  <>
+                    <p>In Collection : {collectionName}</p>
+                    {/* <p className="text-red-600" onClick={()=>handleRemoveFromCollection}>remove from Collection</p> */}
+                  </>
+                }
                 <p onClick={() => setPostSettingModal(false)}>Cancel</p>
               </div>
             </div>
           </div>
         }
-        <div className="flex">
-          <div className="pl-6 w-1/2 pt-4">
+        <div className="lg:flex">
+          <div className="lg:px-3 lg:w-1/2 pt-4 px-2">
             <h3 className="text-sm">{post.type}</h3>
             <p className="text-2xl">{post.body}</p>
             {/* <Image
@@ -88,24 +98,32 @@ export default function TextModal({
           {/* className="relative pl-6 w-1/2 pr-6 " */}
           <div className={`${styles.maincontainer} pl-2`}>
             <div
-              className="flex items-center pb-1 border-b-2 border-gray-600 upperdiv cursor-pointer"
-              onClick={() => {
-                if (post.postedBy._id !== state._id)
-                  router.push("/profile/" + post.postedBy._id);
-                else {
-                  router.push("/profile");
-                  closeTextModal();
-                }
-              }}
-            >
+              className="flex items-center pb-1 border-b-2 border-gray-600 upperdiv cursor-pointer"            >
               <Image
                 className="rounded-full bg-white"
                 src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post.postedBy.pic}`}
                 width={40}
                 height={40}
+                onClick={() => {
+                  if (post.postedBy._id !== state._id)
+                    router.push("/profile/" + post.postedBy._id);
+                  else {
+                    router.push("/profile");
+                    closeTextModal();
+                  }
+                }}
               />
               <div>
-                <p className="pl-4">{post.postedBy.name}</p>
+                <p className="pl-4"
+                onClick={() => {
+                  if (post.postedBy._id !== state._id)
+                    router.push("/profile/" + post.postedBy._id);
+                  else {
+                    router.push("/profile");
+                    closeTextModal();
+                  }
+                }}
+                >{post.postedBy.name}</p>
                 {/* <p className="pl-4 text-sm">{post.body}</p> */}
               </div>
               <div className="absolute right-5 text-xl">
@@ -113,11 +131,15 @@ export default function TextModal({
                   // console.log("isFromProfilePage",isFromProfilePage)
                   isFromProfilePage
                     ?
-                    <p className="text-3xl text-white cursor-pointer" onClick={() => setPostSettingModal(true)}>...</p>
+                    <p className="text-3xl text-white cursor-pointer" onClick={() => {
+                      console.log("ds fkjdsfh ds------------");
+                      setPostSettingModal(true)
+                    }
+                    }>...</p>
                     :
                     <>
                       {
-                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id!==post.postedBy._id)  
+                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id !== post.postedBy._id)
                         &&
 
                         <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
@@ -125,7 +147,7 @@ export default function TextModal({
                             router.push("/profile/" + post.postedBy._id)
                           else {
                             router.push("/profile");
-                            closeModal();
+                            closeTextModal();
                           }
                         }} />
                       }
