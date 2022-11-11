@@ -19,7 +19,7 @@ export default function CreatePost() {
   const [showAddtoCollection, setShowAddtoCollection] = useState(false);
   const [collectionData, setCollectionData] = useState([]);
   const [collectionDropdown, setCollectionDropdown] = useState(false);
-  const [collectionType, setCollectionType] = useState("");
+  const [collectionType, setCollectionType] = useState("Select");
   const [collectionId, setCollectionId] = useState("");
   const [newCollectionName, setNewCollectionName] = useState("");
   const [isCreateNewCollection, setIsCreateNewCollection] = useState(false);
@@ -211,7 +211,7 @@ export default function CreatePost() {
   }
 
   const handleAddToCollection = () => {
-
+    if(collectionType!=="Select"){
     fetch('/api/addtocollection', {
       method: "POST",
       headers: {
@@ -243,7 +243,7 @@ export default function CreatePost() {
       .catch(err => {
         console.error(err);
       })
-
+    }
   }
   return (
     <div className="min-h-screen py-2 bg-gray-100 dark:text-white dark:bg-gray-800">

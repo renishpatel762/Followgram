@@ -5,10 +5,13 @@ import { AiOutlineUserAdd, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import styles from "../styles/Modal.module.css";
 import { useRouter } from "next/router";
 
-export default function Modal({ closeModal, post, state, likePost, makeComment, unLikePost, posts, setPosts, setPost, isFromProfilePage, handleDeletePost }) {
+export default function Modal({ closeModal, post, state, likePost, makeComment, unLikePost, posts, setPosts, setPost, isFromProfilePage, handleDeletePost, isFromCollection, collectionId, collectionName, collectionData }) {
   // console.log("post is", post);
   const [postSettingModal, setPostSettingModal] = useState(false);
   const router = useRouter();
+  const handleRemoveFromCollection=()=>{
+
+  }
   return (
     <div className="opacity-100">
       <div
@@ -27,13 +30,20 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
           &&
           <div className="opacity-100">
             <div
-              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-200 rounded-md py-4`}
+              className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg text-black xl:text-xl bg-gray-200 rounded-md py-4`}
             >
               <div className="text-center cursor-pointer">
                 <p className="text-red-600" onClick={() => {
                   handleDeletePost(post._id)
                   closeModal()
                 }}>Delete Post</p>
+                {
+                  (isFromCollection && collectionName) &&
+                  <>
+                    <p>In Collection : {collectionName}</p>
+                    {/* <p className="text-red-600" onClick={()=>handleRemoveFromCollection}>remove from Collection</p> */}
+                  </>
+                }
                 <p onClick={() => setPostSettingModal(false)}>Cancel</p>
               </div>
             </div>
@@ -87,7 +97,7 @@ export default function Modal({ closeModal, post, state, likePost, makeComment, 
                     :
                     <>
                       {
-                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id!==post.postedBy._id)  
+                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id !== post.postedBy._id)
                         &&
 
                         <AiOutlineUserAdd className="cursor-pointer" onClick={() => {

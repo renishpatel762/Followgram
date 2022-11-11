@@ -59,6 +59,9 @@ export default function MyProfile({
   //for collection
   const [collectionData, setCollectionData] = useState([]);
   const [expand, setExpand] = useState(false);
+  const [isFromCollection, setIsFromCollection] = useState(false);
+  const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const [selectedCollectionName, setSelectedCollectionName] = useState("");
 
   const router = useRouter();
   let isLoadingMore = true,
@@ -192,8 +195,14 @@ export default function MyProfile({
             makeComment={makeComment}
             isFromProfilePage={true}
             handleDeletePost={handleDeletePost}
+
+            isFromCollection={isFromCollection}
+            collectionId={selectedCollectionId}
+            collectionName={selectedCollectionName}
+            collectionData={collectionData}
             closeModal={() => {
               setModal(false);
+              setIsFromCollection(false);
             }}
           />
         )}
@@ -209,13 +218,18 @@ export default function MyProfile({
               unLikePost={unLikePost}
               makeComment={makeComment}
               handleAudio={handleAudio}
-              isFromProfilePage={true}
               handleDeletePost={handleDeletePost}
+
+              isFromCollection={isFromCollection}
+              collectionId={selectedCollectionId}
+              collectionName={selectedCollectionName}
+              collectionData={collectionData}
               // isFromFunctionset="true"
               //just some
 
               closeTextModal={() => {
                 setTextModal(false);
+                setIsFromCollection(false);
               }}
             />
           )
@@ -408,6 +422,7 @@ export default function MyProfile({
                     onClick={() => {
                       setPost(post);
                       setModal(true);
+                      setIsFromCollection(false);
                     }}
                   />
                 </div>
@@ -418,7 +433,11 @@ export default function MyProfile({
                   key={post._id}
                   className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                 >
-                  <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => { setPost(post); setTextModal(true); }}>{post.body}</p>
+                  <p className="pl-4 text-2xl font-bold cursor-pointer"
+                    onClick={() => {
+                      setIsFromCollection(false);
+                      setPost(post); setTextModal(true);
+                    }}>{post.body}</p>
                   <p className="text-right pr-4">
                     {new Date(post.createdAt).toLocaleDateString(
                       "en-US",
@@ -440,8 +459,10 @@ export default function MyProfile({
                         </div>
                     }
                     <div className="cursor-pointer" onClick={() => {
+                      setIsFromCollection(false);
                       setPost(post);
                       setTextModal(true);
+
                     }}>
                       <FaRegComment />
                       {
@@ -495,7 +516,7 @@ export default function MyProfile({
                     <p>ImagePost {citem.imagePost.length}</p>
 
                     {
-                      expandArray[cindex] === 1 &&
+                      // expandArray[cindex] === 1 &&
                       <>
                         <div
                           // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
@@ -517,6 +538,9 @@ export default function MyProfile({
                                   height={50}
                                   layout="responsive"
                                   onClick={() => {
+                                    setIsFromCollection(true);
+                                    setSelectedCollectionId(citem._id);
+                                    setSelectedCollectionName(citem.name);
                                     setPost(ciitem);
                                     setModal(true);
                                   }}
@@ -529,7 +553,7 @@ export default function MyProfile({
                         </div>
                         <p>TextPost {citem.textPost.length}</p>
                         <div
-                        style={{border:'1px solid gray',padding:'0 10px'}} 
+                          style={{ border: '1px solid gray', padding: '0 10px' }}
                         // className="border-white border-solid"
                         >
                           {
@@ -542,13 +566,17 @@ export default function MyProfile({
                               >
                                 <p className="text-2xl">{ctitem.type}</p>
                                 <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                                  setIsFromCollection(true);
+                                  setSelectedCollectionId(citem._id);
+                                  setSelectedCollectionName(citem.name);
                                   setPost(ctitem);
                                   setTextModal(true);
+
                                 }}>{ctitem.body}</p>
                               </div>
                             ))
                           }
-                          </div>
+                        </div>
                       </>
 
                     }
