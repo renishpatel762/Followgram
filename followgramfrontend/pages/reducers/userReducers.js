@@ -6,8 +6,7 @@ export const reducer = (state,action)=>{
     // console.log(localStorage.getItem("user"));
     if(action.type==="USER"){
         return action.payload;
-    }
-    if(action.type==="CLEAR"){
+    }if(action.type==="CLEAR"){
         return null;
     }
     if(action.type==="UPDATE"){
@@ -21,6 +20,13 @@ export const reducer = (state,action)=>{
         return{
             ...state,
             pic:action.payload.pic
+        }
+    }
+    if(action.type==="UPDATEARRAY"){
+        return{
+            ...state,
+            imagePost:action.payload.imagePost,
+            textPost:action.payload.textPost
         }
     }
     return state;

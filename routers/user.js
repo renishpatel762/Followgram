@@ -9,6 +9,8 @@ const requireLogin = require('../middleware/requireLogin');
 router.get('/user/:id', requireLogin, (req, res) => {
     console.log("user/id called");
     User.findOne({ _id: req.params.id })
+        .populate("following", "_id name pic")
+        .populate("followers", "_id name pic")
         .select("-password")
         .then(user => {
             // Post.find({ postedBy: req.params.id })
@@ -157,9 +159,34 @@ router.put('/updateprofilepic', requireLogin, (req, res) => {
     User.findByIdAndUpdate(req.user._id, { $set: { pic: req.body.pic } }, { new: true },
         (err, result) => {
             if (err) {
-                return res.status(422).json({sucess:false, error: "pic canot set" })
+                return res.status(422).json({ sucess: false, error: "pic canot set" })
             }
-            res.json({success:true,result});
+            res.json({ success: true, result });
         })
 });
+router.get('/getuser', requireLogin, (req, res) => {
+    console.log("user/id called");
+    User.findOne({ _id: req.user._id })
+        .select("-password")
+        // .populate("following","_id name pic")
+        // .populate("followers","_id name pic")
+        .then(user => {
+            res.json({ success: true, user })
+        }).catch(err => {
+            return res.status(404).json({ success: false, error: "User not found" })
+        })
+});
+router.get('/getuserdata', requireLogin, (req, res) => {
+    console.log("user/id called");
+    User.findOne({ _id: req.user._id })
+        .select("-password")
+        .populate("following", "_id name pic")
+        .populate("followers", "_id name pic")
+        .then(user => {
+            res.json({ success: true, user })
+        }).catch(err => {
+            return res.status(404).json({ success: false, error: "User not found" })
+        })
+});
+
 module.exports = router;

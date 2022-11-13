@@ -154,10 +154,11 @@ export default function CreatePost() {
     }).then((response) => response.json());
     // console.log(res);
     if (res.post) {
+      console.log("res.user is",res.user);
       if (res.user) {
         dispatch({ type: "USER", payload: res.user });
       }
-
+      localStorage.setItem("user", JSON.stringify(res.user));
       setPostData(res.post);
 
       toast.success("Post Created Successfully..", {
@@ -200,9 +201,9 @@ export default function CreatePost() {
         // expandArray = Array(usercoll.length);
         // expandArray.fill(1)
         // console.log("expandArray", expandArray);
-        setCollectionData(prevState=>[
+        setCollectionData(prevState => [
           ...prevState,
-          newcollection          
+          newcollection
         ])
       })
       .catch(err => {
@@ -211,38 +212,39 @@ export default function CreatePost() {
   }
 
   const handleAddToCollection = () => {
-    if(collectionType!=="Select"){
-    fetch('/api/addtocollection', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      }, body: JSON.stringify({
-        collid: collectionId,
-        postid: postData._id,
-        type
-      })
-    }).then((response) => response.json())
-      .then(({ result }) => {
-        console.log("Added to Collection result result is");
-        toast.success("Added to Collection Successfully..", {
-          position: "top-right",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        router.push("/profile");
-        // expandArray = Array(usercoll.length);
-        // expandArray.fill(1)
-        // console.log("expandArray", expandArray);
-        // setCollectionData(prevState => (prevState.push(newcollection)))
-      })
-      .catch(err => {
-        console.error(err);
-      })
+    let currtype=(type === "Select" || type==="Media") ? "Media" : "Text";
+    if (collectionType !== "Select") {
+      fetch('/api/addtocollection', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        }, body: JSON.stringify({
+          collid: collectionId,
+          postid: postData._id,
+          type
+        })
+      }).then((response) => response.json())
+        .then(({ result }) => {
+          console.log("Added to Collection result result is");
+          toast.success("Added to Collection Successfully..", {
+            position: "top-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          router.push("/profile");
+          // expandArray = Array(usercoll.length);
+          // expandArray.fill(1)
+          // console.log("expandArray", expandArray);
+          // setCollectionData(prevState => (prevState.push(newcollection)))
+        })
+        .catch(err => {
+          console.error(err);
+        })
     }
   }
   return (

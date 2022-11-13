@@ -14,7 +14,7 @@ export default function Login() {
   const [disabled, setDisabled] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   // console.log(user);
-  console.log("state is login ", state);
+  // console.log("state is login ", state);
   useEffect(() => {
     if (email.length > 0 && password.length > 0) {
       setDisabled(false);
@@ -52,6 +52,7 @@ export default function Login() {
       // console.log("res is", res);
       if (res.success) {
         localStorage.setItem("token", res.token);
+        console.log("res.user is",res.user);
         localStorage.setItem("user", JSON.stringify(res.user));
         // dispatch({type:"USER",payload:res.user})
         dispatch({ type: "USER", payload: res.user });

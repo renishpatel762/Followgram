@@ -33,6 +33,7 @@ export default function Verify() {
           email
         }),
       }).then((response) => response.json());
+      console.log("res is",res);
       if (res.success) {
         toast.success("Your account is verified..Thank you", {
           position: "top-right",
@@ -47,9 +48,19 @@ export default function Verify() {
         localStorage.setItem("token",res.token);
         localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/profile");
+      }else{
+        toast.error("Invalid otp try again.", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       }
     } else {
-      toast.error(res.error, {
+      toast.error("otp must be of 6 digits.", {
         position: "top-right",
         autoClose: 1500,
         hideProgressBar: false,

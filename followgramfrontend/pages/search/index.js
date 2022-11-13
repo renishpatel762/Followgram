@@ -460,7 +460,7 @@ export default function Search({ speak, cancel, speaking, supported, voices }) {
                       >
                         <p>{tpitem.type}</p>
                         <p
-                          className="pl-4 text-2xl font-bold cursor-pointer"
+                          className="pl-4 text-2xl cursor-pointer"
                           onClick={() => {
                             setPost(tpitem);
                             setTextModal(true);

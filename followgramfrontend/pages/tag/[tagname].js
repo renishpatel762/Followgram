@@ -302,7 +302,7 @@ export default function Profile({
                 {/* {!user && (
                   <Image
                     className="rounded-full bg-white"
-                    src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
+                    src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn_yivfp2.png`}
                     width={150}
                     height={150}
                   />
@@ -436,7 +436,7 @@ export default function Profile({
                       key={post._id}
                       className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                     >
-                      <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                      <p className="pl-4 text-2xl cursor-pointer" onClick={() => {
                         setPost(post);
                         setTextModal(true);
                       }}>{post.body}</p>
