@@ -259,12 +259,17 @@ export default function Profile({
         console.log("data is ", data);
         dispatch({ type: "UPDATE", payload: { following: data.following, followers: data.followers } })
         localStorage.setItem("user", JSON.stringify(data))
+        const newfolloweris={
+          _id:data._id,
+          name:data.name,
+          pic:data.pic
+        }
         setUser((prevState) => {
           return {
             ...prevState,
             // user: {
             // ...prevState.user,
-            followers: [...prevState.followers, data._id]
+            followers: [...prevState.followers, newfolloweris]
             // }
           }
         })
@@ -297,7 +302,7 @@ export default function Profile({
         //   }
         // })
         setUser((prevState) => {
-          const newFollower = prevState.followers.filter(item => item != data._id)
+          const newFollower = prevState.followers.filter(item => item._id != data._id)
           return {
             ...prevState,
             followers: newFollower
