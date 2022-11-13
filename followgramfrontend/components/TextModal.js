@@ -26,10 +26,12 @@ export default function TextModal({
   posts,
   setPosts,
   setPost,
+  handleRemoveFromCollection,
+  handleDeletePost
 }) {
   const [postSettingModal, setPostSettingModal] = useState(false);
   const router = useRouter();
-  console.log("post is", post);
+  // console.log("post is", post);
   return (
     <div className="opacity-100">
       <div
@@ -51,7 +53,7 @@ export default function TextModal({
               className={`fixed w-[50vw] md:w-[50vw] lg:w-[50vw] md:ml-[25vw] lg:ml-[25vw] top-[20vh] z-30 md:text-lg xl:text-xl bg-gray-600 rounded-md py-4`}
             >
               <div className="text-center cursor-pointer">
-                <p className="text-red-600" onClick={() => {
+                <p className="text-red-400" onClick={() => {
                   handleDeletePost(post._id)
                   closeTextModal()
                 }}>Delete Post</p>
@@ -59,7 +61,10 @@ export default function TextModal({
                   (isFromCollection && collectionName) &&
                   <>
                     <p>In Collection : {collectionName}</p>
-                    {/* <p className="text-red-600" onClick={()=>handleRemoveFromCollection}>remove from Collection</p> */}
+                    <p className="text-red-400" onClick={() => {
+                      handleRemoveFromCollection(collectionId, post._id, "Text")
+                      closeTextModal();
+                    }}>remove from Collection</p>
                   </>
                 }
                 <p onClick={() => setPostSettingModal(false)}>Cancel</p>
@@ -69,16 +74,16 @@ export default function TextModal({
         }
         <div className="lg:flex">
           <div className="lg:px-3 lg:w-1/2 pt-4 px-2">
-            <h3 className="text-sm">{post.type}</h3>
-            <p className="text-2xl">{post.body}</p>
+            <h3 className="text-sm">{post && post.type}</h3>
+            <p className="text-2xl">{post && post.body}</p>
             {/* <Image
               src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${post.photo}`}
               width={500}
               height={500}
             /> */}
-            <hr className="h-[1px] bg-gray-600 my-2" />
-            <div className="text-4xl">
-              {speaking && postId === post._id ? (
+            <hr className="h-[1px] bg-gray-600 my-4" />
+            <div className="text-4xl my-10">
+              {post && speaking && postId === post._id ? (
                 <BsStop
                   className="cursor-pointer mx-auto"
                   onClick={() => {
@@ -101,7 +106,7 @@ export default function TextModal({
               className="flex items-center pb-1 border-b-2 border-gray-600 upperdiv cursor-pointer"            >
               <Image
                 className="rounded-full bg-white"
-                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post.postedBy.pic}`}
+                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post && post.postedBy.pic}`}
                 width={40}
                 height={40}
                 onClick={() => {
@@ -115,15 +120,15 @@ export default function TextModal({
               />
               <div>
                 <p className="pl-4"
-                onClick={() => {
-                  if (post.postedBy._id !== state._id)
-                    router.push("/profile/" + post.postedBy._id);
-                  else {
-                    router.push("/profile");
-                    closeTextModal();
-                  }
-                }}
-                >{post.postedBy.name}</p>
+                  onClick={() => {
+                    if (post.postedBy._id !== state._id)
+                      router.push("/profile/" + post.postedBy._id);
+                    else {
+                      router.push("/profile");
+                      closeTextModal();
+                    }
+                  }}
+                >{post && post.postedBy.name}</p>
                 {/* <p className="pl-4 text-sm">{post.body}</p> */}
               </div>
               <div className="absolute right-5 text-xl">
@@ -132,18 +137,18 @@ export default function TextModal({
                   isFromProfilePage
                     ?
                     <p className="text-3xl text-white cursor-pointer" onClick={() => {
-                      console.log("ds fkjdsfh ds------------");
+                      // console.log("ds fkjdsfh ds------------");
                       setPostSettingModal(true)
                     }
                     }>...</p>
                     :
                     <>
                       {
-                        (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id !== post.postedBy._id)
+                        post && (((state && !state.following) || (!state.following.includes(post.postedBy._id))) && state._id !== post.postedBy._id)
                         &&
 
                         <AiOutlineUserAdd className="cursor-pointer" onClick={() => {
-                          if (post.postedBy._id !== state._id)
+                          if ((post && post.postedBy._id) !== state._id)
                             router.push("/profile/" + post.postedBy._id)
                           else {
                             router.push("/profile");
@@ -154,7 +159,7 @@ export default function TextModal({
                     </>
                 }
                 <p className="text-xs">
-                  {new Date(post.createdAt).toLocaleDateString("en-US", {
+                  {new Date(post && post.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -165,31 +170,31 @@ export default function TextModal({
             </div>
             {/* border-b-2 border-gray-300  */}
             <div className={`${styles.middlediv} scrollbar-hide`}>
-              {post.comments.length > 0 ? (
+              {post && post.comments.length > 0 ? (
                 post.comments.map((citem) => {
-                  console.log(citem);
+                  // console.log(citem);
                   return (
-                    <div
-                      className="flex m-5 cursor-pointer"
-                      onClick={() => {
-                        closeTextModal();
-                        if (citem.postedBy._id !== state._id) {
-                          router.push("/profile/" + post.postedBy._id);
-                        } else {
-                          router.push("/profile");
-                        }
-                      }}
-                      key={citem._id}
-                    >
-                      <Image
-                        className="rounded-full bg-white"
-                        src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${citem.postedBy.pic}`}
-                        width={40}
-                        height={40}
-                      />
-                      <p className="pl-1">{citem.postedBy.name}</p>
-                      <p className="font-light pl-2">{citem.text}</p>
-                    </div>
+                      <div
+                        className="flex m-5 cursor-pointer"
+                        onClick={() => {
+                          closeTextModal();
+                          if (citem.postedBy._id !== state._id) {
+                            router.push("/profile/" + post.postedBy._id);
+                          } else {
+                            router.push("/profile");
+                          }
+                        }}
+                        key={citem._id}
+                      >
+                        <Image
+                          className="rounded-full bg-white"
+                          src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${citem.postedBy.pic}`}
+                          width={40}
+                          height={40}
+                        />
+                        <p className="pl-1">{citem.postedBy.name}</p>
+                        <p className="font-light pl-2">{citem.text}</p>
+                      </div>
                   );
                 })
               ) : (
@@ -201,7 +206,7 @@ export default function TextModal({
             {/* flex text-2xl mt-2 */}
             <hr className="h-[1px] bg-gray-600 my-1" />
             <div className={`${styles.bottomdiv} pt-1`}>
-              {state && post.likes.includes(state._id) ? (
+              {state && post && post.likes.includes(state._id) ? (
                 <div
                   onClick={() => {
                     unLikePost(post._id, posts, setPosts, setPost);
@@ -223,7 +228,7 @@ export default function TextModal({
                   }}
                 >
                   <AiOutlineHeart className="cursor-pointer" />
-                  <p>{post.likes.length} likes</p>
+                  <p>{post && post.likes.length} likes</p>
                 </div>
               )}
               <div className="ml-2">

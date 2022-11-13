@@ -10,6 +10,7 @@ import { BsPlay, BsPause, BsStop } from "react-icons/bs";
 import Modal from "./Modal";
 import TextModal from "./TextModal";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 const PAGE_SIZE = 5;
 let cat = "Joke";
@@ -218,7 +219,7 @@ export default function TextPost({
                 ))}
               </select>
             </div>
-            {posts &&
+            {(posts && posts.length > 0) ?
               posts.map((post) => (
                 <div
                   key={post._id}
@@ -309,7 +310,13 @@ export default function TextPost({
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+              :
+              <div className="text-center pt-4 pb-3">
+                <p className="text-2xl">Start Following more people to see post here</p>
+                <Link href={'/search'}>You can explore more post here &gt;</Link>
+              </div>
+            }
           </div>
         </InfiniteScroll>
       </div>

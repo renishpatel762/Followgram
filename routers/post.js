@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 // const User=mongoose.model("User");
 const Post = mongoose.model("Post");
 const User = mongoose.model("User");
+const Usercollection = mongoose.model("Usercollection");
 const requireLogin = require('../middleware/requireLogin');
 
 router.get('/followingpost', requireLogin, (req, res) => {
@@ -141,6 +142,18 @@ router.get('/allpost', requireLogin, (req, res) => {
         });
 });
 
+router.post('/getpostdetail', requireLogin, (req, res) => {
+    // console.log(req.query);
+    Post.findById(req.body.pid)
+        .populate("postedBy", "_id name pic")
+        .populate("comments.postedBy", "_id name pic")
+        .then(postdetail => {
+            res.json({ postdetail: postdetail });
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
 router.post('/createpost', requireLogin, (req, res) => {
     // console.log("createpost called");
     const { title, body, type, pic } = req.body;
@@ -149,7 +162,7 @@ router.post('/createpost', requireLogin, (req, res) => {
     if (!type) {
         return res.status(422).json({ success: false, error: "Please add all the fields" });
     }
-    if (type === "media") {
+    if (type === "Media") {
         if (!pic)
             return res.status(422).json({ success: false, error: "Media must be there" });
     } else {
@@ -159,7 +172,6 @@ router.post('/createpost', requireLogin, (req, res) => {
     }
     // req.user.password = undefined;
     const post = new Post({
-        title,
         body,
         type,
         photo: pic,
@@ -167,18 +179,45 @@ router.post('/createpost', requireLogin, (req, res) => {
     });
     post.save().then(result => {
         // console.log("result is", result);
-        User.findByIdAndUpdate(req.user._id, {
-            $push: { posts: result._id }
-        }, {
-            new: true
-        }).then(user => {
-            const { _id, name, email, posts, followers, following, pic } = user;
-            // console.log("ussssser is", user);
-            res.json({ success: true, user: { _id, name, email, posts, followers, following, pic }, post: result });
-        }).catch(err => {
-            console.error(err);
-            res.json({ success: false, error: "Something went wrong try again..." });
-        })
+        if (type === "Media") {
+            User.findByIdAndUpdate(req.user._id, {
+                $push: { mediaPost: result._id }
+            }, {
+                new: true
+            }).then(user => {
+                const { _id, name, email, posts, followers, following, pic, mediaPost, textPost } = user;
+                // console.log("ussssser is", user);
+                res.json({ success: true, user: { _id, name, email, posts, followers, following, pic, mediaPost, textPost }, post: result });
+            }).catch(err => {
+                console.error(err);
+                res.json({ success: false, error: "Something went wrong try again..." });
+            })
+        } else {
+            User.findByIdAndUpdate(req.user._id, {
+                $push: { textPost: result._id }
+            }, {
+                new: true
+            }).then(user => {
+                const { _id, name, email, posts, followers, following, pic, mediaPost, textPost } = user;
+                // console.log("ussssser is", user);
+                res.json({ success: true, user: { _id, name, email, posts, followers, following, pic, mediaPost, textPost }, post: result });
+            }).catch(err => {
+                console.error(err);
+                res.json({ success: false, error: "Something went wrong try again..." });
+            })
+        }
+        // User.findByIdAndUpdate(req.user._id, {
+        //     $push: { posts: result._id }
+        // }, {
+        //     new: true
+        // }).then(user => {
+        //     const { _id, name, email, posts, followers, following, pic } = user;
+        //     // console.log("ussssser is", user);
+        //     res.json({ success: true, user: { _id, name, email, posts, followers, following, pic }, post: result });
+        // }).catch(err => {
+        //     console.error(err);
+        //     res.json({ success: false, error: "Something went wrong try again..." });
+        // })
     })
         .catch(err => {
             console.log(err);
@@ -293,12 +332,30 @@ router.delete('/deletepost/:postId', requireLogin, (req, res) => {
             if (post.postedBy._id.toString() === req.user._id.toString()) {
                 post.remove()
                     .then(result => {
-                        res.json({ success: true, result })
-                        User.findByIdAndUpdate(req.user._id, {
-                            $pull: { posts: post._id }
-                        }, {
-                            new: true
-                        }).then(user => console.log(user))
+                        console.log("result is", result);
+                        if (result.type === "Media") {
+
+                            User.findByIdAndUpdate(req.user._id, {
+                                $pull: { mediaPost: post._id }
+                            }, {
+                                new: true
+                            }).then(user =>
+                                res.json({ success: true, user: user, result: result })
+                            ).catch(err => console.error(err))
+
+                            User
+
+                        } else {
+                            User.findByIdAndUpdate(req.user._id, {
+                                $pull: { textPost: post._id }
+                            }, {
+                                new: true
+                            }).then(user =>
+                                res.json({ success: true, user: user, result: result })
+                            ).catch(err => console.error(err))
+
+                        }
+
                     }).catch(err => {
                         console.log(err)
                     })

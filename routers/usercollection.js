@@ -25,12 +25,19 @@ router.post('/createcollection', requireLogin, (req, res) => {
     })
 });
 
+// .populate("postedBy", "_id name pic")
+// .populate("comments.postedBy", "_id name pic")
+
+
 router.get('/getcollections', requireLogin, (req, res) => {
     Usercollection.find({ createdBy: req.user._id })
         // .populate("createdBy")    
         .populate("imagePost")
-        // .populate("imagePost.postedBy")
         .populate("textPost")
+        // .populate("createdBy")
+        // .populate("imagePost.comments.postedBy")
+        // .populate("imagePost.postedBy","_id name pic")
+        // .populate("textPost.postedBy","_id name pic")
         .sort('-createdAt')
         .then(usercoll => {
             // console.log(mycoll);
@@ -42,7 +49,7 @@ router.get('/getcollections', requireLogin, (req, res) => {
 
 });
 router.post('/getuserscollections', requireLogin, (req, res) => {
-    console.log("getuserscollections called",req.body);
+    console.log("getuserscollections called", req.body);
     Usercollection.find({ createdBy: req.body.uid })
         // .populate("createdBy")    
         .populate("imagePost")
@@ -89,7 +96,7 @@ router.post('/addtocollection', requireLogin, (req, res) => {
                     return res.status(422).json({ success: false, error: err })
                 } else {
                     // console.log(result);
-                    res.json(result)
+                    res.json({ result: result })
                 }
             })
     } else {
@@ -102,7 +109,7 @@ router.post('/addtocollection', requireLogin, (req, res) => {
                     return res.status(422).json({ success: false, error: err })
                 } else {
                     // console.log(result);
-                    res.json(result)
+                    res.json({ result: result })
                 }
             })
     }
@@ -110,19 +117,21 @@ router.post('/addtocollection', requireLogin, (req, res) => {
 
 router.post('/removefromcollection', requireLogin, (req, res) => {
     const { collid, postid, type } = req.body;
-
-    let addtoName = "";
+    console.log(req.body);
+    // let addtoName = "";
     if (type === "Media") {
         // addtoName = "imagePost";
         Usercollection.findByIdAndUpdate(collid, { $pull: { imagePost: postid } }, {
             new: true
         })
+            .populate("imagePost")
+            .populate("textPost")
             .exec((err, result) => {
                 if (err) {
                     return res.status(422).json({ success: false, error: err })
                 } else {
                     // console.log(result);
-                    res.json(result)
+                    res.json({ result: result })
                 }
             })
     } else {
@@ -130,12 +139,14 @@ router.post('/removefromcollection', requireLogin, (req, res) => {
         Usercollection.findByIdAndUpdate(collid, { $pull: { textPost: postid } }, {
             new: true
         })
+            .populate("imagePost")
+            .populate("textPost")
             .exec((err, result) => {
                 if (err) {
                     return res.status(422).json({ success: false, error: err })
                 } else {
                     // console.log(result);
-                    res.json(result)
+                    res.json({ result: result })
                 }
             })
     }

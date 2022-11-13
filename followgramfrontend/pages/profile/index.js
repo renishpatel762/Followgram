@@ -16,6 +16,7 @@ import {
   unLikePost,
   makeComment,
 } from "../../components/Functionset";
+
 const PAGE_SIZE = 3;
 let category = "Media";
 let expandArray = [];
@@ -44,7 +45,6 @@ export default function MyProfile({
 }) {
   const [state, dispatch] = useContext(UserContext);
   // const[totalpost,setTotalPost]=useState(0);
-  // const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [morePosts, setMorePosts] = useState(true);
   const [fetchedCategory, setFetchedCategory] = useState("Media");
@@ -66,6 +66,9 @@ export default function MyProfile({
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [selectedCollectionName, setSelectedCollectionName] = useState("");
 
+  const [isshowFollowers, setIsshowFollowers] = useState(true);
+  const [isshowFollowing, setIsshowFollowing] = useState(false);
+  const [user, setUser] = useState({});
   const router = useRouter();
   let isLoadingMore = true,
     isReachedEnd = false;
@@ -90,7 +93,7 @@ export default function MyProfile({
     if (data) {
       setPosts([].concat.apply([], data));
     }
-    console.log(posts);
+    // console.log(posts);
   }, [data]);
 
   const changeCategory = (cat) => {
@@ -144,23 +147,73 @@ export default function MyProfile({
       },
     })
       .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        const newData = posts.map((item) => {
+      .then(({ result, user }) => {
+        console.log("result",result,"usre is",user);
+        // const newData = posts.map((item) => {
+        //   if (item._id === result._id) {
+        //     // return result;
+        //   } else {
+        //     return item;
+        //   }
+        // });
+        const newData = posts.filter(item => item._id != result._id)
+        setPosts(newData);
+        if (user) {
+          dispatch({ type: "USER", payload: user });
+          localStorage.setItem("user", JSON.stringify(user))
+        }
+      });
+  };
+  const handleRemoveFromCollection = (collid, postid, type) => {
+    fetch(`/api/removefromcollection`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        collid,
+        postid,
+        type
+      })
+    })
+      .then((response) => response.json())
+      .then(({ result }) => {
+        console.log("result", result);
+        const newData = collectionData.map(item => {
           if (item._id === result._id) {
             return result;
           } else {
             return item;
           }
-        });
-        setPosts(newData);
+        })
+        setCollectionData(newData);
+
       });
-  };
+  }
   useEffect(() => {
     console.log(postId);
   }, [postId]);
 
   useEffect(() => {
+    fetch("/api/getuser", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((response) => response.json())
+      .then(({ user }) => {
+        dispatch({ type: "USER", payload: user });
+        localStorage.setItem("user", JSON.stringify(user));
+        // setUser(user);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+    // console.log("state is",state);
     fetch("/api/getcollections", {
       method: "GET",
       headers: {
@@ -179,7 +232,46 @@ export default function MyProfile({
       .catch((err) => {
         console.error(err);
       });
+    handleGetUsersData();
   }, []);
+  const handleGetPostDetail = (postid) => {
+    fetch("/api/getpostdetail", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        pid: postid
+      })
+    })
+      .then((response) => response.json())
+      .then(({ postdetail }) => {
+        // console.log("post detail is",postdetail);
+        setPost(postdetail);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  const handleGetUsersData = () => {
+    fetch("/api/getuserdata", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((response) => response.json())
+      .then(({ user }) => {
+        console.log("login user is", user);
+        setUser(user);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
 
   return (
     <div className="">
@@ -201,6 +293,7 @@ export default function MyProfile({
             collectionId={selectedCollectionId}
             collectionName={selectedCollectionName}
             collectionData={collectionData}
+            handleRemoveFromCollection={handleRemoveFromCollection}
             closeModal={() => {
               setModal(false);
               setIsFromCollection(false);
@@ -226,6 +319,7 @@ export default function MyProfile({
               collectionId={selectedCollectionId}
               collectionName={selectedCollectionName}
               collectionData={collectionData}
+              handleRemoveFromCollection={handleRemoveFromCollection}
               // isFromFunctionset="true"
               //just some
 
@@ -250,7 +344,7 @@ export default function MyProfile({
               {!state && (
                 <Image
                   className="rounded-full bg-white"
-                  src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
+                  src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn_yivfp2_yivfp2.png`}
                   width={150}
                   height={150}
                 />
@@ -263,32 +357,154 @@ export default function MyProfile({
                   height={150}
                 />
               )}
+              {
+                // console.log("state is", state)
+              }
             </div>
-            <button className="mt-2">Change Profile</button>
+            <button
+              className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400 mt-4"
+              onClick={() => router.push("/profile/setting")}
+            >
+              Change Profile
+            </button>
+            {/* <button className="mt-2">Change Profile</button> */}
           </div>
           <div className="w-2/3 pt-3 pl-4 md:pl-0 overflow-x-hidden">
             <h2 className="text-2xl">{state && state.name}</h2>
             <h2 className="text-md">{state && state.email}</h2>
             <div className="flex py-5 text-sm md:text-lg">
               <div className="w-1/3 md:w-1/5 text-center">
-                <p>{state && state.posts ? state.posts.length : 0}</p>
+                <p>{state && (state.mediaPost && state.textPost) ? (state.mediaPost.length + state.textPost.length) : 0}</p>
                 <p>Posts</p>
               </div>
-              <div className="w-1/3 md:w-1/5 text-center">
+              <div className="w-1/3 md:w-1/5 text-center cursor-pointer"
+                onClick={() => {
+                  setIsshowFollowers(true);
+                  setIsshowFollowing(false);
+                  // handleGetUsersData();
+                }}
+              >
                 <p>{state ? state.followers.length : 0}</p>
                 <p>Followers</p>
               </div>
-              <div className="w-1/3 md:w-1/5 text-center">
+              <div className="w-1/3 md:w-1/5 text-center cursor-pointer"
+                onClick={() => {
+                  setIsshowFollowers(false);
+                  setIsshowFollowing(true);
+                  // handleGetUsersData();
+                }}
+              >
                 <p>{state ? state.following.length : 0}</p>
-                <p>Following</p>
+                <p>Followings</p>
               </div>
             </div>
-            <button
-              className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
-              onClick={() => router.push("/profile/setting")}
-            >
-              Settings
-            </button>
+
+            {
+              (isshowFollowers || isshowFollowing)
+              &&
+              <div className="scrollbar-hide border-2 w-1/3" style={{
+                borderRadius: 10, flex: 5, overflowY: 'scroll',/* overflow-y: hidden; */
+                overflowX: 'hidden', maxHeight: '35vh'
+              }}>
+                <div className="flex justify-between mx-2">
+                  <p className="border-b-2">{isshowFollowers ? "Followers" : "Followings"}</p>
+                  <span
+                    className="cursor-pointer text-white"
+                    onClick={() => {
+                      setIsshowFollowers(false);
+                      setIsshowFollowing(false);
+                    }}
+                  >
+                    X
+                  </span>
+                </div>
+                {
+                  isshowFollowers
+                    ?
+                    <>
+                      {
+                        (user && user.followers && user.followers.length > 0)
+                          ?
+                          <>
+                            {
+                              user.followers.map((fitem) => (
+                                // <p>hello</p>
+
+                                <div className="flex m-5" key={fitem._id}>
+                                  {
+                                    console.log(fitem)
+                                  }
+                                  <div className="flex cursor-pointer"
+                                    onClick={() => {
+                                      // if (citem.postedBy._id !== state._id) {
+                                      router.push("/profile/" + fitem._id)
+                                      // }
+                                      // else {
+                                      // router.push("/profile");
+                                      // }
+                                    }}>
+                                    <Image
+                                      className="rounded-full bg-white"
+                                      src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${fitem.pic}`}
+                                      width={40}
+                                      height={40}
+                                    />
+                                    <p className="pl-2">{fitem.name}</p>
+                                  </div>
+                                </div>
+                              ))
+                            }
+                            <p className="text-center">----x----x----</p>
+                          </>
+
+                          :
+                          <p className="mx-4">No Followers</p>
+                      }
+                    </>
+                    :
+                    <>
+                      {
+                        (user && user.following && user.following.length > 0)
+                          ?
+                          <>
+                            {
+                              user.following.map((fitem) => (
+                                // <p>hello</p>
+
+                                <div className="flex m-5" key={fitem._id}>
+                                  {
+                                    console.log(fitem)
+                                  }
+                                  <div className="flex cursor-pointer"
+                                    onClick={() => {
+                                      // if (citem.postedBy._id !== state._id) {
+                                      router.push("/profile/" + fitem._id)
+                                      // }
+                                      // else {
+                                      // router.push("/profile");
+                                      // }
+                                    }}>
+                                    <Image
+                                      className="rounded-full bg-white"
+                                      src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${fitem.pic}`}
+                                      width={40}
+                                      height={40}
+                                    />
+                                    <p className="pl-2">{fitem.name}</p>
+                                  </div>
+                                </div>
+                              ))
+                            }
+                            <p className="text-center">----x----x----</p>
+                          </>
+
+                          :
+                          <p className="mx-4">No Followings</p>
+                      }
+                    </>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -310,7 +526,7 @@ export default function MyProfile({
               changeCategory("Media");
             }}
           >
-            Photos
+            Photos ({(state && state.mediaPost) ? state.mediaPost.length : 0})
           </p>
           {/* <p
           className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
@@ -342,28 +558,28 @@ export default function MyProfile({
 
           <p
             className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "TextPost" &&
-                fetchedCategory !== "Joke" &&
-                fetchedCategory !== "Shayari" &&
-                fetchedCategory !== "Quote"
-                ? ""
-                : "border-blue-400 border-b-2"
+              fetchedCategory !== "Joke" &&
+              fetchedCategory !== "Shayari" &&
+              fetchedCategory !== "Quote"
+              ? ""
+              : "border-blue-400 border-b-2"
               }`}
             onClick={() => {
               changeCategory("Joke");
             }}
           >
-            TextPost
+            TextPost  ({(state && state.textPost) ? state.textPost.length : 0})
           </p>
           <p
             className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection"
-                ? ""
-                : "border-blue-400 border-b-2"
+              ? ""
+              : "border-blue-400 border-b-2"
               }`}
             onClick={() => {
               changeCategory("Collection");
             }}
           >
-            Collections
+            Collections ({collectionData && collectionData.length})
           </p>
         </div>
         <div className="flex justify-evenly mt-10">
@@ -383,8 +599,8 @@ export default function MyProfile({
                 </p>
                 <p
                   className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Shayari"
-                      ? ""
-                      : "border-blue-400 border-b-2"
+                    ? ""
+                    : "border-blue-400 border-b-2"
                     }`}
                   onClick={() => {
                     changeCategory("Shayari");
@@ -394,8 +610,8 @@ export default function MyProfile({
                 </p>
                 <p
                   className={`mx-2 text-xl cursor-pointer ${fetchedCategory !== "Quote"
-                      ? ""
-                      : "border-blue-400 border-b-2"
+                    ? ""
+                    : "border-blue-400 border-b-2"
                     }`}
                   onClick={() => {
                     changeCategory("Quote");
@@ -455,7 +671,7 @@ export default function MyProfile({
                     className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                   >
                     <p
-                      className="pl-4 text-2xl font-bold cursor-pointer"
+                      className="pl-4 text-2xl cursor-pointer"
 
                       onClick={() => {
                         setIsFromCollection(false);
@@ -541,20 +757,40 @@ export default function MyProfile({
                     key={citem._id}
                     className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                   >
-                    <p>Name: {citem.name}</p>
+                    <div className="flex justify-between">
+                      <div>{cindex + 1}</div>
+                      <p className="text-4xl border-b-2">{citem.name}</p>
+                      {
+                        (citem.imagePost && citem.imagePost.length > 0) ?
+                          <Image
+                            src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${citem.imagePost[`${citem.imagePost.length - 1}`].photo}`}
+                            width={50}
+                            height={50}
+                            className="rounded"
+                          // layout="responsive"
+                          />
+                          :
+                          <Image
+                            src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1668270547/static_image/download_qqdzus.png`}
+                            width={50}
+                            height={50}
+                            className="rounded"
+                          // layout="responsive"
+                          />
+                      }
+                    </div>
                     <div className="">
                       {/* <button onClick={() => {
                       expandArray[cindex] = 1
                       console.log(expandArray[cindex]);
                     }}>expand</button> */}
-                      <p>ImagePost {citem.imagePost.length}</p>
+                      <p className="text-2xl m-3">ImagePost ({citem.imagePost.length})</p>
 
                       {
                         // expandArray[cindex] === 1 &&
                         <>
                           <div
-                            // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
-                            style={{ display: 'flex', flexWrap: 'wrap', width: '100%', border: '1px solid gray' }}
+                            style={{ display: 'flex', flexWrap: 'wrap', border: '1px solid gray' }}
                           >
                             {
                               citem.imagePost.length > 0
@@ -566,16 +802,17 @@ export default function MyProfile({
                                   className="w-1/4 text-center py-1 px-1 md:py-2 md:px-3"
                                 >
                                   <Image
-                                    className="hover:opacity-40 hover:cursor-pointer"
+                                    className="hover:opacity-40 hover:cursor-pointer rounded"
                                     src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
                                     width={50}
                                     height={50}
                                     layout="responsive"
                                     onClick={() => {
+                                      handleGetPostDetail(ciitem._id);
                                       setIsFromCollection(true);
                                       setSelectedCollectionId(citem._id);
                                       setSelectedCollectionName(citem.name);
-                                      setPost(ciitem);
+                                      // setPost(ciitem);
                                       setModal(true);
                                     }}
                                   />
@@ -585,7 +822,7 @@ export default function MyProfile({
 
                             }
                           </div>
-                          <p>TextPost {citem.textPost.length}</p>
+                          <p className="text-2xl m-3">TextPost ({citem.textPost.length})</p>
                           <div
                             style={{ border: '1px solid gray', padding: '0 10px' }}
                           // className="border-white border-solid"
@@ -598,12 +835,13 @@ export default function MyProfile({
                                   key={ctitem._id}
                                   className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white text-black"
                                 >
-                                  <p className="text-2xl">{ctitem.type}</p>
-                                  <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                                  <p className="text-xl">{ctitem.type}</p>
+                                  <p className="pl-4 text-2xl  cursor-pointer" onClick={() => {
+                                    handleGetPostDetail(ctitem._id);
                                     setIsFromCollection(true);
                                     setSelectedCollectionId(citem._id);
                                     setSelectedCollectionName(citem.name);
-                                    setPost(ctitem);
+                                    // setPost(ctitem);
                                     setTextModal(true);
 
                                   }}>{ctitem.body}</p>
@@ -621,6 +859,6 @@ export default function MyProfile({
           </InfiniteScroll>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

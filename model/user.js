@@ -18,9 +18,11 @@ const userSchema=new mongoose.Schema({
     expireToken:Date,
     pic:{
         type:String,
-        default:"https://res.cloudinary.com/renishclould/image/upload/v1637058651/default%20profile/default_profile_dxqn9p.jpg"
+        default:"https://res.cloudinary.com/djtragbck/image/upload/v1668271876/profile_pics/default_user_jvzpsn_yivfp2.webp"
     },
-    posts:[{type:ObjectId,ref:"Post"}],
+    // posts:[{type:ObjectId,ref:"Post"}],
+    mediaPost:[{type:ObjectId,ref:"Post"}],
+    textPost:[{type:ObjectId,ref:"Post"}],
     followers:[{type:ObjectId,ref:"User"}],
     following:[{type:ObjectId,ref:"User"}],
     isVerified:Boolean

@@ -96,7 +96,7 @@ export default function Signup() {
         setImageName(imgName);
       } else {
         // set default image
-        setImageName("default_user_jvzpsn.png");
+        setImageName("default_user_jvzpsn_yivfp2.png");
       }
     } else {
       showErrorToast("Password must match with Confirm Password");
@@ -187,7 +187,7 @@ export default function Signup() {
             // <></>
             <Image
               className="rounded-full bg-white"
-              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/${process.env.NEXT_PUBLIC_CLOUDINARY_PROFILE}/default_user_jvzpsn.png`}
+              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/${process.env.NEXT_PUBLIC_CLOUDINARY_PROFILE}/default_user_jvzpsn_yivfp2.png`}
               width={150}
               height={150}
             />

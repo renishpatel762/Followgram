@@ -72,6 +72,12 @@ export default function Profile({
   const [fetchedCategory, setFetchedCategory] = useState("Media");
   const [isPlaying, setIsPlaying] = useState(false);
   const [postId, setPostId] = useState("");
+  const [isFromCollection, setIsFromCollection] = useState(false);
+  const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const [selectedCollectionName, setSelectedCollectionName] = useState("");
+  const [isshowFollowers, setIsshowFollowers] = useState(false);
+  const [isshowFollowing, setIsshowFollowing] = useState(false);
+
   // const [showFollow, setShowFollow] = useState(state ? !state.following.includes(userId) : true);
   const [showFollow, setShowFollow] = useState();
   // const { data, error } = useSWR("/api/allpost", fetcher);
@@ -300,7 +306,26 @@ export default function Profile({
         setShowFollow(true);
       })
   }
-
+  const handleGetPostDetail = (postid) => {
+    fetch("/api/getpostdetail", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        pid: postid
+      })
+    })
+      .then((response) => response.json())
+      .then(({ postdetail }) => {
+        // console.log("post detail is",postdetail);
+        setPost(postdetail);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
 
   return (
     <div>
@@ -320,6 +345,7 @@ export default function Profile({
             // isFromFunctionset="true"
             closeModal={() => {
               setModal(false);
+              setIsFromCollection(false);
             }}
           />
         )}
@@ -340,6 +366,7 @@ export default function Profile({
 
               closeTextModal={() => {
                 setTextModal(false);
+                setIsFromCollection(false);
               }}
             />
           )
@@ -361,7 +388,7 @@ export default function Profile({
                 {!user && (
                   <Image
                     className="rounded-full bg-white"
-                    src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn.png`}
+                    src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/default_user_jvzpsn_yivfp2.png`}
                     width={150}
                     height={150}
                   />
@@ -385,37 +412,166 @@ export default function Profile({
                 <h2 className="text-md">{user.email}</h2>
                 <div className="flex py-5 text-sm md:text-lg">
                   <div className="w-1/3 md:w-1/5 text-center">
-                    <p>{(user && user.posts) ? user.posts.length : 0}</p>
+                    <p>{(user && user.mediaPost && user.textPost) ? (user.textPost.length + user.mediaPost.length) : 0}</p>
                     <p>Posts</p>
                   </div>
-                  <div className="w-1/3 md:w-1/5 text-center">
+                  <div className="w-1/3 md:w-1/5 text-center cursor-pointer"
+                    onClick={() => {
+                      setIsshowFollowers(true);
+                      setIsshowFollowing(false);
+                      // handleGetUsersData();
+                    }}
+                  >
                     <p>{(user && user.followers) ? user.followers.length : 0}</p>
                     {/* <p>{user ? user.followers.length : 0}</p> */}
                     <p>Followers</p>
                   </div>
-                  <div className="w-1/3 md:w-1/5 text-center">
+                  <div className="w-1/3 md:w-1/5 text-center cursor-pointer"
+                    onClick={() => {
+                      setIsshowFollowers(false);
+                      setIsshowFollowing(true);
+                      // handleGetUsersData();
+                    }}
+                  >
                     {/* {console.log("user is", user)} */}
                     <p>{(user && user.following) ? user.following.length : 0}</p>
                     {/* <p>{user ? user.following.length : 0}</p> */}
-                    <p>Following</p>
+                    <p>Followings</p>
                   </div>
+
 
                 </div>
                 {
                   // showFollow
                   state && !state.following.includes(userId)
                     ?
-                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400 mb-2"
                       onClick={() => followUser()}
                     >
                       Follow
                     </button>
                     :
-                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400"
+                    <button className="text-black dark:text-white dark:border-white border-black border-2 py-1 px-2 rounded-md hover:border-blue-400 hover:text-blue-400 mb-2"
                       onClick={() => unfollowUser()}
                     >
                       Un Follow
                     </button>
+                }
+                {
+                  (isshowFollowers || isshowFollowing)
+                  &&
+                  <div className="scrollbar-hide border-2 w-1/3" style={{
+                    borderRadius: 10, flex: 5, overflowY: 'scroll',/* overflow-y: hidden; */
+                    overflowX: 'hidden', maxHeight: '35vh'
+                  }}>
+                    <div className="flex justify-between mx-2">
+                      <p className="border-b-2">{isshowFollowers ? "Followers" : "Followings"}</p>
+                      <span
+                        className="cursor-pointer text-white"
+                        onClick={() => {
+                          setIsshowFollowers(false);
+                          setIsshowFollowing(false);
+                        }}
+                      >
+                        X
+                      </span>
+                    </div>
+                    {
+                      isshowFollowers
+                        ?
+                        <>
+                          {
+                            (user && user.followers && user.followers.length > 0)
+                              ?
+                              <>
+                                {
+                                  user.followers.map((fitem) => (
+                                    // <p>hello</p>
+
+                                    <div className="flex m-5" key={fitem._id}>
+                                      {
+                                        console.log(fitem)
+                                      }
+                                      <div className="flex cursor-pointer"
+                                        onClick={() => {
+                                          // if (citem.postedBy._id !== state._id) {
+                                          router.push("/profile/" + fitem._id)
+                                          // }
+                                          // else {
+                                          // router.push("/profile");
+                                          // }
+                                        }}>
+                                        <Image
+                                          className="rounded-full bg-white"
+                                          src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${fitem.pic}`}
+                                          width={40}
+                                          height={40}
+                                        />
+                                        <p className="pl-2">{fitem.name}</p>
+                                        {
+                                          state && fitem._id === state._id
+                                          &&
+                                          <p className="pl-3">You</p>
+                                        }
+                                      </div>
+                                    </div>
+                                  ))
+                                }
+                                <p className="text-center">----x----x----</p>
+                              </>
+
+                              :
+                              <p className="mx-4">No Followers</p>
+                          }
+                        </>
+                        :
+                        <>
+                          {
+                            (user && user.following && user.following.length > 0)
+                              ?
+                              <>
+                                {
+                                  user.following.map((fitem) => (
+                                    // <p>hello</p>
+
+                                    <div className="flex m-5" key={fitem._id}>
+                                      {
+                                        console.log(fitem)
+                                      }
+                                      <div className="flex cursor-pointer"
+                                        onClick={() => {
+                                          // if (citem.postedBy._id !== state._id) {
+                                          router.push("/profile/" + fitem._id)
+                                          // }
+                                          // else {
+                                          // router.push("/profile");
+                                          // }
+                                        }}>
+                                        <Image
+                                          className="rounded-full bg-white"
+                                          src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${fitem.pic}`}
+                                          width={40}
+                                          height={40}
+                                        />
+                                        <p className="pl-2">{fitem.name}</p>
+                                        {
+                                          state && fitem._id === state._id
+                                          &&
+                                          <p className="pl-3">You</p>
+                                        }
+                                      </div>
+                                    </div>
+                                  ))
+                                }
+                                <p className="text-center">----x----x----</p>
+                              </>
+
+                              :
+                              <p className="mx-4">No Followings</p>
+                          }
+                        </>
+                    }
+                  </div>
                 }
 
               </div>
@@ -439,7 +595,7 @@ export default function Profile({
                 changeCategory("Media");
               }}
             >
-              Photos
+              Photos ({(user && user.mediaPost) ? user.mediaPost.length : 0})
             </p>
             {/* <p
               className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Joke" ? "" : "border-blue-400 border-b-2"
@@ -477,7 +633,7 @@ export default function Profile({
                 changeCategory("Joke");
               }}
             >
-              TextPost
+              TextPost ({(user && user.textPost) ? user.textPost.length : 0})
             </p>
             <p
               className={`mx-2 text-2xl cursor-pointer ${fetchedCategory !== "Collection" ? "" : "border-blue-400 border-b-2"
@@ -486,7 +642,7 @@ export default function Profile({
                 changeCategory("Collection");
               }}
             >
-              Collections
+              Collections ({collectionData && collectionData.length})
             </p>
           </div>
           <div className="flex justify-evenly mt-10">
@@ -555,6 +711,7 @@ export default function Profile({
                         onClick={() => {
                           setPost(post);
                           setModal(true);
+                          setIsFromCollection(false);
                         }}
                       // onMouseEnter
                       />
@@ -566,7 +723,8 @@ export default function Profile({
                       key={post._id}
                       className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                     >
-                      <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                      <p className="pl-4 text-2xl cursor-pointer" onClick={() => {
+                        setIsFromCollection(false);
                         setPost(post);
                         setTextModal(true);
                       }}>{post.body}</p>
@@ -629,30 +787,50 @@ export default function Profile({
                     </div>
                   ))}
                 {
-                  console.log("------------------",collectionData.length)
+                  console.log("------------------", collectionData.length)
                 }
                 {
-                  
+
                   (fetchedCategory === "Collection" && collectionData.length > 0)
                   && collectionData.map((citem, cindex) => (
                     <div
                       key={citem._id}
                       className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
                     >
-                      <p>Name: {citem.name}</p>
+                      <div className="flex justify-between">
+                        <div>{cindex + 1}</div>
+                        <p className="text-4xl border-b-2">{citem.name}</p>
+                        {
+                          (citem.imagePost && citem.imagePost.length > 0) ?
+                            <Image
+                              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${citem.imagePost[`${citem.imagePost.length - 1}`].photo}`}
+                              width={50}
+                              height={50}
+                              className="rounded"
+                            // layout="responsive"
+                            />
+                            :
+                            <Image
+                              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1668270547/static_image/download_qqdzus.png`}
+                              width={50}
+                              height={50}
+                              className="rounded"
+                            // layout="responsive"
+                            />
+                        }
+                      </div>
                       <div className="">
                         {/* <button onClick={() => {
                       expandArray[cindex] = 1
                       console.log(expandArray[cindex]);
                     }}>expand</button> */}
-                        <p>ImagePost {citem.imagePost.length}</p>
+                        <p className="text-2xl m-3">ImagePost ({citem.imagePost.length})</p>
 
                         {
                           // expandArray[cindex] === 1 &&
                           <>
                             <div
-                              // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
-                              style={{ display: 'flex', flexWrap: 'wrap', width: '100%', border: '1px solid gray' }}
+                              style={{ display: 'flex', flexWrap: 'wrap', border: '1px solid gray' }}
                             >
                               {
                                 citem.imagePost.length > 0
@@ -664,13 +842,14 @@ export default function Profile({
                                     className="w-1/4 text-center py-1 px-1 md:py-2 md:px-3"
                                   >
                                     <Image
-                                      className="hover:opacity-40 hover:cursor-pointer"
+                                      className="hover:opacity-40 hover:cursor-pointer rounded"
                                       src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
                                       width={50}
                                       height={50}
                                       layout="responsive"
                                       onClick={() => {
-                                        setPost(ciitem);
+                                        handleGetPostDetail(ciitem._id);
+                                        // setPost(ciitem);
                                         setModal(true);
                                       }}
                                     />
@@ -680,7 +859,7 @@ export default function Profile({
 
                               }
                             </div>
-                            <p>TextPost {citem.textPost.length}</p>
+                            <p className="text-2xl m-3">TextPost ({citem.textPost.length})</p>
                             <div
                               style={{ border: '1px solid gray', padding: '0 10px' }}
                             // className="border-white border-solid"
@@ -691,12 +870,14 @@ export default function Profile({
                                 citem.textPost.map(ctitem => (
                                   <div
                                     key={ctitem._id}
-                                    className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white bg-gray-300 text-black"
+                                    className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white text-black"
                                   >
-                                    <p className="text-2xl">{ctitem.type}</p>
-                                    <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
-                                      setPost(ctitem);
+                                    <p className="text-xl">{ctitem.type}</p>
+                                    <p className="pl-4 text-2xl  cursor-pointer" onClick={() => {
+                                      handleGetPostDetail(ctitem._id);
+                                      // setPost(ctitem);
                                       setTextModal(true);
+
                                     }}>{ctitem.body}</p>
                                   </div>
                                 ))
@@ -706,9 +887,89 @@ export default function Profile({
 
                         }
                       </div>
-                      <div>
-                      </div>
                     </div>
+                    // <div
+                    //   key={citem._id}
+                    //   className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 dark:bg-gray-600 dark:text-white bg-gray-300 text-black"
+                    // >
+                    //   <p>Name: {citem.name}</p>
+                    //   <div className="">
+                    //     {/* <button onClick={() => {
+                    //   expandArray[cindex] = 1
+                    //   console.log(expandArray[cindex]);
+                    // }}>expand</button> */}
+                    //     <p>ImagePost {citem.imagePost.length}</p>
+
+                    //     {
+                    //       // expandArray[cindex] === 1 &&
+                    //       <>
+                    //         <div
+                    //           // classname="flex flex-wrap items-center w-full px-2 md:px-10 dark:bg-gray-800">
+                    //           style={{ display: 'flex', flexWrap: 'wrap', width: '100%', border: '1px solid gray' }}
+                    //         >
+                    //           {
+                    //             citem.imagePost.length > 0
+                    //             &&
+                    //             citem.imagePost.map(ciitem => (
+                    //               <div
+                    //                 key={ciitem._id}
+                    //                 // className="w-1/3 text-center py-1 px-1 md:py-2 md:px-3"
+                    //                 className="w-1/4 text-center py-1 px-1 md:py-2 md:px-3"
+                    //               >
+                    //                 <Image
+                    //                   className="hover:opacity-40 hover:cursor-pointer"
+                    //                   src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/posts/${ciitem.photo}`}
+                    //                   width={50}
+                    //                   height={50}
+                    //                   layout="responsive"
+                    //                   onClick={() => {
+                    //                     handleGetPostDetail(ciitem._id);
+                    //                     setIsFromCollection(true);
+                    //                     setSelectedCollectionId(citem._id);
+                    //                     setSelectedCollectionName(citem.name);
+                    //                     // setPost(ciitem);
+                    //                     setModal(true);
+                    //                   }}
+                    //                 />
+
+                    //               </div>
+                    //             ))
+
+                    //           }
+                    //         </div>
+                    //         <p>TextPost {citem.textPost.length}</p>
+                    //         <div
+                    //           style={{ border: '1px solid gray', padding: '0 10px' }}
+                    //         // className="border-white border-solid"
+                    //         >
+                    //           {
+                    //             citem.textPost.length > 0
+                    //             &&
+                    //             citem.textPost.map(ctitem => (
+                    //               <div
+                    //                 key={ctitem._id}
+                    //                 className="w-full my-2 py-2 px-1 rounded-md md:my-2 md:py-4 md:px-3 bg-gray-700 dark:text-white bg-gray-300 text-black"
+                    //               >
+                    //                 <p className="text-2xl">{ctitem.type}</p>
+                    //                 <p className="pl-4 text-2xl font-bold cursor-pointer" onClick={() => {
+                    //                   handleGetPostDetail(ctitem._id);
+                    //                   setIsFromCollection(true);
+                    //                   setSelectedCollectionId(citem._id);
+                    //                   setSelectedCollectionName(citem.name);
+                    //                   // setPost(ctitem);
+                    //                   setTextModal(true);
+                    //                 }}>{ctitem.body}</p>
+                    //               </div>
+                    //             ))
+                    //           }
+                    //         </div>
+                    //       </>
+
+                    //     }
+                    //   </div>
+                    //   <div>
+                    //   </div>
+                    // </div>
                   ))
 
                 }

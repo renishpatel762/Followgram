@@ -9,6 +9,7 @@ import { UserContext } from "../pages/_app";
 import { useRouter } from "next/router";
 import styles from "../styles/ImagePost.module.css";
 import Modal from "./Modal";
+import Link from "next/link";
 
 const PAGE_SIZE = 5;
 const fetcher = (url) =>
@@ -20,10 +21,10 @@ const fetcher = (url) =>
     },
   }).then((response) => response.json());
 
-let currentPostFilter="all"
+let currentPostFilter = "all"
 
-let bdate1="";
-let bdate2="";
+let bdate1 = "";
+let bdate2 = "";
 const getKey = (pageIndex, previousPageData) => {
   pageIndex = pageIndex + 1;
   if (previousPageData && !previousPageData.length) return null; // reached the end
@@ -65,23 +66,23 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
     }
     // console.log(data);
   }, [data]);
-  useEffect(()=>{
-    console.log("post filter called",postFilter);
-    currentPostFilter=postFilter;
+  useEffect(() => {
+    console.log("post filter called", postFilter);
+    currentPostFilter = postFilter;
     setPosts([]);
-  },[postFilter]);
+  }, [postFilter]);
 
-  useEffect(()=>{
-    console.log("date1",date1);
-    console.log("date2",date2);
-    if(date1!=null && date2!=null){
+  useEffect(() => {
+    console.log("date1", date1);
+    console.log("date2", date2);
+    if (date1 != null && date2 != null) {
       console.log("both not null calling");
 
-      bdate1=date1;
-      bdate2=date2;
+      bdate1 = date1;
+      bdate2 = date2;
       setPosts([]);
     }
-  },[date1,date2])
+  }, [date1, date2])
 
   return (
     <div>
@@ -137,12 +138,20 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
           }
           endMessage={
             <p className="text-center pt-4 pb-3">
-              <b>----x----x----</b>
+              {/* {
+                state && state.following && state.following.length === 0
+                &&
+                <>
+                  <p className="text-2xl">Start Following people to see post here</p>
+                  <Link href={'/search'}>You can explore more post here &gt;</Link>
+                </>
+              } */}
+              <b className="block">----x----x----</b>
             </p>
           }
         >
           <div className="lg:w-2/4 md:w-2/3 px-2 mx-auto md:px-10">
-            {posts &&
+            {(posts && posts.length > 0) ?
               posts.map((post) => (
                 <div key={post._id} className={`my-6`} >
                   <div className="flex items-center pb-1 border-b-2 border-gray-300 relative  cursor-pointer"
@@ -154,11 +163,11 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
                     }}>
                     <Image
                       className="rounded-full bg-white"
-                      src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${post.postedBy.pic}`}
+                      src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1661253897/profile_pics/${(post && post.postedBy) && post.postedBy.pic}`}
                       width={35}
                       height={35}
                     />
-                    <h1 className="pl-4">{post.postedBy.name}</h1>
+                    <h1 className="pl-4">{(post && post.postedBy) && post.postedBy.name}</h1>
                     {/* <h1 className="pl-4 cursor-pointer">{post.postedBy.name}</h1> */}
                     <span className="absolute right-4 text-xl">
                       {/* <AiOutlineUserAdd /> */}
@@ -187,17 +196,17 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
                           ?
                           <div onClick={() => { unLikePost(post._id) }}>
                             <AiFillHeart className="cursor-pointer" />
-                            <p>{post.likes.length} likes</p>
+                            <p>{(post && post.likes) && post.likes.length} likes</p>
                           </div>
                           :
                           <div onClick={() => { likePost(post._id) }}>
                             <AiOutlineHeart className="cursor-pointer" />
-                            <p>{post.likes.length} likes</p>
+                            <p>{(post && post.likes) && post.likes.length} likes</p>
                           </div>
                       }
                       {/* <FaRegComment style={{ cursor: 'pointer' }} onClick={() => { router.push("/post/" + post._id); }} /> */}
                       <div className="cursor-pointer">
-                        <FaRegComment  onClick={() => { setPost(post); setModal(true); }} />
+                        <FaRegComment onClick={() => { setPost(post); setModal(true); }} />
                         {
                           (post.comments && post.comments.length > 0)
                           &&
@@ -223,7 +232,13 @@ export default function ImagePost({ postFilter, previousPostFilter, date1, date2
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+              :
+              <div className="text-center pt-4 pb-3">
+                <p className="text-2xl">Start Following more people to see post here</p>
+                <Link href={'/search'}>You can explore more post here &gt;</Link>
+              </div>
+            }
           </div>
         </InfiniteScroll>
       </div>
