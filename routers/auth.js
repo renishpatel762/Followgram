@@ -10,6 +10,7 @@ const { JWT_SECRET } = require("../config/keys");
 const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 const { SENDGRID_API, EMAIL } = require("../config/keys");
+const { log } = require("console");
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -82,6 +83,8 @@ router.post("/signup", (req, res) => {
                   .toString()
                   .substring(0, 6);
                 // console.log(otp);
+                // <p>It will be valid for the next 10 minutes.</p>
+
                 transporter.sendMail({
                   to: email,
                   from: "officialfollowgram@gmail.com",
@@ -90,8 +93,8 @@ router.post("/signup", (req, res) => {
                         <h2>OTP for verification is</h2>
                         <h1>${otp}</h1>
                         <br />
-                        <p>It will be valid for the next 10 minutes.</p>
                         <p>Please do not share with anyone.</p>
+                        <p>It will be valid for the next 5 minutes.</p>
                         <br />
                         <h3>Thank you</h3>
                     </div>`,
@@ -99,6 +102,7 @@ router.post("/signup", (req, res) => {
                 const auth = new Auth({
                   email,
                   otp,
+                  expireAt:Date.now() + 300000
                 });
                 auth
                   .save()
@@ -165,49 +169,101 @@ router.post("/verify", (req, res) => {
       .json({ success: false, error: "please add email and password" });
     return;
   }
-  Auth.findOne({ email: email, otp: otp })
+
+  Auth.findOne({ expireAt: {$gt:Date.now()}, email: email })
     // change this find only by email and if otp is incorrect then ssend invalid otp
     .then((authenticated) => {
+      console.log("authenticated",authenticated);
       if (!authenticated) {
         return res
           .status(422)
           .json({
             success: false,
-            error: "Invalid try again",
+            error: "Otp expired.",
+            isOtpExpired:true
+          });
+      } else if (authenticated.otp == otp) {
+        //setting isVerified true
+        User.findOneAndUpdate({ email: email }, { isVerified: true }) //deleting data
+          .then((user) => {
+            // for sending mail
+            transporter.sendMail({
+              to: email,
+              from: "officialfollowgram@gmail.com",
+              subject: "Signup successfully",
+              html: `<div>
+                      <h1>Thanks for Signin Up</h1>
+                      <br />
+                      <p>welcome to Followgram, Start Explporing</p>
+                      <br />
+                   </div>`,
+            });
+            User.findOne({ email: email })
+              .then((savedUser) => {
+                const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
+                const { _id, name, email, followers, following, mediaPost, textPost, pic } = savedUser;
+                res.json({
+                  success: true,
+                  token,
+                  user: { _id, name, email, followers, following, mediaPost, textPost, pic },
+                });
+              })
+              .catch((err) => console.error(err));
+            Auth.deleteOne({ email: email })
+              .then((suc) => {
+                // console.log("Auth removed");
+              })
+              .catch((err) => console.error(err));
+          })
+          .catch((err) => console.error(err));
+      } else {
+        return res
+          .status(422)
+          .json({
+            success: false,
+            error: "Invalid otp try again.",
           });
       }
-      //setting isVerified true
-      User.findOneAndUpdate({ email: email }, { isVerified: true }) //deleting data
-        .then((user) => {
-          // for sending mail
-          transporter.sendMail({
-            to: email,
-            from: "officialfollowgram@gmail.com",
-            subject: "Signup successfully",
-            html: "<h1>welcome to Followgram</h1>",
-          });
-          User.findOne({ email: email })
-            .then((savedUser) => {
-              const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
-              const { _id, name, email, followers, following, mediaPost, textPost, pic } = savedUser;
-              res.json({
-                success: true,
-                token,
-                user: { _id, name, email, followers, following, mediaPost, textPost, pic },
-              });
-            })
-            .catch((err) => console.error(err));
-          Auth.deleteOne({ email: email })
-            .then((suc) => {
-              // console.log("Auth removed");
-            })
-            .catch((err) => console.error(err));
-        })
-        .catch((err) => console.error(err));
     })
     .catch((err) => console.error(err));
 });
 
+router.post("/resendotp", (req, res) => {
+  const { email } = req.body;
+  console.log("req.body is", req.body);
+  crypto.randomBytes(3, (err, buffer) => {
+    if (err) {
+      console.log(err);
+    }
+    const otp = parseInt(buffer.toString("hex"), 16)
+      .toString()
+      .substring(0, 6);
+    // console.log(otp);
+    // <p>It will be valid for the next 10 minutes.</p>
+
+    transporter.sendMail({
+      to: email,
+      from: "officialfollowgram@gmail.com",
+      subject: "OTP verification",
+      html: `<div>
+            <h2>OTP for verification is</h2>
+            <h1>${otp}</h1>
+            <br />
+            <p>Please do not share with anyone.</p>
+            <p>It will be valid for the next 5 minutes.</p>
+            <br />
+            <h3>Thank you</h3>
+        </div>`,
+    });
+    Auth.findOneAndUpdate({email:email},{otp:otp,expireAt:Date.now() + 300000})
+    .then(auth=>{
+      console.log(auth);
+      res.json({success:true,message:"Otp resend successfull"})
+    }).catch(err=>
+      console.error(err)
+    )
+  });
+});
 // router.delete('/deleteaccount',())
 
 module.exports = router;
