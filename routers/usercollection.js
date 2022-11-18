@@ -7,7 +7,7 @@ const Usercollection = mongoose.model("Usercollection");
 const requireLogin = require('../middleware/requireLogin');
 
 router.post('/createcollection', requireLogin, (req, res) => {
-    console.log(req.user._id);
+    // console.log(req.user._id);
     const { name } = req.body;
 
     if (!name) {
@@ -49,7 +49,7 @@ router.get('/getcollections', requireLogin, (req, res) => {
 
 });
 router.post('/getuserscollections', requireLogin, (req, res) => {
-    console.log("getuserscollections called", req.body);
+    // console.log("getuserscollections called", req.body);
     Usercollection.find({ createdBy: req.body.uid })
         // .populate("createdBy")    
         .populate("imagePost")
@@ -84,7 +84,7 @@ router.get('/getcollectionlist', requireLogin, (req, res) => {
 
 router.post('/addtocollection', requireLogin, (req, res) => {
     const { collid, postid, type } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     // let addtoName = "";
     if (type === "Media") {
         // addtoName = "imagePost";
@@ -117,7 +117,7 @@ router.post('/addtocollection', requireLogin, (req, res) => {
 
 router.post('/removefromcollection', requireLogin, (req, res) => {
     const { collid, postid, type } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     // let addtoName = "";
     if (type === "Media") {
         // addtoName = "imagePost";
