@@ -124,7 +124,7 @@ router.post("/signup", (req, res) => {
 });
 router.post("/signin", (req, res) => {
   const { email, password } = req.body;
-  console.log("req.body is", req.body);
+  // console.log("req.body is", req.body);
   if (!email || !password) {
     res
       .status(422)
@@ -153,9 +153,9 @@ router.post("/signin", (req, res) => {
             .status(422)
             .json({ success: false, error: "Invalid Email or password" });
         }
-      })
+      })/account
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
       });
   });
 });
@@ -173,7 +173,7 @@ router.post("/verify", (req, res) => {
   Auth.findOne({ expireAt: {$gt:Date.now()}, email: email })
     // change this find only by email and if otp is incorrect then ssend invalid otp
     .then((authenticated) => {
-      console.log("authenticated",authenticated);
+      // console.log("authenticated",authenticated);
       if (!authenticated) {
         return res
           .status(422)
@@ -194,7 +194,7 @@ router.post("/verify", (req, res) => {
               html: `<div>
                       <h1>Thanks for Signin Up</h1>
                       <br />
-                      <p>welcome to Followgram, Start Explporing</p>
+                      <p>welcome to Followgram, Start Exploring</p>
                       <br />
                    </div>`,
             });
@@ -230,7 +230,7 @@ router.post("/verify", (req, res) => {
 
 router.post("/resendotp", (req, res) => {
   const { email } = req.body;
-  console.log("req.body is", req.body);
+  // console.log("req.body is", req.body);
   crypto.randomBytes(3, (err, buffer) => {
     if (err) {
       console.log(err);
@@ -257,7 +257,7 @@ router.post("/resendotp", (req, res) => {
     });
     Auth.findOneAndUpdate({email:email},{otp:otp,expireAt:Date.now() + 300000})
     .then(auth=>{
-      console.log(auth);
+      // console.log(auth);
       res.json({success:true,message:"Otp resend successfull"})
     }).catch(err=>
       console.error(err)

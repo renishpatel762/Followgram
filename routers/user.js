@@ -7,7 +7,7 @@ const requireLogin = require('../middleware/requireLogin');
 
 //get another user detail
 router.get('/user/:id', requireLogin, (req, res) => {
-    console.log("user/id called");
+    // console.log("user/id called");
     User.findOne({ _id: req.params.id })
         .populate("following", "_id name pic")
         .populate("followers", "_id name pic")
@@ -43,8 +43,8 @@ router.post('/userpost', requireLogin, (req, res) => {
 
     //or do with array that user have directly
     const { limit, page, category } = req.query;
-    console.log(req.query);
-    console.log("body is", req.body);
+    // console.log(req.query);
+    // console.log("body is", req.body);
     Post.find({ postedBy: req.body.uid, type: category })
         .populate("postedBy", "_id name pic")
         .populate("comments.postedBy", "_id name pic")
@@ -53,7 +53,7 @@ router.post('/userpost', requireLogin, (req, res) => {
         .limit(parseInt(limit))
         .then(mypost => {
             res.json(mypost);
-            console.log("from server my posts are", mypost);
+            // console.log("from server my posts are", mypost);
         })
         .catch(err => {
             console.log(err);
@@ -108,7 +108,7 @@ router.put('/unfollow', requireLogin, (req, res) => {
 });
 
 router.post('/accountsearch', requireLogin, (req, res) => {
-    console.log("accountsearch");
+    // console.log("accountsearch");
     // let userPattern = new RegExp("^" + req.body.searchquery)
     let userPattern = new RegExp(req.body.searchquery)
 
@@ -116,14 +116,14 @@ router.post('/accountsearch', requireLogin, (req, res) => {
         //change to name or content based search
         .select("_id email name pic")
         .then(accountdata => {
-            console.log("accountdata", accountdata);
+            // console.log("accountdata", accountdata);
             res.json({ success: true, accountdata })
         }).catch(err => {
-            console.log({ success: false, err });
+            // console.log({ success: false, err });
         })
 })
 router.post('/mediasearch', requireLogin, (req, res) => {
-    console.log("mediasearch");
+    // console.log("mediasearch");
     let postPattern = new RegExp(req.body.searchquery)
 
     Post.find({ type: "Media", body: { $regex: postPattern, $options: '/i' } })
@@ -134,15 +134,15 @@ router.post('/mediasearch', requireLogin, (req, res) => {
         .populate("comments.postedBy", "_id name pic")
         .sort('-createdAt')
         .then(mediadata => {
-            console.log("mediadata", mediadata);
+            // console.log("mediadata", mediadata);
             res.json({ success: true, mediadata })
         }).catch(err => {
-            console.log({ success: false, err });
+            // console.log({ success: false, err });
         })
 })
 
 router.post('/textpostsearch', requireLogin, (req, res) => {
-    console.log("textpostsearch");
+    // console.log("textpostsearch");
 
     let textPostPattern = new RegExp(req.body.searchquery)
     let category = ['Joke', "Shayari", "Quote"]
@@ -153,10 +153,10 @@ router.post('/textpostsearch', requireLogin, (req, res) => {
         .populate("comments.postedBy", "_id name pic")
         .sort('-createdAt')
         .then(textpostdata => {
-            console.log("mediadata", textpostdata);
+            // console.log("mediadata", textpostdata);
             res.json({ success: true, textpostdata })
         }).catch(err => {
-            console.log({ success: false, err });
+            // console.log({ success: false, err });
         })
 });
 
@@ -171,7 +171,7 @@ router.put('/updateprofilepic', requireLogin, (req, res) => {
         })
 });
 router.get('/getuser', requireLogin, (req, res) => {
-    console.log("user/id called");
+    // console.log("user/id called");
     User.findOne({ _id: req.user._id })
         .select("-password")
         // .populate("following","_id name pic")
@@ -183,7 +183,7 @@ router.get('/getuser', requireLogin, (req, res) => {
         })
 });
 router.get('/getuserdata', requireLogin, (req, res) => {
-    console.log("user/id called");
+    // console.log("user/id called");
     User.findOne({ _id: req.user._id })
         .select("-password")
         .populate("following", "_id name pic")
