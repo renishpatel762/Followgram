@@ -72,8 +72,6 @@ router.put('/follow', requireLogin, (req, res) => {
         User.findByIdAndUpdate(req.user._id, {
             $push: { following: req.body.followId }
         }, { new: true })
-            // .populate("following", "_id name pic")
-            // .populate("followers", "_id name pic")
             .select("-password")
             .then(data => {
                 res.json({ success: true, data })
@@ -96,8 +94,6 @@ router.put('/unfollow', requireLogin, (req, res) => {
         User.findByIdAndUpdate(req.user._id, {
             $pull: { following: req.body.unfollowId }
         }, { new: true })
-            // .populate("following", "_id name pic")
-            // .populate("followers", "_id name pic")
             .select("-password").then(data => {
                 res.json({ success: true, data })
             }).catch(err => {
@@ -108,12 +104,9 @@ router.put('/unfollow', requireLogin, (req, res) => {
 });
 
 router.post('/accountsearch', requireLogin, (req, res) => {
-    // console.log("accountsearch");
-    // let userPattern = new RegExp("^" + req.body.searchquery)
     let userPattern = new RegExp(req.body.searchquery)
 
     User.find({ name: { $regex: userPattern, $options: '/i' } })
-        //change to name or content based search
         .select("_id email name pic")
         .then(accountdata => {
             // console.log("accountdata", accountdata);
@@ -128,7 +121,6 @@ router.post('/mediasearch', requireLogin, (req, res) => {
 
     Post.find({ type: "Media", body: { $regex: postPattern, $options: '/i' } })
 
-        //change to name or content based search
         .select("_id title photo body likes comments postedBy")
         .populate("postedBy")
         .populate("comments.postedBy", "_id name pic")
@@ -153,10 +145,9 @@ router.post('/textpostsearch', requireLogin, (req, res) => {
         .populate("comments.postedBy", "_id name pic")
         .sort('-createdAt')
         .then(textpostdata => {
-            // console.log("mediadata", textpostdata);
             res.json({ success: true, textpostdata })
         }).catch(err => {
-            // console.log({ success: false, err });
+            console.log(err);
         })
 });
 
@@ -171,11 +162,8 @@ router.put('/updateprofilepic', requireLogin, (req, res) => {
         })
 });
 router.get('/getuser', requireLogin, (req, res) => {
-    // console.log("user/id called");
     User.findOne({ _id: req.user._id })
         .select("-password")
-        // .populate("following","_id name pic")
-        // .populate("followers","_id name pic")
         .then(user => {
             res.json({ success: true, user })
         }).catch(err => {

@@ -20,29 +20,6 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-// router.get('/getotp', (req, res) => {
-//     console.log("get otp called");
-//     crypto.randomBytes(3, (err, buffer) => {
-//         if (err) {
-//             console.log(err);
-//         }
-
-//         const otp = parseInt(buffer.toString("hex"), 16)
-//             .toString()
-//             .substring(0, 6)
-//         console.log(otp);
-
-//         // res.status(200).json(otp)
-//         transporter.sendMail({
-//             to: "renishpatel2505@gmail.com",
-//             from: "officialfollowgram@gmail.com",
-//             subject: "OTP verification",
-//             html: `<h1>OTP for verification is ${otp}</h1>`
-//         })
-//         res.json({ message: "check your mailbox" })
-//     })
-
-// });
 router.post("/signup", (req, res) => {
   const { name, email, password, pic } = req.body;
   if (!email || !password || !name) {
@@ -83,7 +60,6 @@ router.post("/signup", (req, res) => {
                   .toString()
                   .substring(0, 6);
                 // console.log(otp);
-                // <p>It will be valid for the next 10 minutes.</p>
 
                 transporter.sendMail({
                   to: email,
@@ -153,7 +129,7 @@ router.post("/signin", (req, res) => {
             .status(422)
             .json({ success: false, error: "Invalid Email or password" });
         }
-      })/account
+      })
       .catch((err) => {
         // console.log(err);
       });
@@ -239,7 +215,6 @@ router.post("/resendotp", (req, res) => {
       .toString()
       .substring(0, 6);
     // console.log(otp);
-    // <p>It will be valid for the next 10 minutes.</p>
 
     transporter.sendMail({
       to: email,
@@ -264,6 +239,5 @@ router.post("/resendotp", (req, res) => {
     )
   });
 });
-// router.delete('/deleteaccount',())
 
 module.exports = router;

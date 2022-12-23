@@ -3,10 +3,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const {MONGOURI} = require('./config/keys');
-// app.get('/',(req,res)=>{
-//     console.log("Welcome to home");
-//     res.json({message:"Hello"})
-//})
 
 mongoose.connect(MONGOURI,{
     useNewUrlParser: true,

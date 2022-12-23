@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-// const User=mongoose.model("User");
 const Post = mongoose.model("Post");
 const User = mongoose.model("User");
 const Usercollection = mongoose.model("Usercollection");
@@ -33,8 +32,6 @@ router.get('/followingpost', requireLogin, (req, res) => {
         var end = new Date();
         end.setHours(23, 59, 59, 999);
 
-        // let tday = Date.now();
-        // console.log("tday", tday);
         Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
             .populate("postedBy", "_id name pic")
             .populate("comments.postedBy", "_id name pic")
@@ -55,10 +52,6 @@ router.get('/followingpost', requireLogin, (req, res) => {
         // console.log(start);
         var end = new Date();
         end.setHours(23, 59, 59, 999);
-        // console.log(end);
-
-        // let tday = Date.now();
-        // console.log("tday", tday);
         Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
             .populate("postedBy", "_id name pic")
             .populate("comments.postedBy", "_id name pic")
@@ -79,10 +72,6 @@ router.get('/followingpost', requireLogin, (req, res) => {
         // console.log(start);
         var end = new Date();
         end.setHours(23, 59, 59, 999);
-        // console.log(end);
-
-        // let tday = Date.now();
-        // console.log("tday", tday);
         Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
             .populate("postedBy", "_id name pic")
             .populate("comments.postedBy", "_id name pic")
@@ -104,16 +93,10 @@ router.get('/followingpost', requireLogin, (req, res) => {
             // console.log(start);
             var end = new Date(date2);
             end.setHours(23, 59, 59, 999);
-            // console.log(end);
-
-            // let tday = Date.now();
-            // console.log("tday", tday);
             Post.find({ createdAt: { $gte: start, $lt: end }, type: category, postedBy: { $in: req.user.following } })
                 .populate("postedBy", "_id name pic")
                 .populate("comments.postedBy", "_id name pic")
                 .sort('-createdAt')//sort in descending order
-                // .skip((parseInt(page) - 1) * parseInt(limit))
-                // .limit(parseInt(limit))
                 .then(posts => {
                     res.json(posts);
                 })
@@ -155,10 +138,7 @@ router.post('/getpostdetail', requireLogin, (req, res) => {
         });
 });
 router.post('/createpost', requireLogin, (req, res) => {
-    // console.log("createpost called");
     const { title, body, type, pic } = req.body;
-    // console.log(req.body);
-    // console.log(pic);
     if (!type) {
         return res.status(422).json({ success: false, error: "Please add all the fields" });
     }
@@ -178,7 +158,6 @@ router.post('/createpost', requireLogin, (req, res) => {
         postedBy: req.user._id
     });
     post.save().then(result => {
-        // console.log("result is", result);
         if (type === "Media") {
             User.findByIdAndUpdate(req.user._id, {
                 $push: { mediaPost: result._id }
@@ -206,18 +185,6 @@ router.post('/createpost', requireLogin, (req, res) => {
                 res.json({ success: false, error: "Something went wrong try again..." });
             })
         }
-        // User.findByIdAndUpdate(req.user._id, {
-        //     $push: { posts: result._id }
-        // }, {
-        //     new: true
-        // }).then(user => {
-        //     const { _id, name, email, posts, followers, following, pic } = user;
-        //     // console.log("ussssser is", user);
-        //     res.json({ success: true, user: { _id, name, email, posts, followers, following, pic }, post: result });
-        // }).catch(err => {
-        //     console.error(err);
-        //     res.json({ success: false, error: "Something went wrong try again..." });
-        // })
     })
         .catch(err => {
             console.log(err);
@@ -256,7 +223,6 @@ router.put('/like', requireLogin, (req, res) => {
             if (err) {
                 return res.status(422).json({ success: false, error: err })
             } else {
-                // console.log(res);
                 res.json(result)
             }
         })
@@ -274,7 +240,6 @@ router.put('/unlike', requireLogin, (req, res) => {
             if (err) {
                 return res.status(422).json({ success: false, error: err })
             } else {
-                // console.log(res);
                 res.json(result)
             }
         })
@@ -304,7 +269,6 @@ router.put('/comment', requireLogin, (req, res) => {
 router.post('/gettag', requireLogin, (req, res) => {
     // console.log(req.query);
     const { limit, page, category } = req.query;
-    // console.log("tagpostsearch", req.body);
 
     let tagname = new RegExp("#" + req.body.tagname)
 

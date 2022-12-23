@@ -25,19 +25,11 @@ router.post('/createcollection', requireLogin, (req, res) => {
     })
 });
 
-// .populate("postedBy", "_id name pic")
-// .populate("comments.postedBy", "_id name pic")
-
 
 router.get('/getcollections', requireLogin, (req, res) => {
     Usercollection.find({ createdBy: req.user._id })
-        // .populate("createdBy")    
         .populate("imagePost")
         .populate("textPost")
-        // .populate("createdBy")
-        // .populate("imagePost.comments.postedBy")
-        // .populate("imagePost.postedBy","_id name pic")
-        // .populate("textPost.postedBy","_id name pic")
         .sort('-createdAt')
         .then(usercoll => {
             // console.log(mycoll);
@@ -67,10 +59,6 @@ router.post('/getuserscollections', requireLogin, (req, res) => {
 });
 router.get('/getcollectionlist', requireLogin, (req, res) => {
     Usercollection.find({ createdBy: req.user._id })
-        // .populate("createdBy")    
-        // .populate("imagePost")
-        // .populate("imagePost.postedBy")
-        // .populate("textPost")
         .sort('-createdAt')
         .then(usercoll => {
             // console.log(mycoll);
@@ -84,8 +72,6 @@ router.get('/getcollectionlist', requireLogin, (req, res) => {
 
 router.post('/addtocollection', requireLogin, (req, res) => {
     const { collid, postid, type } = req.body;
-    // console.log(req.body);
-    // let addtoName = "";
     if (type === "Media") {
         // addtoName = "imagePost";
         Usercollection.findByIdAndUpdate(collid, { $push: { imagePost: postid } }, {
@@ -117,8 +103,6 @@ router.post('/addtocollection', requireLogin, (req, res) => {
 
 router.post('/removefromcollection', requireLogin, (req, res) => {
     const { collid, postid, type } = req.body;
-    // console.log(req.body);
-    // let addtoName = "";
     if (type === "Media") {
         // addtoName = "imagePost";
         Usercollection.findByIdAndUpdate(collid, { $pull: { imagePost: postid } }, {
