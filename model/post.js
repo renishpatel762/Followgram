@@ -4,7 +4,6 @@ const {ObjectId} = mongoose.Schema.Types
 const postSchema = new mongoose.Schema({
     body:{
         type:String,
-        // required:true
     },
     type:{
         type:String,
@@ -12,10 +11,8 @@ const postSchema = new mongoose.Schema({
     },
     photo:{
         type:String,
-        // required:true
     },
     likes:[{type:ObjectId,ref:"User"}],
-    //remark
     comments:[{
         text:String,
         postedBy:{type:ObjectId,ref:"User"}
